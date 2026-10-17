@@ -4,7 +4,6 @@
     -webkit-user-select: none; 
     touch-action: manipulation; 
     font-family: Arial, sans-serif;
-    /* Убираем синий/серый квадрат при нажатии на телефоне */
     -webkit-tap-highlight-color: transparent; 
     outline: none;
 }
@@ -17,7 +16,6 @@ body {
     overflow: hidden; 
     display: flex; 
     flex-direction: column; 
-    /* Фон */
     background-image: url('images/fon.jpg'); 
     background-size: cover; 
     background-position: center; 
@@ -25,13 +23,12 @@ body {
 }
 a { text-decoration: none; }
 
-/* Запрещаем браузеру предлагать сохранить картинку по долгому нажатию */
+/* Запрещаем скачивание картинок */
 img { 
     -webkit-touch-callout: none; 
-    pointer-events: none; /* Картинки не перехватывают клики, клик идет на родительский блок */
+    pointer-events: none; 
 }
 
-/* Полупрозрачный фон для экранов */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: rgba(26, 26, 36, 0.85); z-index: 10; }
 .screen.active { display: flex; }
 
@@ -48,15 +45,17 @@ img {
 
 /* Выбор рассы */
 .race-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; margin-top: auto; margin-bottom: auto; }
-.race-wrapper { cursor: pointer; display: flex; justify-content: center; padding: 5px; }
+.race-wrapper { cursor: pointer; display: flex; justify-content: center; padding: 5px; pointer-events: auto; }
 .race-wrapper:active { transform: scale(1.1); transition: 0.1s; }
 .race-img { width: 100%; max-width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.8)); }
 
 /* Главный экран */
 .top-bar { display: flex; justify-content: space-between; padding: 10px; align-items: flex-start; }
 .balance { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; font-size: 18px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 10px; }
-.character-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; }
-.character-container { position: relative; }
+
+/* Игровая зона */
+.character-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; pointer-events: auto; }
+.character-container { position: relative; pointer-events: none; /* Чтобы клик проходил на сам character-area */ }
 .character { width: 280px; height: 280px; object-fit: contain; transition: transform 0.05s; filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)); }
 .character-area:active .character { transform: scale(0.95); }
 
