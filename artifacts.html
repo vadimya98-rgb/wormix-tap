@@ -4,68 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Артефакты</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">← Назад</a>
-        <div class="balance">
-            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
-            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
-        </div>
+        <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
-    
-    <div class="content" id="shop-list">
-        <!-- Список будет сгенерирован автоматически -->
-    </div>
-
-    <script src="script.js"></script>
+    <div class="content" id="shop-list"></div>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
-        let basePrice = 1500; // Артефакты дороже
+        let basePrice = 1500; 
 
-        // Перебираем все артефакты из базы данных
         for (let id in allArtifacts) {
-            // Если артефакт уже куплен, пропускаем
             if (player.artifacts.includes(id)) continue; 
-
             list.innerHTML += `
                 <div class="item-card" id="card-${id}">
                     <img src="${allArtifacts[id].img}" class="item-icon">
-                    <div style="flex-grow:1;">
-                        <b>${allArtifacts[id].name}</b><br>
-                        <span style="color:#aaa; font-size:12px;">${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span>
-                    </div>
-                    <button class="btn-buy" onclick="buyItem('${id}', ${basePrice})">
-                        ${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;">
-                    </button>
+                    <div style="flex-grow:1;"><b>${allArtifacts[id].name}</b><br><span style="color:#aaa; font-size:12px;">${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span></div>
+                    <button class="btn-buy" onclick="buyItem('${id}', ${basePrice})">${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;"></button>
                 </div>
             `;
         }
-
-        if (list.innerHTML.trim() === "") {
-            list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Вы скупили все артефакты!</div>';
-        }
+        if (list.innerHTML.trim() === "") list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Вы скупили все артефакты!</div>';
 
         function buyItem(id, price) {
             if (player.fuzes >= price) {
-                player.fuzes -= price;
-                player.artifacts.push(id);
-                player.artifactTiers[id] = 0;
-                
-                saveGame();
-                updateBalanceUI();
-                showToast("Куплено!");
-                
-                // Плавно убираем карточку
+                player.fuzes -= price; player.artifacts.push(id); player.artifactTiers[id] = 0;
+                saveGame(); updateBalanceUI(); showToast("Куплено!");
                 let card = document.getElementById('card-' + id);
-                card.style.opacity = '0';
-                setTimeout(() => { card.remove(); }, 300);
-                
-            } else { 
-                showToast("Недостаточно средств!", true); 
-            }
+                card.style.opacity = '0'; setTimeout(() => { card.remove(); }, 300);
+            } else { showToast("Недостаточно средств!", true); }
         }
     </script>
 </body>
