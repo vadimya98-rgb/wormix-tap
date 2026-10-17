@@ -16,8 +16,8 @@
     </div>
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
-    <!-- Обработчик onclick убран, теперь работает через JS -->
-    <div class="character-area" id="tap-area">
+    <!-- Используем onpointerdown для мгновенного срабатывания -->
+    <div class="character-area" id="tap-area" onpointerdown="tap(event)">
         <div class="character-container">
             <img class="character" id="character" src="">
             <img id="equipped-hat" src="">
@@ -46,20 +46,15 @@
             let earned = 5 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            // ИЗМЕНЕНО: Шанс выпадения рубина теперь 1% (было 0.10)
+            // ШАНС РУБИНА 1% (выпадает редко, как вы и просили)
             let isRuby = Math.random() < 0.01; 
             if (isRuby) player.rubies += 1;
 
             updateBalanceUI();
             saveGame();
             
-            // Получаем координаты для телефона и ПК
             let clientX = event.clientX;
             let clientY = event.clientY;
-            if (event.type === 'touchstart') {
-                clientX = event.touches[0].clientX;
-                clientY = event.touches[0].clientY;
-            }
             
             let text = document.createElement('div');
             text.className = 'floating-text';
@@ -71,17 +66,6 @@
             document.body.appendChild(text);
             setTimeout(() => text.remove(), 800);
         }
-
-        // Новый способ обработки нажатий (работает идеально на Android)
-        const tapArea = document.getElementById('tap-area');
-        tapArea.addEventListener('touchstart', function(e) {
-            e.preventDefault(); // Убирает задержку и двойные клики
-            tap(e);
-        }, {passive: false});
-        
-        tapArea.addEventListener('mousedown', function(e) {
-            tap(e);
-        });
     </script>
 </body>
 </html>
