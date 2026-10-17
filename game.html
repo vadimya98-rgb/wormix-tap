@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
-        <!-- ИЗМЕНЕНО НАЗВАНИЕ КНОПКИ -->
-        <a href="menu.html" class="btn-back">☰ Магаз</a>
+        <a href="menu.html" class="btn-back">☰ Меню</a>
         <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -21,23 +20,30 @@
         <div class="character-container">
             <img class="character" id="character" src="">
             <img id="equipped-hat" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
+            <img id="equipped-artifact" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
         </div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         document.getElementById('character').src = player.race;
         
+        // Загружаем Шапку
         let hatImg = document.getElementById('equipped-hat');
-        if (player.equippedHat) {
-            let hatSrc = player.equippedHat === 'hat_legend' ? 'images/hat_legend.png' : 
-                        (player.equippedHat === 'hat2' ? 'images/hat_warrior.png' : 'images/hat_novice.png');
-            hatImg.src = hatSrc;
+        if (player.equippedHat && allHats[player.equippedHat]) {
+            hatImg.src = allHats[player.equippedHat].img;
             hatImg.style.display = 'block';
-            
-            // Применяем фильтр редкости
             let tier = player.hatTiers[player.equippedHat] || 0;
             hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+        }
+
+        // Загружаем Артефакт
+        let artImg = document.getElementById('equipped-artifact');
+        if (player.equippedArtifact && allArtifacts[player.equippedArtifact]) {
+            artImg.src = allArtifacts[player.equippedArtifact].img;
+            artImg.style.display = 'block';
+            let tier = player.artifactTiers[player.equippedArtifact] || 0;
+            artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
         }
 
         updateBalanceUI();
