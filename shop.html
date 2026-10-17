@@ -4,18 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">← Назад</a>
-        <div class="balance">
-            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
-        </div>
+        <div class="balance"><div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
         const boosts = [
@@ -50,13 +48,8 @@
                 let now = Date.now();
                 if (player.boostEndTime > now) { player.boostEndTime += b.time * 60000; } 
                 else { player.boostEndTime = now + (b.time * 60000); }
-                
-                saveGame();
-                updateBalanceUI();
-                showToast(`Буст "${b.name}" активирован!`);
-            } else {
-                showToast("Недостаточно рубинов!", true);
-            }
+                saveGame(); updateBalanceUI(); showToast(`Буст активирован!`);
+            } else { showToast("Недостаточно средств!", true); }
         }
     </script>
 </body>
