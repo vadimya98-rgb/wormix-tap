@@ -4,53 +4,37 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Перекрафт</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
         <a href="craft.html" class="btn-back">← К списку</a>
-        <div class="balance">
-            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
-            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
-        </div>
+        <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
-    <div class="content">
-        <div id="craft-ui"></div>
-    </div>
+    <div class="content"><div id="craft-ui"></div></div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
-        
-        // Получаем ID шапки из URL (например, craft-detail.html?id=hat1)
         const urlParams = new URLSearchParams(window.location.search);
-        const hatId = urlParams.get('id');
+        const itemId = urlParams.get('id');
+        const itemType = urlParams.get('type');
         
-        const allHats = {
-            'hat1': { name: 'Шапка Новичка', img: 'images/hat_novice.png' },
-            'hat2': { name: 'Шапка Воина', img: 'images/hat_warrior.png' },
-            'hat_legend': { name: 'Легендарная Шапка', img: 'images/hat_legend.png' }
-        };
+        let itemData = itemType === 'hat' ? allHats[itemId] : allArtifacts[itemId];
+        let playerTiers = itemType === 'hat' ? player.hatTiers : player.artifactTiers;
 
-        if (!hatId || !allHats[hatId]) {
-            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center;'>Шапка не найдена</h3>";
+        if (!itemId || !itemData) {
+            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center;'>Ошибка: Предмет не найден</h3>";
         } else {
             renderCraftPage();
         }
 
         function renderCraftPage() {
-            let tier = player.hatTiers[hatId] || 0;
+            let tier = playerTiers[itemId] || 0;
             let ui = document.getElementById('craft-ui');
-            let hatData = allHats[hatId];
             
             if (tier === 3) {
-                ui.innerHTML = `
-                    <div class="craft-result" style="flex-direction:column;">
-                        <img src="${hatData.img}" style="width:100px; height:100px;" class="tier-gold">
-                        <h3 style="margin:10px 0; color:#FFD700;">Золото (Максимум)</h3>
-                        <p>Эта шапка достигла максимального уровня!</p>
-                    </div>
-                `;
+                ui.innerHTML = `<div class="craft-result" style="flex-direction:column;"><img src="${itemData.img}" style="width:100px; height:100px;" class="tier-gold"><h3 style="margin:10px 0; color:#FFD700;">Золото (Максимум)</h3><p>Достигнут максимальный уровень!</p></div>`;
                 return;
             }
 
@@ -63,51 +47,37 @@
                 <div class="craft-result" style="flex-direction:column;">
                     <div style="display:flex; gap:20px; align-items:center;">
                         <div style="text-align:center;">
-                            <img src="${hatData.img}" style="width:80px; height:80px;" class="${tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : '')}">
+                            <img src="${itemData.img}" style="width:80px; height:80px;" class="${tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : '')}">
                             <div style="font-size:12px;">Сейчас</div>
                         </div>
                         <div style="font-size:30px; color:#888;">➡</div>
                         <div style="text-align:center;">
-                            <img src="${hatData.img}" style="width:80px; height:80px;" class="${nextTierClass}">
+                            <img src="${itemData.img}" style="width:80px; height:80px;" class="${nextTierClass}">
                             <div style="font-size:12px; color:#FFD700; font-weight:bold;">${nextTierName}</div>
                         </div>
                     </div>
-                    <h3 style="margin:15px 0 5px 0;">Шанс успеха: ${chance}%</h3>
-                    <p style="color:#aaa; font-size:12px; margin:0;">При неудаче шапка не ломается, но фузы сгорают.</p>
+                    <h3 style="margin:15px 0 5px 0;">Шанс: ${chance}%</h3>
                 </div>
-                
                 <button id="btn-craft" class="btn-green" style="display:flex; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doRecraft(${chance}, ${price})">
                     Пересобрать (${price} <img src="images/fuz.png" class="coin-icon" style="width:20px; height:20px; margin:0;">)
                 </button>
-                
                 <div id="result-text" style="text-align:center; margin-top:20px; font-weight:bold; font-size:18px; text-shadow: 1px 1px 2px black;"></div>
             `;
         }
 
         function doRecraft(chance, price) {
-            if (player.fuzes < price) {
-                showToast("Недостаточно средств!", true);
-                return;
-            }
-            
+            if (player.fuzes < price) { showToast("Недостаточно средств!", true); return; }
             player.fuzes -= price;
             let success = Math.random() * 100 < chance;
             let resultText = document.getElementById('result-text');
             
             if (success) {
-                player.hatTiers[hatId] += 1; // Повышаем уровень
-                resultText.style.color = "#FFD700";
-                resultText.innerText = "🎉 УСПЕХ! Редкость повышена! 🎉";
+                playerTiers[itemId] += 1;
+                resultText.style.color = "#FFD700"; resultText.innerText = "🎉 УСПЕХ! Редкость повышена! 🎉";
             } else {
-                resultText.style.color = "#FF5252";
-                resultText.innerText = "Увы, ничего не вышло. Попробуйте еще раз.";
+                resultText.style.color = "#FF5252"; resultText.innerText = "Увы, ничего не вышло.";
             }
-            
-            saveGame();
-            updateBalanceUI();
-            
-            // Перерисовываем страницу через 2 секунды, чтобы увидеть текст
-            setTimeout(() => { renderCraftPage(); }, 2000);
+            saveGame(); updateBalanceUI(); setTimeout(() => { renderCraftPage(); }, 2000);
         }
     </script>
 </body>
