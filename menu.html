@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Меню</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="game.html" class="btn-back">← В игру</a>
+        <div class="balance">
+            <div>💎 <span id="ui-fuzes">0</span></div>
+            <div style="color:#FF5252">🔴 <span id="ui-rubies">0</span></div>
+        </div>
+    </div>
+    <div class="content" style="display:flex; flex-direction:column; justify-content:center; gap:5px;">
+        <a href="race.html" class="btn-green">Расса</a>
+        <a href="hats.html" class="btn-green">Шапки</a>
+        <a href="artifacts.html" class="btn-green">Артефакты</a>
+        <a href="craft.html" class="btn-green">Крафт</a>
+        <a href="shop.html" class="btn-green" style="background:#FF9800;">Магазин</a>
+    </div>
+    <script src="script.js"></script>
+    <script>updateBalanceUI();</script>
+</body>
+</html>
