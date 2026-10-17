@@ -2,7 +2,7 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
     fuzes: 0, rubies: 0, race: '', 
     boostMultiplier: 1, boostEndTime: 0,
     hats: [], artifacts: [],
-    craftsCount: 0 // Счетчик крафтов для пересборки
+    craftsCount: 0 
 };
 
 function saveGame() {
