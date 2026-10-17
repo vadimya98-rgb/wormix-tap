@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Сборка</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="craft.html" class="btn-back">← К рецептам</a>
+        <div class="balance"><div>💎 <span id="ui-fuzes">0</span></div></div>
+    </div>
+    <div class="content">
+        <div class="craft-result">
+            <h3>Легендарная Шапка</h3>
+            <p>Шанс выпадения: 2%</p>
+            <div style="font-size:40px; margin:10px;">👑</div>
+        </div>
+        
+        <div class="ingredient">
+            <span>Шапка Новичка</span>
+            <button id="btn-hat1" class="btn-buy" onclick="window.location.href='hats.html'">В магазин</button>
+        </div>
+        <div class="ingredient">
+            <span>Шапка Воина</span>
+            <button id="btn-hat2" class="btn-buy" onclick="window.location.href='hats.html'">В магазин</button>
+        </div>
+
+        <button id="btn-craft" class="btn-green" style="display:none; margin-top:20px;" onclick="doCraft()">Собрать</button>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        updateBalanceUI();
+        let craftPrice = player.craftsCount === 0 ? 4000 : 6000;
+
+        // Проверка наличия шапок
+        if(player.hats.includes('hat1')) document.getElementById('btn-hat1').style.display = 'none';
+        if(player.hats.includes('hat2')) document.getElementById('btn-hat2').style.display = 'none';
+        
+        if (player.hats.includes('hat1') && player.hats.includes('hat2')) {
+            let btn = document.getElementById('btn-craft');
+            btn.style.display = 'block';
+            btn.innerText = `Собрать (${craftPrice} 💎)`;
+        }
+
+        function doCraft() {
+            if (player.fuzes < craftPrice) {
+                alert("Недостаточно фузов для сборки!");
+                return;
+            }
+            player.fuzes -= craftPrice;
+            player.craftsCount += 1; // Увеличиваем счетчик (следующая сборка будет 6000)
+            
+            // Удаляем шапки из инвентаря
+            player.hats = player.hats.filter(h => h !== 'hat1' && h !== 'hat2');
+            
+            let success = Math.random() < 0.02; // 2%
+            
+            if (success) {
+                alert("🎉 ПОЗДРАВЛЯЮ! ВЫПАЛА ЛЕГЕНДАРНАЯ ШАПКА! 🎉");
+            } else {
+                alert("Увы, шапка сломалась. Ингредиенты сгорели.");
+            }
+            
+            saveGame();
+            window.location.reload(); 
+        }
+    </script>
+</body>
+</html>
