@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Крафт</title>
+    <title>Крафт (Перекрафт)</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -14,14 +14,42 @@
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
-    <div class="content">
-        <div class="item-card" style="flex-direction:column; text-align:center; cursor:pointer;" onclick="window.location.href='craft-detail.html'">
-            <div style="font-size:40px; margin-bottom:10px;">👑</div>
-            <b>Легендарная Шапка</b>
-            <span style="font-size:12px; color:#888; margin-top:5px;">Нажми, чтобы перейти к сборке</span>
-        </div>
+    <div class="content" id="craft-list">
+        <!-- Список генерируется в JS -->
     </div>
+
     <script src="script.js"></script>
-    <script>updateBalanceUI();</script>
+    <script>
+        updateBalanceUI();
+        let list = document.getElementById('craft-list');
+        
+        const allHats = {
+            'hat1': { name: 'Шапка Новичка', img: 'images/hat_novice.png' },
+            'hat2': { name: 'Шапка Воина', img: 'images/hat_warrior.png' },
+            'hat_legend': { name: 'Легендарная Шапка', img: 'images/hat_legend.png' }
+        };
+
+        if (player.hats.length === 0) {
+            list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">У вас пока нет вещей для перекрафта. Купите их в магазине!</div>';
+        } else {
+            player.hats.forEach(hatId => {
+                if (!allHats[hatId]) return;
+                let tier = player.hatTiers[hatId] || 0;
+                let tierName = tier === 0 ? "Стандарт" : (tier === 1 ? "Бронза" : (tier === 2 ? "Серебро" : "Золото"));
+                let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+
+                list.innerHTML += `
+                    <div class="item-card">
+                        <img src="${allHats[hatId].img}" class="item-icon ${tierClass}">
+                        <div style="flex-grow:1;">
+                            <b>${allHats[hatId].name}</b><br>
+                            <span style="color:#FFD700; font-size:12px;">Редкость: ${tierName}</span>
+                        </div>
+                        <button class="btn-buy" onclick="window.location.href='craft-detail.html?id=${hatId}'">Пересобрать</button>
+                    </div>
+                `;
+            });
+        }
+    </script>
 </body>
 </html>
