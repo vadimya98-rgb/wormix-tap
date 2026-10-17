@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Игра</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="menu.html" class="btn-back">☰ Меню</a>
+        <div class="balance">
+            <div>💎 <span id="ui-fuzes">0</span></div>
+            <div style="color:#FF5252">🔴 <span id="ui-rubies">0</span></div>
+        </div>
+    </div>
+    <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold;"></div>
+    
+    <div class="character-area">
+        <div class="character" id="character" onclick="tap(event)">ТАП</div>
+    </div>
+
+    <script src="script.js"></script>
+    <script>
+        document.getElementById('character').innerText = player.race;
+        updateBalanceUI();
+        startTimerUI('ui-boost-timer');
+
+        function tap(event) {
+            let earned = 5 * getCurrentMultiplier();
+            player.fuzes += earned;
+            
+            let isRuby = Math.random() < 0.10; // 10% шанс
+            if (isRuby) player.rubies += 1;
+
+            updateBalanceUI();
+            saveGame();
+            
+            let x = event.clientX || (event.touches && event.touches[0].clientX);
+            let y = event.clientY || (event.touches && event.touches[0].clientY);
+            
+            let text = document.createElement('div');
+            text.className = 'floating-text';
+            text.innerText = isRuby ? "+1 🔴" : `+${earned} 💎`;
+            text.style.color = isRuby ? "#FF5252" : "#4CAF50";
+            text.style.left = (x - 20) + 'px';
+            text.style.top = (y - 30) + 'px';
+            
+            document.body.appendChild(text);
+            setTimeout(() => text.remove(), 800);
+        }
+    </script>
+</body>
+</html>
