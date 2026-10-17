@@ -13,17 +13,19 @@
     </div>
     <div class="content">
         <div class="craft-result">
-            <h3>Легендарная Шапка</h3>
-            <p>Шанс выпадения: 2%</p>
-            <div style="font-size:40px; margin:10px;">👑</div>
+            <div style="font-size:40px;">👑</div>
+            <div style="text-align:left;">
+                <h3 style="margin:0;">Легендарная Шапка</h3>
+                <p style="margin:0; font-size:12px; color:#FFD700;">Шанс: 2%</p>
+            </div>
         </div>
         
         <div class="ingredient">
-            <span>Шапка Новичка</span>
+            <span style="flex-grow:1;">Шапка Новичка</span>
             <button id="btn-hat1" class="btn-buy" onclick="window.location.href='hats.html'">В магазин</button>
         </div>
         <div class="ingredient">
-            <span>Шапка Воина</span>
+            <span style="flex-grow:1;">Шапка Воина</span>
             <button id="btn-hat2" class="btn-buy" onclick="window.location.href='hats.html'">В магазин</button>
         </div>
 
@@ -35,7 +37,6 @@
         updateBalanceUI();
         let craftPrice = player.craftsCount === 0 ? 4000 : 6000;
 
-        // Проверка наличия шапок
         if(player.hats.includes('hat1')) document.getElementById('btn-hat1').style.display = 'none';
         if(player.hats.includes('hat2')) document.getElementById('btn-hat2').style.display = 'none';
         
@@ -51,12 +52,10 @@
                 return;
             }
             player.fuzes -= craftPrice;
-            player.craftsCount += 1; // Увеличиваем счетчик (следующая сборка будет 6000)
-            
-            // Удаляем шапки из инвентаря
+            player.craftsCount += 1; 
             player.hats = player.hats.filter(h => h !== 'hat1' && h !== 'hat2');
             
-            let success = Math.random() < 0.02; // 2%
+            let success = Math.random() < 0.02;
             
             if (success) {
                 alert("🎉 ПОЗДРАВЛЯЮ! ВЫПАЛА ЛЕГЕНДАРНАЯ ШАПКА! 🎉");
