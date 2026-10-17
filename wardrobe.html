@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
         .tab-btn.active { color: #4CAF50; border-bottom: 3px solid #4CAF50; }
-        .wardrobe-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .wardrobe-item { background: #2a2a35; border: 2px solid #444; border-radius: 10px; padding: 15px 10px; text-align: center; cursor: pointer; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .wardrobe-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+        .wardrobe-item { background: #2a2a35; border: 2px solid #444; border-radius: 10px; padding: 10px; text-align: center; cursor: pointer; position: relative; }
         .wardrobe-item.equipped { border-color: #FFD700; background: rgba(255, 215, 0, 0.1); }
-        .wardrobe-item img { width: 70px; height: 70px; object-fit: contain; margin-bottom: 5px; }
-        .equipped-text { font-size: 12px; color: #FFD700; font-weight: bold; position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.6); padding: 2px 6px; border-radius: 5px;}
+        .wardrobe-item img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
+        .equipped-text { font-size: 10px; color: #FFD700; font-weight: bold; position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); padding: 2px 5px; border-radius: 5px; }
         .empty-text { text-align: center; color: #888; grid-column: 1 / -1; margin-top: 20px; }
     </style>
 </head>
@@ -25,39 +25,24 @@
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
-    
     <div class="content">
         <div class="tabs">
             <button id="tab-hats" class="tab-btn active" onclick="switchTab('hats')">Шапки</button>
             <button id="tab-artifacts" class="tab-btn" onclick="switchTab('artifacts')">Артефакты</button>
         </div>
-
-        <div id="wardrobe-content" class="wardrobe-grid">
-            <!-- Сюда будут выводиться вещи -->
-        </div>
+        <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
-
-        const allHats = {
-            'hat1': { name: 'Шапка Новичка', img: 'images/hat_novice.png' },
-            'hat2': { name: 'Шапка Воина', img: 'images/hat_warrior.png' },
-            'hat_legend': { name: 'Легендарная Шапка', img: 'images/hat_legend.png' }
-        };
-        
-        const allArtifacts = {}; // Сюда потом добавим артефакты
 
         function switchTab(tab) {
             currentTab = tab;
             document.getElementById('tab-hats').classList.remove('active');
             document.getElementById('tab-artifacts').classList.remove('active');
-            
-            if (tab === 'hats') document.getElementById('tab-hats').classList.add('active');
-            if (tab === 'artifacts') document.getElementById('tab-artifacts').classList.add('active');
-            
+            document.getElementById('tab-' + tab).classList.add('active');
             renderWardrobe();
         }
 
@@ -66,39 +51,40 @@
             container.innerHTML = '';
             
             if (currentTab === 'hats') {
-                if (player.hats.length === 0) {
-                    container.innerHTML = '<div class="empty-text">У вас пока нет шапок. Купите их в магазине!</div>';
-                    return;
-                }
-                
-                player.hats.forEach(hatId => {
-                    if (!allHats[hatId]) return;
-                    let isEquipped = player.equippedHat === hatId;
-                    let tier = player.hatTiers[hatId] || 0;
-                    
-                    // Применяем цвет в зависимости от редкости
+                if (player.hats.length === 0) { container.innerHTML = '<div class="empty-text">Нет шапок.</div>'; return; }
+                player.hats.forEach(id => {
+                    let isEquipped = player.equippedHat === id;
+                    let tier = player.hatTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
-                    
-                    let div = document.createElement('div');
-                    div.className = `wardrobe-item ${isEquipped ? 'equipped' : ''}`;
-                    div.onclick = () => equipItem(hatId);
-                    div.innerHTML = `
-                        ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
-                        <img src="${allHats[hatId].img}" class="${tierClass}">
-                        <div style="font-size:12px; font-weight:bold;">${allHats[hatId].name}</div>
+                    container.innerHTML += `
+                        <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('hat', '${id}')">
+                            ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
+                            <img src="${allHats[id].img}" class="${tierClass}">
+                            <div style="font-size:11px; font-weight:bold;">${allHats[id].name}</div>
+                        </div>
                     `;
-                    container.appendChild(div);
                 });
-            } else if (currentTab === 'artifacts') {
-                container.innerHTML = '<div class="empty-text">У вас пока нет артефактов.</div>';
+            } else {
+                if (player.artifacts.length === 0) { container.innerHTML = '<div class="empty-text">Нет артефактов.</div>'; return; }
+                player.artifacts.forEach(id => {
+                    let isEquipped = player.equippedArtifact === id;
+                    let tier = player.artifactTiers[id] || 0;
+                    let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+                    container.innerHTML += `
+                        <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
+                            ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
+                            <img src="${allArtifacts[id].img}" class="${tierClass}">
+                            <div style="font-size:11px; font-weight:bold;">${allArtifacts[id].name}</div>
+                        </div>
+                    `;
+                });
             }
         }
 
-        function equipItem(id) {
-            player.equippedHat = id;
-            saveGame();
-            renderWardrobe(); // Перерисовываем, чтобы появилась надпись "Надел"
-            showToast("Надето!");
+        function equipItem(type, id) {
+            if (type === 'hat') player.equippedHat = id;
+            else player.equippedArtifact = id;
+            saveGame(); renderWardrobe(); showToast("Надето!");
         }
 
         renderWardrobe();
