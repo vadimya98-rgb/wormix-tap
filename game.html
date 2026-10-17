@@ -14,15 +14,15 @@
             <div style="color:#FF5252">🔴 <span id="ui-rubies">0</span></div>
         </div>
     </div>
-    <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold;"></div>
+    <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
     <div class="character-area">
-        <div class="character" id="character" onclick="tap(event)">ТАП</div>
+        <img class="character" id="character" src="" onclick="tap(event)">
     </div>
 
     <script src="script.js"></script>
     <script>
-        document.getElementById('character').innerText = player.race;
+        document.getElementById('character').src = player.race;
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
@@ -30,7 +30,7 @@
             let earned = 5 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            let isRuby = Math.random() < 0.10; // 10% шанс
+            let isRuby = Math.random() < 0.10;
             if (isRuby) player.rubies += 1;
 
             updateBalanceUI();
