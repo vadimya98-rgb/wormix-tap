@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Шапки</title>
+    <title>Артефакты</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,28 +12,12 @@
         <div class="balance"><div>💎 <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content">
-        <!-- Пример карточки -->
         <div class="item-card">
-            <div><b>Шапка Новичка</b><br><span style="color:#aaa; font-size:12px;">500 💎</span></div>
-            <button class="btn-buy" onclick="buyItem('hat1', 500)">Купить</button>
-        </div>
-        <div class="item-card">
-            <div><b>Шапка Воина</b><br><span style="color:#aaa; font-size:12px;">1000 💎</span></div>
-            <button class="btn-buy" onclick="buyItem('hat2', 1000)">Купить</button>
+            <div style="flex-grow:1;"><b>Амулет Силы</b><br><span style="color:#aaa; font-size:12px;">2000 💎</span></div>
+            <button class="btn-buy" onclick="alert('В разработке!')">Купить</button>
         </div>
     </div>
     <script src="script.js"></script>
-    <script>
-        updateBalanceUI();
-        function buyItem(id, price) {
-            if (player.fuzes >= price) {
-                player.fuzes -= price;
-                if(!player.hats.includes(id)) player.hats.push(id);
-                saveGame();
-                updateBalanceUI();
-                alert("Куплено! Теперь доступно в Крафте.");
-            } else { alert("Мало фузов!"); }
-        }
-    </script>
+    <script>updateBalanceUI();</script>
 </body>
 </html>
