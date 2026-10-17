@@ -13,17 +13,29 @@
     </div>
     <div class="content">
         <div class="item-card">
+            <img src="images/hat_novice.png" class="item-icon">
             <div style="flex-grow:1;"><b>Шапка Новичка</b><br><span style="color:#aaa; font-size:12px;">500 💎</span></div>
-            <button class="btn-buy" onclick="buyItem('hat1', 500)">Купить</button>
+            <button class="btn-buy" id="btn-hat1" onclick="buyItem('hat1', 500)">Купить</button>
         </div>
         <div class="item-card">
+            <img src="images/hat_warrior.png" class="item-icon">
             <div style="flex-grow:1;"><b>Шапка Воина</b><br><span style="color:#aaa; font-size:12px;">1000 💎</span></div>
-            <button class="btn-buy" onclick="buyItem('hat2', 1000)">Купить</button>
+            <button class="btn-buy" id="btn-hat2" onclick="buyItem('hat2', 1000)">Купить</button>
         </div>
     </div>
     <script src="script.js"></script>
     <script>
         updateBalanceUI();
+        
+        if(player.hats.includes('hat1')) {
+            let b = document.getElementById('btn-hat1');
+            b.innerText = "Куплено"; b.disabled = true;
+        }
+        if(player.hats.includes('hat2')) {
+            let b = document.getElementById('btn-hat2');
+            b.innerText = "Куплено"; b.disabled = true;
+        }
+
         function buyItem(id, price) {
             if (player.fuzes >= price) {
                 player.fuzes -= price;
@@ -31,6 +43,7 @@
                 saveGame();
                 updateBalanceUI();
                 alert("Куплено! Теперь доступно в Крафте.");
+                window.location.reload(); 
             } else { alert("Мало фузов!"); }
         }
     </script>
