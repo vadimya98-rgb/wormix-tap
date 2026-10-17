@@ -10,13 +10,12 @@
     <div class="top-bar">
         <a href="menu.html" class="btn-back">☰ Меню</a>
         <div class="balance">
-            <div>💎 <span id="ui-fuzes">0</span></div>
-            <div style="color:#FF5252">🔴 <span id="ui-rubies">0</span></div>
+            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
+            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
-    <!-- Используем onpointerdown для мгновенного срабатывания -->
     <div class="character-area" id="tap-area" onpointerdown="tap(event)">
         <div class="character-container">
             <img class="character" id="character" src="">
@@ -28,7 +27,6 @@
     <script>
         document.getElementById('character').src = player.race;
         
-        // Надеваем шапку
         if(player.hats.includes('hat2')) {
             let hat = document.getElementById('equipped-hat');
             hat.src = 'images/hat_warrior.png';
@@ -46,8 +44,7 @@
             let earned = 5 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            // ШАНС РУБИНА 1% (выпадает редко, как вы и просили)
-            let isRuby = Math.random() < 0.01; 
+            let isRuby = Math.random() < 0.01; // 1%
             if (isRuby) player.rubies += 1;
 
             updateBalanceUI();
@@ -58,9 +55,15 @@
             
             let text = document.createElement('div');
             text.className = 'floating-text';
-            text.innerText = isRuby ? "+1 🔴" : `+${earned} 💎`;
-            text.style.color = isRuby ? "#FF5252" : "#4CAF50";
-            text.style.left = (clientX - 20) + 'px';
+            
+            // Используем innerHTML, чтобы вставить картинку вместо смайлика
+            if (isRuby) {
+                text.innerHTML = `+1 <img src="images/rubin.png">`;
+            } else {
+                text.innerHTML = `+${earned} <img src="images/fuz.png">`;
+            }
+            
+            text.style.left = (clientX - 30) + 'px';
             text.style.top = (clientY - 30) + 'px';
             
             document.body.appendChild(text);
