@@ -9,7 +9,10 @@
 <body>
     <div class="top-bar">
         <a href="craft.html" class="btn-back">← К рецептам</a>
-        <div class="balance"><div>💎 <span id="ui-fuzes">0</span></div></div>
+        <div class="balance">
+            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
+            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
+        </div>
     </div>
     <div class="content">
         <div class="craft-result">
@@ -31,7 +34,7 @@
             <button id="btn-hat2" class="btn-buy" onclick="window.location.href='hats.html'">В магазин</button>
         </div>
 
-        <button id="btn-craft" class="btn-green" style="display:none; margin-top:20px;" onclick="doCraft()">Собрать</button>
+        <button id="btn-craft" class="btn-green" style="display:none; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doCraft()">Собрать</button>
     </div>
 
     <script src="script.js"></script>
@@ -44,8 +47,8 @@
         
         if (player.hats.includes('hat1') && player.hats.includes('hat2')) {
             let btn = document.getElementById('btn-craft');
-            btn.style.display = 'block';
-            btn.innerText = `Собрать (${craftPrice} 💎)`;
+            btn.style.display = 'flex';
+            btn.innerHTML = `Собрать (${craftPrice} <img src="images/fuz.png" class="coin-icon" style="width:20px; height:20px; margin:0;">)`;
         }
 
         function doCraft() {
