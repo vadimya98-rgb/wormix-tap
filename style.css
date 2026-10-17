@@ -1,4 +1,14 @@
-* { box-sizing: border-box; user-select: none; -webkit-user-select: none; touch-action: manipulation; font-family: Arial, sans-serif; }
+* { 
+    box-sizing: border-box; 
+    user-select: none; 
+    -webkit-user-select: none; 
+    touch-action: manipulation; 
+    font-family: Arial, sans-serif;
+    /* Убираем синий/серый квадрат при нажатии на телефоне */
+    -webkit-tap-highlight-color: transparent; 
+    outline: none;
+}
+
 body { 
     margin: 0; 
     padding: 0; 
@@ -7,7 +17,7 @@ body {
     overflow: hidden; 
     display: flex; 
     flex-direction: column; 
-    /* Ваш фон */
+    /* Фон */
     background-image: url('images/fon.jpg'); 
     background-size: cover; 
     background-position: center; 
@@ -15,7 +25,13 @@ body {
 }
 a { text-decoration: none; }
 
-/* Полупрозрачный фон для экранов, чтобы текст читался */
+/* Запрещаем браузеру предлагать сохранить картинку по долгому нажатию */
+img { 
+    -webkit-touch-callout: none; 
+    pointer-events: none; /* Картинки не перехватывают клики, клик идет на родительский блок */
+}
+
+/* Полупрозрачный фон для экранов */
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: rgba(26, 26, 36, 0.85); z-index: 10; }
 .screen.active { display: flex; }
 
@@ -25,29 +41,36 @@ a { text-decoration: none; }
 .btn-back { background: #333; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 10px; margin: 10px; display: inline-block; cursor: pointer; }
 .btn-buy { background: #2196F3; color: white; border: none; padding: 8px 12px; border-radius: 5px; font-weight: bold; cursor: pointer; }
 .btn-buy:active { background: #1976D2; }
+.btn-buy:disabled { background: #555; color: #aaa; }
 
 /* Экраны приветствия */
 .intro-text { font-size: 22px; text-align: center; padding: 40px 20px; margin-top: auto; line-height: 1.5; text-shadow: 1px 1px 3px black; }
 
 /* Выбор рассы */
 .race-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; margin-top: auto; margin-bottom: auto; }
-.race-img { width: 100%; max-width: 100px; height: 100px; object-fit: contain; cursor: pointer; transition: 0.2s; margin: 0 auto; display: block; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.8)); }
-.race-img:active { transform: scale(1.1); }
+.race-wrapper { cursor: pointer; display: flex; justify-content: center; padding: 5px; }
+.race-wrapper:active { transform: scale(1.1); transition: 0.1s; }
+.race-img { width: 100%; max-width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.8)); }
 
 /* Главный экран */
 .top-bar { display: flex; justify-content: space-between; padding: 10px; align-items: flex-start; }
 .balance { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; font-size: 18px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 10px; }
-.character-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; }
-.character { width: 280px; height: 280px; object-fit: contain; transition: transform 0.05s; cursor: pointer; filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)); }
-.character:active { transform: scale(0.95); }
+.character-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; }
+.character-container { position: relative; }
+.character { width: 280px; height: 280px; object-fit: contain; transition: transform 0.05s; filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)); }
+.character-area:active .character { transform: scale(0.95); }
+
+/* Шапка на персонаже */
+#equipped-hat { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 150px; display: none; pointer-events: none; z-index: 5; }
 
 /* Всплывающий текст */
 .floating-text { position: absolute; font-size: 26px; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100; text-shadow: 1px 1px 2px black; }
 @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-/* Общие блоки (Меню, Магазин) */
+/* Общие блоки */
 .content { padding: 15px; overflow-y: auto; flex-grow: 1; }
 .item-card { background: #2a2a35; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; }
+.item-icon { width: 60px; height: 60px; object-fit: contain; margin-right: 15px; }
 
 /* Крафт */
 .craft-result { background: #2a2a35; padding: 20px; border-radius: 15px; border: 2px dashed #FFD700; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; }
