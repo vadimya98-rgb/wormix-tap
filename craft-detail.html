@@ -35,6 +35,9 @@
         </div>
 
         <button id="btn-craft" class="btn-green" style="display:none; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doCraft()">Собрать</button>
+        
+        <!-- Блок для вывода результата крафта -->
+        <div id="craft-result-text" style="text-align:center; margin-top:20px; font-weight:bold; font-size:18px; text-shadow: 1px 1px 2px black;"></div>
     </div>
 
     <script src="script.js"></script>
@@ -53,23 +56,30 @@
 
         function doCraft() {
             if (player.fuzes < craftPrice) {
-                alert("Недостаточно фузов для сборки!");
+                showToast("Недостаточно фузов для сборки!", true);
                 return;
             }
             player.fuzes -= craftPrice;
             player.craftsCount += 1; 
-            player.hats = player.hats.filter(h => h !== 'hat1' && h !== 'hat2');
             
             let success = Math.random() < 0.02;
+            let resultText = document.getElementById('craft-result-text');
             
             if (success) {
-                alert("🎉 ПОЗДРАВЛЯЮ! ВЫПАЛА ЛЕГЕНДАРНАЯ ШАПКА! 🎉");
+                resultText.style.color = "#FFD700";
+                resultText.innerText = "🎉 ПОЗДРАВЛЯЮ! ВЫПАЛА ЛЕГЕНДАРНАЯ ШАПКА! 🎉";
+                if (!player.hats.includes('hat_legend')) player.hats.push('hat_legend');
             } else {
-                alert("Увы, шапка сломалась. Ингредиенты сгорели.");
+                resultText.style.color = "#FF5252";
+                resultText.innerText = "Увы, шапка сломалась. Ингредиенты остались у вас.";
             }
             
             saveGame();
-            window.location.reload(); 
+            updateBalanceUI();
+            
+            // Обновляем кнопку, так как цена пересборки теперь 6000
+            let btn = document.getElementById('btn-craft');
+            btn.innerHTML = `Собрать (6000 <img src="images/fuz.png" class="coin-icon" style="width:20px; height:20px; margin:0;">)`;
         }
     </script>
 </body>
