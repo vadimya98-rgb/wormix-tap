@@ -40,3 +40,8 @@ function startTimerUI(timerElementId) {
         }
     }, 1000);
 }
+
+// Блокируем меню скачивания картинок
+document.addEventListener('contextmenu', function(e) {
+    e.preventDefault();
+});
