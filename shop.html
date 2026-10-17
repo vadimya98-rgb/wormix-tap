@@ -53,9 +53,9 @@
                 
                 saveGame();
                 updateBalanceUI();
-                alert(`Буст "${b.name}" активирован!`);
+                showToast(`Буст "${b.name}" активирован!`);
             } else {
-                alert("Недостаточно рубинов!");
+                showToast("Недостаточно рубинов!", true);
             }
         }
     </script>
