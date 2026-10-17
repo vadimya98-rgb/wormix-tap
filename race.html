@@ -30,15 +30,18 @@
     <script>
         updateBalanceUI();
         function changeRace(newRace) {
-            if (newRace === player.race) { alert("У вас уже выбрана эта раса!"); return; }
+            if (newRace === player.race) { 
+                showToast("У вас уже выбрана эта раса!", true); 
+                return; 
+            }
             if (player.fuzes >= 1500) {
                 player.fuzes -= 1500;
                 player.race = newRace;
                 saveGame();
                 updateBalanceUI();
-                alert("Раса успешно изменена!");
+                showToast("Раса успешно изменена!");
             } else {
-                alert("Недостаточно фузов (нужно 1500)!");
+                showToast("Недостаточно фузов (нужно 1500)!", true);
             }
         }
     </script>
