@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Расса</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
@@ -26,14 +26,11 @@
             <div class="race-wrapper" onclick="changeRace('images/rabit.png')"><img src="images/rabit.png" class="race-img"></div>
         </div>
     </div>
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
         function changeRace(newRace) {
-            if (newRace === player.race) { 
-                showToast("У вас уже выбрана эта раса!", true); 
-                return; 
-            }
+            if (newRace === player.race) { showToast("У вас уже выбрана эта раса!", true); return; }
             if (player.fuzes >= 1500) {
                 player.fuzes -= 1500;
                 player.race = newRace;
@@ -41,7 +38,7 @@
                 updateBalanceUI();
                 showToast("Раса успешно изменена!");
             } else {
-                showToast("Недостаточно фузов (нужно 1500)!", true);
+                showToast("Недостаточно средств!", true);
             }
         }
     </script>
