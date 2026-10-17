@@ -13,7 +13,7 @@ body {
     margin: 0; 
     padding: 0; 
     color: white; 
-    height: 100%; /* ИСПРАВЛЕНО: вместо 100vh */
+    height: 100%; 
     overflow: hidden; 
     display: flex; 
     flex-direction: column; 
@@ -23,32 +23,14 @@ body {
     background-repeat: no-repeat; 
 }
 a { text-decoration: none; }
+img { -webkit-touch-callout: none; }
 
-/* Запрещаем скачивание картинок */
-img { 
-    -webkit-touch-callout: none; 
-}
-
-/* Стили для иконок валют */
-.coin-icon {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-    vertical-align: middle;
-    pointer-events: none;
-    margin-bottom: 3px;
-}
-.floating-text img {
-    width: 30px;
-    height: 30px;
-    vertical-align: middle;
-    margin-left: 5px;
-}
+.coin-icon { width: 24px; height: 24px; object-fit: contain; vertical-align: middle; pointer-events: none; margin-bottom: 3px; }
+.floating-text img { width: 30px; height: 30px; vertical-align: middle; margin-left: 5px; }
 
 .screen { display: none; flex-direction: column; height: 100%; width: 100%; position: absolute; top: 0; left: 0; background: rgba(26, 26, 36, 0.85); z-index: 10; }
 .screen.active { display: flex; }
 
-/* Кнопки */
 .btn-green { background: #4CAF50; color: white; border: none; padding: 15px; font-size: 18px; border-radius: 10px; margin: 10px 20px; font-weight: bold; text-align: center; display: block; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 .btn-green:active { background: #3d8b40; transform: scale(0.98); }
 .btn-back { background: #333; color: white; border: none; padding: 10px 15px; font-size: 14px; border-radius: 10px; margin: 10px; display: inline-block; cursor: pointer; }
@@ -56,46 +38,53 @@ img {
 .btn-buy:active { background: #1976D2; }
 .btn-buy:disabled { background: #555; color: #aaa; }
 
-/* Экраны приветствия */
 .intro-text { font-size: 22px; text-align: center; padding: 40px 20px; margin-top: auto; line-height: 1.5; text-shadow: 1px 1px 3px black; }
 
-/* Выбор рассы */
 .race-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; padding: 15px; margin-top: auto; margin-bottom: auto; }
 .race-wrapper { cursor: pointer; display: flex; justify-content: center; padding: 5px; }
 .race-wrapper:active { transform: scale(1.1); transition: 0.1s; }
 .race-img { width: 100%; max-width: 100px; height: 100px; object-fit: contain; filter: drop-shadow(0px 5px 5px rgba(0,0,0,0.8)); pointer-events: none; }
 
-/* Главный экран */
 .top-bar { display: flex; justify-content: space-between; padding: 10px; align-items: flex-start; flex-shrink: 0; }
 .balance { display: flex; flex-direction: column; gap: 5px; align-items: flex-end; font-size: 18px; font-weight: bold; background: rgba(0,0,0,0.6); padding: 5px 10px; border-radius: 10px; }
 .balance div { display: flex; align-items: center; gap: 5px; }
 
-/* Игровая зона */
 .character-area { flex-grow: 1; display: flex; justify-content: center; align-items: center; position: relative; cursor: pointer; touch-action: manipulation; }
 .character-container { position: relative; }
 .character { width: 280px; height: 280px; object-fit: contain; transition: transform 0.05s; filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)); pointer-events: none; }
 .character-area:active .character { transform: scale(0.95); }
 
-/* Шапка на персонаже */
 #equipped-hat { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 150px; display: none; pointer-events: none; z-index: 5; }
 
-/* Всплывающий текст */
 .floating-text { position: absolute; font-size: 26px; font-weight: bold; pointer-events: none; animation: floatUp 0.8s ease-out forwards; z-index: 100; text-shadow: 1px 1px 2px black; display: flex; align-items: center; }
 @keyframes floatUp { 0% { transform: translateY(0); opacity: 1; } 100% { transform: translateY(-100px); opacity: 0; } }
 
-/* Общие блоки и ИСПРАВЛЕННЫЙ СКРОЛЛ */
-.content { 
-    flex: 1; 
-    min-height: 0; 
-    overflow-y: auto; 
-    -webkit-overflow-scrolling: touch; 
-    touch-action: pan-y; /* ВАЖНО: разрешает прокрутку пальцем */
-    padding: 15px; 
-    padding-bottom: 50px; /* Отступ снизу, чтобы последний товар не прятался за краем */
-}
+.content { flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; touch-action: pan-y; padding: 15px; padding-bottom: 50px; }
 .item-card { background: #2a2a35; padding: 15px; border-radius: 10px; margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #444; }
 .item-icon { width: 60px; height: 60px; object-fit: contain; margin-right: 15px; pointer-events: none; }
 
-/* Крафт */
 .craft-result { background: #2a2a35; padding: 20px; border-radius: 15px; border: 2px dashed #FFD700; margin-bottom: 20px; display: flex; align-items: center; justify-content: center; gap: 15px; }
 .ingredient { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 10px; }
+
+/* КРАСИВЫЕ ВСПЛЫВАЮЩИЕ УВЕДОМЛЕНИЯ */
+.toast-msg {
+    position: fixed;
+    bottom: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #4CAF50;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 30px;
+    font-weight: bold;
+    font-size: 16px;
+    z-index: 1000;
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    pointer-events: none;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+    text-align: center;
+    white-space: nowrap;
+}
+.toast-msg.show { opacity: 1; transform: translateX(-50%) translateY(-10px); }
+.toast-msg.error { background: #F44336; }
