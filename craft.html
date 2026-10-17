@@ -3,53 +3,51 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-    <title>Крафт (Перекрафт)</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Крафт</title>
+    <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">← Назад</a>
-        <div class="balance">
-            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
-            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
-        </div>
+        <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
-    <div class="content" id="craft-list">
-        <!-- Список генерируется в JS -->
-    </div>
+    <div class="content" id="craft-list"></div>
 
-    <script src="script.js"></script>
+    <script src="script.js?v=2"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('craft-list');
-        
-        const allHats = {
-            'hat1': { name: 'Шапка Новичка', img: 'images/hat_novice.png' },
-            'hat2': { name: 'Шапка Воина', img: 'images/hat_warrior.png' },
-            'hat_legend': { name: 'Легендарная Шапка', img: 'images/hat_legend.png' }
-        };
+        let hasItems = false;
 
-        if (player.hats.length === 0) {
-            list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">У вас пока нет вещей для перекрафта. Купите их в магазине!</div>';
-        } else {
-            player.hats.forEach(hatId => {
-                if (!allHats[hatId]) return;
-                let tier = player.hatTiers[hatId] || 0;
-                let tierName = tier === 0 ? "Стандарт" : (tier === 1 ? "Бронза" : (tier === 2 ? "Серебро" : "Золото"));
-                let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+        player.hats.forEach(id => {
+            hasItems = true;
+            let tier = player.hatTiers[id] || 0;
+            let tierName = tier === 0 ? "Стандарт" : (tier === 1 ? "Бронза" : (tier === 2 ? "Серебро" : "Золото"));
+            let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+            list.innerHTML += `
+                <div class="item-card">
+                    <img src="${allHats[id].img}" class="item-icon ${tierClass}">
+                    <div style="flex-grow:1;"><b>${allHats[id].name}</b><br><span style="color:#FFD700; font-size:12px;">Редкость: ${tierName}</span></div>
+                    <button class="btn-buy" onclick="window.location.href='craft-detail.html?type=hat&id=${id}'">Крафт</button>
+                </div>
+            `;
+        });
 
-                list.innerHTML += `
-                    <div class="item-card">
-                        <img src="${allHats[hatId].img}" class="item-icon ${tierClass}">
-                        <div style="flex-grow:1;">
-                            <b>${allHats[hatId].name}</b><br>
-                            <span style="color:#FFD700; font-size:12px;">Редкость: ${tierName}</span>
-                        </div>
-                        <button class="btn-buy" onclick="window.location.href='craft-detail.html?id=${hatId}'">Пересобрать</button>
-                    </div>
-                `;
-            });
-        }
+        player.artifacts.forEach(id => {
+            hasItems = true;
+            let tier = player.artifactTiers[id] || 0;
+            let tierName = tier === 0 ? "Стандарт" : (tier === 1 ? "Бронза" : (tier === 2 ? "Серебро" : "Золото"));
+            let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+            list.innerHTML += `
+                <div class="item-card">
+                    <img src="${allArtifacts[id].img}" class="item-icon ${tierClass}">
+                    <div style="flex-grow:1;"><b>${allArtifacts[id].name}</b><br><span style="color:#FFD700; font-size:12px;">Редкость: ${tierName}</span></div>
+                    <button class="btn-buy" onclick="window.location.href='craft-detail.html?type=artifact&id=${id}'">Крафт</button>
+                </div>
+            `;
+        });
+
+        if (!hasItems) list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Нет вещей для крафта.</div>';
     </script>
 </body>
 </html>
