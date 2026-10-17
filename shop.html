@@ -9,7 +9,9 @@
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">← Назад</a>
-        <div class="balance"><div>🔴 <span id="ui-rubies">0</span></div></div>
+        <div class="balance">
+            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
+        </div>
     </div>
     <div class="content" id="shop-list"></div>
 
@@ -33,7 +35,9 @@
             list.innerHTML += `
                 <div class="item-card">
                     <div><b>${b.name}</b><br><span style="font-size:12px; color:#aaa;">Множитель: x${b.mult}</span></div>
-                    <button class="btn-buy" onclick="buyBoost(${i})">${b.cost} 🔴</button>
+                    <button class="btn-buy" onclick="buyBoost(${i})">
+                        ${b.cost} <img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin:0;">
+                    </button>
                 </div>
             `;
         });
