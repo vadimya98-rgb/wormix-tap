@@ -49,9 +49,14 @@
                 if(!player.hats.includes(id)) player.hats.push(id);
                 saveGame();
                 updateBalanceUI();
-                alert("Куплено! Теперь доступно в Крафте.");
-                window.location.reload(); 
-            } else { alert("Мало фузов!"); }
+                showToast("Куплено!"); // Показываем красивое уведомление
+                
+                // Меняем кнопку визуально без перезагрузки страницы
+                let b = document.getElementById('btn-' + (id === 'hat1' ? 'hat1' : 'hat2'));
+                b.innerText = "Куплено"; b.disabled = true;
+            } else { 
+                showToast("Мало фузов!", true); 
+            }
         }
     </script>
 </body>
