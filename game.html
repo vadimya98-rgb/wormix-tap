@@ -16,13 +16,29 @@
     </div>
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
-    <div class="character-area">
-        <img class="character" id="character" src="" onclick="tap(event)">
+    <!-- Обработчик onclick убран, теперь работает через JS -->
+    <div class="character-area" id="tap-area">
+        <div class="character-container">
+            <img class="character" id="character" src="">
+            <img id="equipped-hat" src="">
+        </div>
     </div>
 
     <script src="script.js"></script>
     <script>
         document.getElementById('character').src = player.race;
+        
+        // Надеваем шапку
+        if(player.hats.includes('hat2')) {
+            let hat = document.getElementById('equipped-hat');
+            hat.src = 'images/hat_warrior.png';
+            hat.style.display = 'block';
+        } else if (player.hats.includes('hat1')) {
+            let hat = document.getElementById('equipped-hat');
+            hat.src = 'images/hat_novice.png';
+            hat.style.display = 'block';
+        }
+
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
@@ -30,25 +46,42 @@
             let earned = 5 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            let isRuby = Math.random() < 0.10;
+            // ИЗМЕНЕНО: Шанс выпадения рубина теперь 1% (было 0.10)
+            let isRuby = Math.random() < 0.01; 
             if (isRuby) player.rubies += 1;
 
             updateBalanceUI();
             saveGame();
             
-            let x = event.clientX || (event.touches && event.touches[0].clientX);
-            let y = event.clientY || (event.touches && event.touches[0].clientY);
+            // Получаем координаты для телефона и ПК
+            let clientX = event.clientX;
+            let clientY = event.clientY;
+            if (event.type === 'touchstart') {
+                clientX = event.touches[0].clientX;
+                clientY = event.touches[0].clientY;
+            }
             
             let text = document.createElement('div');
             text.className = 'floating-text';
             text.innerText = isRuby ? "+1 🔴" : `+${earned} 💎`;
             text.style.color = isRuby ? "#FF5252" : "#4CAF50";
-            text.style.left = (x - 20) + 'px';
-            text.style.top = (y - 30) + 'px';
+            text.style.left = (clientX - 20) + 'px';
+            text.style.top = (clientY - 30) + 'px';
             
             document.body.appendChild(text);
             setTimeout(() => text.remove(), 800);
         }
+
+        // Новый способ обработки нажатий (работает идеально на Android)
+        const tapArea = document.getElementById('tap-area');
+        tapArea.addEventListener('touchstart', function(e) {
+            e.preventDefault(); // Убирает задержку и двойные клики
+            tap(e);
+        }, {passive: false});
+        
+        tapArea.addEventListener('mousedown', function(e) {
+            tap(e);
+        });
     </script>
 </body>
 </html>
