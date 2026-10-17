@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Магазин</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="menu.html" class="btn-back">← Назад</a>
+        <div class="balance"><div>🔴 <span id="ui-rubies">0</span></div></div>
+    </div>
+    <div class="content" id="shop-list"></div>
+
+    <script src="script.js"></script>
+    <script>
+        updateBalanceUI();
+        const boosts = [
+            { name: 'Удвоение (10 мин)', cost: 10, mult: 2, time: 10 },
+            { name: 'Удвоение (20 мин)', cost: 20, mult: 2, time: 20 },
+            { name: 'Удвоение (30 мин)', cost: 30, mult: 2, time: 30 },
+            { name: 'Утроение (10 мин)', cost: 15, mult: 3, time: 10 },
+            { name: 'Утроение (20 мин)', cost: 25, mult: 3, time: 20 },
+            { name: 'Утроение (30 мин)', cost: 40, mult: 3, time: 30 },
+            { name: 'Учетверение (10 мин)', cost: 20, mult: 4, time: 10 },
+            { name: 'Учетверение (20 мин)', cost: 40, mult: 4, time: 20 },
+            { name: 'Учетверение (30 мин)', cost: 50, mult: 4, time: 30 }
+        ];
+
+        let list = document.getElementById('shop-list');
+        boosts.forEach((b, i) => {
+            list.innerHTML += `
+                <div class="item-card">
+                    <div><b>${b.name}</b><br><span style="font-size:12px; color:#aaa;">Множитель: x${b.mult}</span></div>
+                    <button class="btn-buy" onclick="buyBoost(${i})">${b.cost} 🔴</button>
+                </div>
+            `;
+        });
+
+        function buyBoost(index) {
+            let b = boosts[index];
+            if (player.rubies >= b.cost) {
+                player.rubies -= b.cost;
+                player.boostMultiplier = b.mult;
+                let now = Date.now();
+                if (player.boostEndTime > now) { player.boostEndTime += b.time * 60000; } 
+                else { player.boostEndTime = now + (b.time * 60000); }
+                
+                saveGame();
+                updateBalanceUI();
+                alert(`Буст "${b.name}" активирован!`);
+            } else {
+                alert("Недостаточно рубинов!");
+            }
+        }
+    </script>
+</body>
+</html>
