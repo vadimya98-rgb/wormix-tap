@@ -8,7 +8,8 @@
 </head>
 <body>
     <div class="top-bar">
-        <a href="menu.html" class="btn-back">☰ Меню</a>
+        <!-- ИЗМЕНЕНО НАЗВАНИЕ КНОПКИ -->
+        <a href="menu.html" class="btn-back">☰ Магаз</a>
         <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -19,7 +20,6 @@
     <div class="character-area" id="tap-area" onpointerdown="tap(event)">
         <div class="character-container">
             <img class="character" id="character" src="">
-            <!-- Прозрачная заглушка, чтобы не было квадратика с ошибкой -->
             <img id="equipped-hat" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
         </div>
     </div>
@@ -28,15 +28,16 @@
     <script>
         document.getElementById('character').src = player.race;
         
-        // Надеваем шапку, если она есть
-        if(player.hats.includes('hat2')) {
-            let hat = document.getElementById('equipped-hat');
-            hat.src = 'images/hat_warrior.png';
-            hat.style.display = 'block';
-        } else if (player.hats.includes('hat1')) {
-            let hat = document.getElementById('equipped-hat');
-            hat.src = 'images/hat_novice.png';
-            hat.style.display = 'block';
+        let hatImg = document.getElementById('equipped-hat');
+        if (player.equippedHat) {
+            let hatSrc = player.equippedHat === 'hat_legend' ? 'images/hat_legend.png' : 
+                        (player.equippedHat === 'hat2' ? 'images/hat_warrior.png' : 'images/hat_novice.png');
+            hatImg.src = hatSrc;
+            hatImg.style.display = 'block';
+            
+            // Применяем фильтр редкости
+            let tier = player.hatTiers[player.equippedHat] || 0;
+            hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
         }
 
         updateBalanceUI();
@@ -58,11 +59,8 @@
             let text = document.createElement('div');
             text.className = 'floating-text';
             
-            if (isRuby) {
-                text.innerHTML = `+1 <img src="images/rubin.png">`;
-            } else {
-                text.innerHTML = `+${earned} <img src="images/fuz.png">`;
-            }
+            if (isRuby) { text.innerHTML = `+1 <img src="images/rubin.png">`; } 
+            else { text.innerHTML = `+${earned} <img src="images/fuz.png">`; }
             
             text.style.left = (clientX - 30) + 'px';
             text.style.top = (clientY - 30) + 'px';
