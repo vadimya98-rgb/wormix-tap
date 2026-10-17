@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Расса</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="top-bar">
+        <a href="menu.html" class="btn-back">← Назад</a>
+        <div class="balance"><div>💎 <span id="ui-fuzes">0</span></div></div>
+    </div>
+    <div class="content">
+        <h3 style="text-align:center;">Текущая раса: <span id="cur-race" style="color:#4CAF50"></span></h3>
+        <p style="text-align:center; font-size:12px; color:#aaa;">Смена рассы стоит 1500 фузов</p>
+        
+        <div class="race-grid" style="margin-top:20px;">
+            <button class="race-btn" onclick="changeRace('🐉 Дракон')">🐉 Дракон</button>
+            <button class="race-btn" onclick="changeRace('🤖 Робот')">🤖 Робот</button>
+            <button class="race-btn" onclick="changeRace('😈 Демон')">😈 Демон</button>
+            <button class="race-btn" onclick="changeRace('🐱 Кот')">🐱 Кот</button>
+            <button class="race-btn" onclick="changeRace('🧟 Зомби')">🧟 Зомби</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        updateBalanceUI();
+        document.getElementById('cur-race').innerText = player.race;
+
+        function changeRace(newRace) {
+            if (newRace === player.race) { alert("У вас уже выбрана эта раса!"); return; }
+            if (player.fuzes >= 1500) {
+                player.fuzes -= 1500;
+                player.race = newRace;
+                saveGame();
+                updateBalanceUI();
+                document.getElementById('cur-race').innerText = newRace;
+                alert("Раса успешно изменена!");
+            } else {
+                alert("Недостаточно фузов (нужно 1500)!");
+            }
+        }
+    </script>
+</body>
+</html>
