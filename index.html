@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Вормикс ТАП</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="s1" class="screen active">
+        <div class="intro-text">Приветствую тебя в игре<br><b>Вормикс ТАП</b></div>
+        <button class="btn-green" onclick="showScreen('s2')">Далее</button>
+    </div>
+    <div id="s2" class="screen">
+        <div class="intro-text">В этой игре тебе предстоит выбивать фузы и рубины, чтобы одеть своего персонажа.<br><br>Покупай шапки и артефакты, выбивай легендарку.</div>
+        <button class="btn-green" onclick="showScreen('s3')">Далее</button>
+    </div>
+    <div id="s3" class="screen">
+        <div class="intro-text" style="margin-top:20px; font-size:18px;">Выбери свою рассу</div>
+        <div class="race-grid">
+            <button class="race-btn" onclick="selectRace('🐉 Дракон')">🐉 Дракон</button>
+            <button class="race-btn" onclick="selectRace('🤖 Робот')">🤖 Робот</button>
+            <button class="race-btn" onclick="selectRace('😈 Демон')">😈 Демон</button>
+            <button class="race-btn" onclick="selectRace('🐱 Кот')">🐱 Кот</button>
+            <button class="race-btn" onclick="selectRace('🧟 Зомби')">🧟 Зомби</button>
+        </div>
+    </div>
+    <script src="script.js"></script>
+    <script>
+        if(player.race !== '') window.location.href = 'game.html';
+        
+        function showScreen(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+        function selectRace(race) {
+            player.race = race;
+            saveGame();
+            window.location.href = 'game.html';
+        }
+    </script>
+</body>
+</html>
