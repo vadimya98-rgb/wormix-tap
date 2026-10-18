@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=12">
+    <link rel="stylesheet" href="style.css?v=13">
     <style>
         /* Стили для окон админа и редактора */
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
@@ -21,8 +21,15 @@
         #drag-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #4CAF50; color: white; text-align: center; padding: 15px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
         #drag-banner button { background: white; color: #4CAF50; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 15px; cursor: pointer; }
         
-        /* Подсветка предметов в режиме редактирования */
-        .editing-item { outline: 2px dashed #FFD700; outline-offset: 5px; cursor: grab; touch-action: none; }
+        /* ФИКС: Подсветка и разрешение кликов */
+        .editing-item { 
+            outline: 2px dashed #FFD700; 
+            outline-offset: 5px; 
+            cursor: grab; 
+            touch-action: none; /* Запрещает скролл во время движения */
+            pointer-events: auto !important; /* ПРИНУДИТЕЛЬНО РАЗРЕШАЕМ КЛИКИ */
+            z-index: 99 !important;
+        }
     </style>
 </head>
 <body>
@@ -87,7 +94,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=12"></script>
+    <script src="script.js?v=13"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -209,7 +216,7 @@
             if (isHat) {
                 if (!tempHatSettings[id]) tempHatSettings[id] = { w: 220, y: 60, x: 50 };
                 tempHatSettings[id][key] = numVal;
-                applySettings(); // Просто применяем всё заново
+                applySettings();
             } else {
                 if (!tempArtSettings[id]) tempArtSettings[id] = { w: 110, y: 10, x: -30 };
                 tempArtSettings[id][key] = numVal;
@@ -227,7 +234,7 @@
             document.getElementById('drag-banner').style.display = 'block';
             isDraggingMode = true;
 
-            // Подсвечиваем предметы
+            // Включаем клики и подсветку
             if (player.equippedHat) document.getElementById('equipped-hat').classList.add('editing-item');
             if (player.equippedArtifact) document.getElementById('equipped-artifact').classList.add('editing-item');
         }
@@ -240,10 +247,9 @@
             if (player.equippedHat) document.getElementById('equipped-hat').classList.remove('editing-item');
             if (player.equippedArtifact) document.getElementById('equipped-artifact').classList.remove('editing-item');
 
-            // Возвращаемся в редактор
             document.getElementById('editor-panel').style.display = 'flex';
             
-            // Обновляем ползунки под новые координаты
+            // Синхронизируем ползунки с новыми координатами
             if (player.equippedHat) {
                 let id = player.equippedHat;
                 let hs = tempHatSettings[id];
@@ -259,32 +265,31 @@
                 as.x = parseInt(document.getElementById('equipped-artifact').style.right) || -30;
             }
             
-            loadItemToEditor(); // Перерисовываем ползунки
+            loadItemToEditor(); 
         }
 
-        // Обработчики перетаскивания
+        // Обработчики событий
         document.getElementById('equipped-hat').addEventListener('pointerdown', (e) => {
             if (!isDraggingMode) return;
-            e.stopPropagation();
+            e.stopPropagation(); e.preventDefault();
             draggedItem = 'hat';
-            startPointerX = e.clientX;
-            startPointerY = e.clientY;
-            startItemX = parseInt(e.target.style.left) || 50; // в процентах
-            startItemY = parseInt(e.target.style.top) || 60;
+            startPointerX = e.clientX; startPointerY = e.clientY;
+            startItemX = parseFloat(e.target.style.left) || 50; 
+            startItemY = parseFloat(e.target.style.top) || 60;
         });
 
         document.getElementById('equipped-artifact').addEventListener('pointerdown', (e) => {
             if (!isDraggingMode) return;
-            e.stopPropagation();
+            e.stopPropagation(); e.preventDefault();
             draggedItem = 'art';
-            startPointerX = e.clientX;
-            startPointerY = e.clientY;
-            startItemX = parseInt(e.target.style.right) || -30;
-            startItemY = parseInt(e.target.style.bottom) || 10;
+            startPointerX = e.clientX; startPointerY = e.clientY;
+            startItemX = parseFloat(e.target.style.right) || -30;
+            startItemY = parseFloat(e.target.style.bottom) || 10;
         });
 
         document.addEventListener('pointermove', (e) => {
             if (!isDraggingMode || !draggedItem) return;
+            e.preventDefault();
             
             let dx = e.clientX - startPointerX;
             let dy = e.clientY - startPointerY;
@@ -292,7 +297,6 @@
             if (draggedItem === 'hat') {
                 let hatImg = document.getElementById('equipped-hat');
                 hatImg.style.top = (startItemY + dy) + 'px';
-                // Переводим пиксели в проценты для left
                 let newLeftPercent = startItemX + (dx / window.innerWidth * 100);
                 hatImg.style.left = newLeftPercent + '%';
             } else if (draggedItem === 'art') {
@@ -320,7 +324,7 @@
 
         // --- ТАП ---
         function tap(event) {
-            if (isDraggingMode) return; // Отключаем тап во время настройки
+            if (isDraggingMode) return; 
             let earned = 1 * getCurrentMultiplier();
             player.fuzes += earned; let isRuby = Math.random() < 0.005; 
             if (isRuby) player.rubies += 1;
