@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=22">
+    <link rel="stylesheet" href="style.css?v=99">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -24,7 +24,6 @@
     
     <div class="top-bar">
         <a href="menu.html" class="btn-back">☰ Дом</a>
-        <!-- УБРАН ID, чтобы случайно не кликалось -->
         <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -41,14 +40,12 @@
         </div>
     </div>
 
-    <!-- КНОПКИ СОХРАНЕНИЯ И ЗАГРУЗКИ -->
     <div class="save-load-container">
         <button class="btn-save" onclick="saveProgressToFile()">💾 Сохранить</button>
         <button class="btn-load" onclick="document.getElementById('file-input').click()">📂 Загрузить</button>
         <input type="file" id="file-input" accept=".txt" style="display: none;" onchange="loadProgressFromFile(event)">
     </div>
 
-    <!-- ОКНО ЕЖЕДНЕВНОГО БОНУСА -->
     <div id="bonus-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
@@ -57,7 +54,6 @@
         </div>
     </div>
 
-    <!-- ОКНО РЕДАКТОРА (Открывается только если пришли из меню) -->
     <div id="editor-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FF9800; margin-top:0;">Редактор предметов</h3>
@@ -80,7 +76,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=22"></script>
+    <script src="script.js?v=99"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -112,55 +108,38 @@
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
-        // --- АВТО-ОТКРЫТИЕ РЕДАКТОРА ИЗ МЕНЮ ---
         const urlParams = new URLSearchParams(window.location.search);
         if (urlParams.get('edit') === 'items') {
             openEditor();
-            // Очищаем URL, чтобы при обновлении страницы редактор не открывался снова
             window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        // --- СОХРАНЕНИЕ И ЗАГРУЗКА ФАЙЛА ---
         function saveProgressToFile() {
             let data = JSON.stringify(player);
             let encoded = btoa(unescape(encodeURIComponent(data)));
             let blob = new Blob([encoded], {type: "text/plain"});
             let url = URL.createObjectURL(blob);
-            
             let a = document.createElement('a');
-            a.href = url;
-            a.download = 'wormix_save.txt';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            alert("Функция помогает сохранить прогресс игры в памяти телефона для последующего обновления игры.\n\nФайл wormix_save.txt сохранен в папку 'Загрузки' (Download).\n\nПосле обновления игры нажмите кнопку 'Загрузить прогресс' и выберите этот файл.");
+            a.href = url; a.download = 'wormix_save.txt';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            alert("Файл wormix_save.txt сохранен в папку 'Загрузки' (Download).");
         }
 
         function loadProgressFromFile(event) {
-            let file = event.target.files[0];
-            if (!file) return;
-            
+            let file = event.target.files[0]; if (!file) return;
             let reader = new FileReader();
             reader.onload = function(e) {
                 try {
-                    let encoded = e.target.result;
-                    let data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
-                    
+                    let data = JSON.parse(decodeURIComponent(escape(atob(e.target.result))));
                     if (data.fuzes !== undefined && data.rubies !== undefined) {
                         localStorage.setItem('wormixSave', JSON.stringify(data));
                         alert("Прогресс успешно загружен! Игра перезагрузится.");
                         window.location.reload();
-                    } else {
-                        alert("Неверный файл сохранения!");
-                    }
-                } catch(err) {
-                    alert("Ошибка при чтении файла! Убедитесь, что выбран правильный файл wormix_save.txt.");
-                }
+                    } else { alert("Неверный файл сохранения!"); }
+                } catch(err) { alert("Ошибка при чтении файла!"); }
             };
             reader.readAsText(file);
         }
-        // -----------------------------------
 
         let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
         let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
@@ -199,15 +178,12 @@
             let box = document.getElementById('sliders-container');
             box.innerHTML = ''; document.getElementById('code-output').style.display = 'none';
             if (!val) return;
-
             let isHat = val.startsWith('hat_'); let id = val.replace('hat_', '').replace('art_', '');
             let data = isHat ? (tempHatSettings[editorRace] && tempHatSettings[editorRace][id]) : (tempArtSettings[editorRace] && tempArtSettings[editorRace][id]);
             let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
             let settings = data || defaults;
-
             let yLabel = isHat ? 'Верх (Y)' : 'Низ (Y)'; let xLabel = isHat ? 'Центр (X)' : 'Сдвиг (X)';
             let xMin = isHat ? 0 : -150; let xMax = isHat ? 100 : 50; let maxW = isHat ? 350 : 250;
-
             box.innerHTML = `
                 <div class="slider-group"><label>Размер</label><input type="range" min="30" max="${maxW}" value="${settings.w}" oninput="previewChange('${val}', 'w', this.value, ${isHat})"><span>${settings.w}</span></div>
                 <div class="slider-group"><label>${yLabel}</label><input type="range" min="-100" max="200" value="${settings.y}" oninput="previewChange('${val}', 'y', this.value, ${isHat})"><span>${settings.y}</span></div>
