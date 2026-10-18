@@ -23,17 +23,15 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova, Gradle and ImageMagick
+      - name: Install Cordova
         run: |
           npm install -g cordova
-          wget -q https://services.gradle.org/distributions/gradle-8.13-bin.zip
-          unzip -q gradle-8.13-bin.zip -d /opt/
-          export PATH=$PATH:/opt/gradle-8.13/bin
-          sudo apt-get update && sudo apt-get install -y imagemagick
 
+      # 1. Создаем проект, но НЕ добавляем платформу сразу
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
+      # 2. Копируем файлы игры
       - name: Copy Game Files to Cordova
         run: |
           rm -rf cordova-app/www/*
@@ -46,27 +44,26 @@ jobs:
           if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
           if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
 
+      # 3. Добавляем платформу Android 12 (более стабильная версия)
       - name: Add Android Platform
         run: |
           cd cordova-app
-          cordova platform add android@13
+          cordova platform add android@12
 
-      # ИСПРАВЛЕННЫЙ ШАГ: Полная зачистка старых иконок
+      # 4. Заменяем иконки. Удаляем папку v26 и все PNG
       - name: Replace Icons Directly
         run: |
           if [ -f icon.png ]; then
             REPO_ROOT=$(pwd)
             cd cordova-app/platforms/android/app/src/main/res
-            
-            # 1. Удаляем адаптивные XML-иконки, чтобы не было конфликта типов
+            # Удаляем адаптивные иконки, чтобы не было конфликта типов
             rm -rf mipmap-anydpi-v26
-            
-            # 2. Удаляем ВСЕ старые PNG-файлы иконок во всех папках
+            # Удаляем все старые PNG-файлы иконок
             find . -name "ic_launcher.png" -delete
             find . -name "ic_launcher_round.png" -delete
             find . -name "ic_launcher_foreground.png" -delete
             
-            # 3. Генерируем и копируем новые иконки нужных размеров
+            # Генерируем и копируем новые иконки нужных размеров
             for dir in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
               if [ -d "$dir" ]; then
                 case $dir in
@@ -78,17 +75,17 @@ jobs:
                 esac
                 convert "$REPO_ROOT/icon.png" -resize ${size}x${size} $dir/ic_launcher.png
                 convert "$REPO_ROOT/icon.png" -resize ${size}x${size} $dir/ic_launcher_round.png
-              fi
+              done
             done
           fi
 
+      # 5. Собираем. Убрали CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL, 
+      # чтобы Cordova использовала свой встроенный Gradle wrapper.
       - name: Build Debug APK
         env:
           JAVA_HOME: ${{ env.JAVA_HOME }}
-          CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.13-bin.zip
         run: |
           cd cordova-app
-          export PATH=$PATH:/opt/gradle-8.13/bin
           cordova clean
           cordova build android --debug
 
