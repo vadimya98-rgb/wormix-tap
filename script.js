@@ -46,8 +46,7 @@ const allHats = {
     'iluzionist': { name: 'Иллюзионист', img: 'images/hats/iluzionist.png' }, 'imperator': { name: 'Император', img: 'images/hats/imperator.png' },
     'inzhiner': { name: 'Инженер', img: 'images/hats/inzhiner.png' }, 'izverg': { name: 'Изверг', img: 'images/hats/izverg.png' },
     'korol': { name: 'Король', img: 'images/hats/korol.png' }, 'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
-    'master_vetra': { name: 'Мастер Ветра', img: 'images/hats/master_vetra.png' }, 
-    'okulayr': { name: 'Окуляр', img: 'images/hats/okulayr.png' },
+    'master_vetra': { name: 'Мастер Ветра', img: 'images/hats/master_vetra.png' }, 'okulayr': { name: 'Окуляр', img: 'images/hats/okulayr.png' },
     'paladin': { name: 'Паладин', img: 'images/hats/paladin.png' }, 'pirat': { name: 'Пират', img: 'images/hats/pirat.png' },
     'pobednui': { name: 'Победный', img: 'images/hats/pobednui.png' }, 'prizrak': { name: 'Призрак', img: 'images/hats/prizrak.png' },
     'psaiker': { name: 'Псайкер', img: 'images/hats/psaiker.png' }, 'respirator': { name: 'Респиратор', img: 'images/hats/respirator.png' },
@@ -67,7 +66,7 @@ const allArtifacts = {
 };
 
 // =========================================================================
-// СЮДА ВЫ БУДЕТЕ ВСТАВЛЯТЬ СГЕНЕРИРОВАННЫЕ НАСТРОЙКИ (редактор их выдаст)
+// ВАШИ НАСТРОЙКИ ШАПОК И АРТЕФАКТОВ
 // =========================================================================
 const HAT_SETTINGS = {
     'alhimik': { w: 222, y: -57, x: 46 },
@@ -112,13 +111,4 @@ const ARTIFACT_SETTINGS = {
     'simbiot': { w: 79, y: 43, x: 89 },
     'ucheniy': { w: 94, y: 32, x: 101 },
     'zezl': { w: 85, y: 44, x: 62 }
-};
-
-const ARTIFACT_SETTINGS = {
-
-};
-};
-
-const ARTIFACT_SETTINGS = {
-    // Пример: 'shit': { w: 90, y: 5, x: -20 },
 };
