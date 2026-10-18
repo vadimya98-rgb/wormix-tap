@@ -23,15 +23,17 @@ jobs:
         with:
           node-version: '20'
 
+      # ДОБАВЛЕН @capacitor/status-bar
       - name: Install Capacitor CLI and Core
         run: |
-          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets @capacitor/status-bar@7
 
       - name: Prepare Game Files
         run: |
           mkdir -p www
           if [ -d "web" ]; then cp -a web/. www/; fi
           if [ -d "веб" ]; then cp -a веб/. www/; fi
+          if [ -d "docs" ]; then cp -a docs/. www/; fi
           cp *.html www/ 2>/dev/null || true
           cp *.css www/ 2>/dev/null || true
           cp *.js www/ 2>/dev/null || true
