@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build Android APK with Capacitor
 
 on:
   push:
@@ -7,69 +7,55 @@ on:
 
 jobs:
   build:
+    name: Build APK
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
+      # Шаг 1: Устанавливаем Node.js (Capacitor требует современную версию)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '18'
 
-      - name: Install Cordova and cordova-res
+      # Шаг 2: Устанавливаем зависимости Capacitor
+      - name: Install Capacitor Dependencies
         run: |
-          npm install -g cordova cordova-res
+          npm i @capacitor/core
+          npm i -D @capacitor/cli
+          npm i @capacitor/android
 
-      - name: Create Cordova Project
-        run: cordova create cordova-app com.example.wormixtap "WormixTAP"
-
-      - name: Copy Game Files to Cordova
+      # Шаг 3: Копируем файлы игры в папку www (стандарт для Capacitor)
+      - name: Copy Game Files to www
         run: |
-          rm -rf cordova-app/www/*
-          if [ -d "web" ]; then cp -a web/. cordova-app/www/; fi
-          if [ -d "веб" ]; then cp -a веб/. cordova-app/www/; fi
-          cp *.html cordova-app/www/ 2>/dev/null || true
-          cp *.css cordova-app/www/ 2>/dev/null || true
-          cp *.js cordova-app/www/ 2>/dev/null || true
-          mkdir -p cordova-app/www/images
-          if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
-          if [ -d "изображения" ]; then cp -a изображения/. cordova-app/www/images/; fi
-          if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
+          rm -rf www/*
+          mkdir -p www
+          if [ -d "web" ]; then cp -a web/. www/; fi
+          if [ -d "веб" ]; then cp -a веб/. www/; fi
+          cp *.html www/ 2>/dev/null || true
+          cp *.css www/ 2>/dev/null || true
+          cp *.js www/ 2>/dev/null || true
+          mkdir -p www/images
+          if [ -d "images" ]; then cp -a images/. www/images/; fi
+          if [ -d "изображения" ]; then cp -a изображения/. www/images/; fi
+          if [ -d "web/images" ]; then cp -a web/images/. www/images/; fi
 
-      - name: Add Android Platform
-        run: |
-          cd cordova-app
-          cordova platform add android@12
+      # Шаг 4: Запускаем магию экшена (он сам все соберет)
+      - name: Build APK
+        uses: Narottam04/action-capacitor-android@master
+        with:
+          # Указываем, что игра лежит в папке www
+          default-directory: './www'
+          # Указываем имя приложения (можно поменять на WormixTAP)
+          app-name: 'WormixTAP'
+          # Указываем путь к нашим картинкам для иконки и заставки
+          resources-path: './'
 
-      # КОПИРУЕМ ТВОИ БОЛЬШИЕ КАРТИНКИ
-      - name: Prepare Resources
-        run: |
-          cd cordova-app
-          mkdir -p resources
-          if [ -f "../icon.png" ]; then cp ../icon.png resources/icon.png; fi
-          if [ -f "../splash.png" ]; then cp ../splash.png resources/splash.png; fi
-
-      # ГЕНЕРИРУЕМ ИКОНКИ И ЗАСТАВКИ
-      - name: Generate Icons and Splash
-        run: |
-          cd cordova-app
-          cordova-res android --skip-config --copy
-
-      # СТАНДАРТНАЯ СБОРКА CORDOVA
-      - name: Build Debug APK
-        run: |
-          cd cordova-app
-          cordova build android --debug
-
+      # Шаг 5: Сохраняем готовый APK
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: WormixTAP-APK
-          path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/debug/app-debug.apk
