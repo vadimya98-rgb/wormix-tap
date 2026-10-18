@@ -34,7 +34,13 @@ jobs:
           cp *.js cordova-app/www/ 2>/dev/null || true
           cp -r images cordova-app/www/ 2>/dev/null || true
 
-      # ГЕНЕРАЦИЯ ИКОНКИ (Берет ваш icon.png из корня и делает все размеры для Android)
+      # ВАЖНО: Сначала добавляем платформу Android!
+      - name: Add Android Platform
+        run: |
+          cd cordova-app
+          cordova platform add android
+
+      # ТЕПЕРЬ ГЕНЕРИРУЕМ ИКОНКУ (когда платформа уже готова)
       - name: Generate App Icons
         run: |
           mkdir -p cordova-app/resources
@@ -42,17 +48,11 @@ jobs:
           cd cordova-app
           cordova-res android --skip-config --copy
 
-      - name: Add Android Platform
-        run: |
-          cd cordova-app
-          cordova platform add android
-
       - name: Build Debug APK
         run: |
           cd cordova-app
           cordova build android --debug
 
-      # СОХРАНЯЕМ ПОД НОВЫМ ИМЕНЕМ
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
