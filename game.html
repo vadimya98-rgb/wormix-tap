@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=4">
 </head>
 <body>
     <div class="top-bar">
@@ -30,11 +30,12 @@
             <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
             <div class="bonus-grid" id="bonus-days"></div>
             <button id="claim-bonus-btn" class="btn-green" style="margin: 15px auto; width: 80%;">Получить</button>
+            <!-- Кнопка закрыть скрыта, так как окно теперь закрывается автоматически -->
             <button id="close-bonus-btn" class="btn-back" style="display:none; margin: 0 auto; width: 80%; text-align:center;">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=4"></script>
     <script>
         document.getElementById('character').src = player.race;
         
@@ -86,7 +87,6 @@
         }
 
         // --- ЛОГИКА ЕЖЕДНЕВНЫХ БОНУСОВ ---
-        // ТЕПЕРЬ С КАРТИНКАМИ
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
 
@@ -106,18 +106,12 @@
         function checkDailyBonus() {
             let timeSinceLast = Date.now() - player.lastBonusTime;
             
+            // Показываем окно ТОЛЬКО если бонус доступен
             if (timeSinceLast >= COOLDOWN) {
                 canClaim = true;
-                document.getElementById('claim-bonus-btn').style.display = 'block';
-                document.getElementById('close-bonus-btn').style.display = 'none';
-            } else {
-                canClaim = false;
-                document.getElementById('claim-bonus-btn').style.display = 'none';
-                document.getElementById('close-bonus-btn').style.display = 'block';
+                renderBonusGrid();
+                document.getElementById('bonus-modal').style.display = 'flex';
             }
-            
-            renderBonusGrid();
-            document.getElementById('bonus-modal').style.display = 'flex';
         }
 
         function renderBonusGrid() {
@@ -171,16 +165,12 @@
             updateBalanceUI();
             showToast("Бонус получен!");
             
-            document.getElementById('claim-bonus-btn').style.display = 'none';
-            document.getElementById('close-bonus-btn').style.display = 'block';
-            canClaim = false;
-            renderBonusGrid();
-        };
-
-        document.getElementById('close-bonus-btn').onclick = () => {
+            // СРАЗУ ЗАКРЫВАЕМ ОКНО
             document.getElementById('bonus-modal').style.display = 'none';
+            canClaim = false;
         };
 
+        // Проверяем бонус при загрузке страницы
         setTimeout(checkDailyBonus, 500);
     </script>
 </body>
