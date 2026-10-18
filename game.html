@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=17">
+    <link rel="stylesheet" href="style.css?v=18">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -22,8 +22,12 @@
 </head>
 <body>
     <div id="drag-banner">1 палец — двигать, 2 пальца — размер <button onclick="finishDragging()">Готово</button></div>
+    
     <div class="top-bar">
-        <div class="btn-back" id="secret-home-btn" style="cursor:pointer;">☰ Дом</div>
+        <!-- Кнопка Дом теперь обычная ссылка с мгновенным переходом -->
+        <a href="menu.html" class="btn-back">☰ Дом</a>
+        
+        <!-- Клик по этому блоку (5 раз) вызывает меню админа -->
         <div class="balance" id="secret-balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -39,6 +43,7 @@
         </div>
     </div>
 
+    <!-- ОКНО ЕЖЕДНЕВНОГО БОНУСА -->
     <div id="bonus-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
@@ -47,6 +52,18 @@
         </div>
     </div>
 
+    <!-- МЕНЮ АДМИНА (ВЫБОР) -->
+    <div id="admin-choice-panel" class="admin-modal" style="z-index: 9998;">
+        <div class="admin-box">
+            <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
+            <button class="btn-green" style="width:100%; margin: 10px 0; background:#F44336;" onclick="openBalanceEditor()">Редактор Баланса</button>
+            <button class="btn-green" style="width:100%; margin: 10px 0; background:#FF9800;" onclick="openItemEditor()">Редактор Шапок</button>
+            <button class="btn-green" style="width:100%; margin: 10px 0; background:#4CAF50;" onclick="window.location.href='menu.html'">Дом (В меню)</button>
+            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('admin-choice-panel').style.display='none'">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ОКНО ИЗМЕНЕНИЯ БАЛАНСА -->
     <div id="balance-panel" class="admin-modal">
         <div class="admin-box" style="border-color: #F44336;">
             <h3 style="color:#F44336; margin-top:0;">Изменение баланса</h3>
@@ -57,11 +74,11 @@
         </div>
     </div>
 
+    <!-- ОКНО РЕДАКТОРА ПРЕДМЕТОВ -->
     <div id="editor-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FF9800; margin-top:0;">Редактор предметов</h3>
             
-            <!-- ВЫБОР РАСЫ ДЛЯ РЕДАКТИРОВАНИЯ -->
             <select id="editor-race-selector" class="admin-select" style="border-color: #FFD700;" onchange="changeEditorRace(this.value)">
                 <option value="images/dragon.png">Дракон</option>
                 <option value="images/robot.png">Робот</option>
@@ -82,7 +99,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=17"></script>
+    <script src="script.js?v=18"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -91,11 +108,8 @@
             if (player.equippedHat && allHats[player.equippedHat]) {
                 hatImg.src = allHats[player.equippedHat].img;
                 hatImg.style.display = 'block';
-                
-                // Берем настройки для ТЕКУЩЕЙ расы
                 let raceHats = HAT_SETTINGS[player.race] || {};
                 let hs = raceHats[player.equippedHat] || { w: 220, y: 60, x: 50 };
-                
                 hatImg.style.width = hs.w + 'px'; hatImg.style.top = hs.y + 'px'; hatImg.style.left = hs.x + '%';
                 let tier = player.hatTiers[player.equippedHat] || 0;
                 hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
@@ -105,10 +119,8 @@
             if (player.equippedArtifact && allArtifacts[player.equippedArtifact]) {
                 artImg.src = allArtifacts[player.equippedArtifact].img;
                 artImg.style.display = 'block';
-                
                 let raceArts = ARTIFACT_SETTINGS[player.race] || {};
                 let as = raceArts[player.equippedArtifact] || { w: 110, y: 10, x: -30 };
-                
                 artImg.style.width = as.w + 'px'; artImg.style.bottom = as.y + 'px'; artImg.style.right = as.x + 'px';
                 let tier = player.artifactTiers[player.equippedArtifact] || 0;
                 artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
@@ -119,16 +131,28 @@
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
+        // --- СЕКРЕТНОЕ МЕНЮ (5 кликов по балансу) ---
         let clickCount = 0; let clickTimer;
         document.getElementById('secret-balance').addEventListener('pointerdown', () => {
             clickCount++; clearTimeout(clickTimer);
             if (clickCount >= 5) {
                 clickCount = 0;
-                document.getElementById('input-fuzes').value = player.fuzes;
-                document.getElementById('input-rubies').value = player.rubies;
-                document.getElementById('balance-panel').style.display = 'flex';
+                document.getElementById('admin-choice-panel').style.display = 'flex';
             } else { clickTimer = setTimeout(() => { clickCount = 0; }, 1000); }
         });
+
+        // Функции для меню выбора
+        function openBalanceEditor() {
+            document.getElementById('admin-choice-panel').style.display = 'none';
+            document.getElementById('input-fuzes').value = player.fuzes;
+            document.getElementById('input-rubies').value = player.rubies;
+            document.getElementById('balance-panel').style.display = 'flex';
+        }
+
+        function openItemEditor() {
+            document.getElementById('admin-choice-panel').style.display = 'none';
+            openEditor();
+        }
 
         function saveBalanceChanges() {
             player.fuzes = parseInt(document.getElementById('input-fuzes').value) || 0;
@@ -138,17 +162,10 @@
             showToast("Баланс изменен!");
         }
 
-        // --- РЕДАКТОР ---
+        // --- РЕДАКТОР ПРЕДМЕТОВ ---
         let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
         let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
-        let editorRace = player.race; // Текущая раса в редакторе
-
-        let homeClicks = 0; let navTimer;
-        document.getElementById('secret-home-btn').addEventListener('click', (e) => {
-            homeClicks++; clearTimeout(navTimer);
-            if (homeClicks >= 3) { homeClicks = 0; openEditor(); } 
-            else { navTimer = setTimeout(() => { window.location.href = 'menu.html'; }, 500); }
-        });
+        let editorRace = player.race;
 
         function openEditor() {
             editorRace = player.race;
@@ -174,9 +191,9 @@
 
         function changeEditorRace(race) {
             editorRace = race;
-            document.getElementById('character').src = editorRace; // Меняем картинку персонажа
+            document.getElementById('character').src = editorRace;
             applySettings();
-            loadItemToEditor(); // Обновляем ползунки под новую расу
+            loadItemToEditor();
         }
 
         function loadItemToEditor() {
@@ -187,7 +204,6 @@
 
             let isHat = val.startsWith('hat_'); let id = val.replace('hat_', '').replace('art_', '');
             
-            // Берем настройки для выбранной в редакторе расы
             let data = isHat ? (tempHatSettings[editorRace] && tempHatSettings[editorRace][id]) : (tempArtSettings[editorRace] && tempArtSettings[editorRace][id]);
             let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
             let settings = data || defaults;
@@ -201,7 +217,6 @@
                 <div class="slider-group"><label>${xLabel}</label><input type="range" min="${xMin}" max="${xMax}" value="${settings.x}" oninput="previewChange('${val}', 'x', this.value, ${isHat})"><span>${settings.x}</span></div>
             `;
             
-            // Визуально надеваем предмет
             if (isHat) player.equippedHat = id; else player.equippedArtifact = id;
             applySettings();
         }
@@ -290,7 +305,6 @@
 
         function generateCode() {
             let out = document.getElementById('code-output');
-            
             let hatCode = "const HAT_SETTINGS = {\n";
             for (let race in tempHatSettings) {
                 hatCode += `    '${race}': {\n`;
@@ -335,6 +349,7 @@
             document.body.appendChild(text); setTimeout(() => text.remove(), 800);
         }
 
+        // --- БОНУСЫ ---
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const bonusRewards = [
