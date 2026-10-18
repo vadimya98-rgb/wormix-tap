@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="top-bar">
@@ -13,7 +13,7 @@
     </div>
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=3"></script>
     <script>
         updateBalanceUI();
         const boosts = [
@@ -25,13 +25,16 @@
             { name: 'Утроение (30 мин)', cost: 40, mult: 3, time: 30 },
             { name: 'Учетверение (10 мин)', cost: 20, mult: 4, time: 10 },
             { name: 'Учетверение (20 мин)', cost: 40, mult: 4, time: 20 },
-            { name: 'Учетверение (30 мин)', cost: 50, mult: 4, time: 30 }
+            { name: 'Учетверение (30 мин)', cost: 50, mult: 4, time: 30 },
+            { name: 'x10 Буст (10 мин)', cost: 50, mult: 10, time: 10, highlight: true },
+            { name: 'x20 Буст (10 мин)', cost: 100, mult: 20, time: 10, highlight: true }
         ];
 
         let list = document.getElementById('shop-list');
         boosts.forEach((b, i) => {
+            let bg = b.highlight ? 'style="border: 2px solid #FFD700;"' : '';
             list.innerHTML += `
-                <div class="item-card">
+                <div class="item-card" ${bg}>
                     <div><b>${b.name}</b><br><span style="font-size:12px; color:#aaa;">Множитель: x${b.mult}</span></div>
                     <button class="btn-buy" onclick="buyBoost(${i})">
                         ${b.cost} <img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin:0;">
