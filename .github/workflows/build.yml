@@ -12,20 +12,20 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Setup Java 21
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '21'
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Setup Java 17
-        uses: actions/setup-java@v4
-        with:
-          distribution: 'temurin'
-          java-version: '17'
-
       - name: Install Capacitor CLI and Core
         run: |
-          npm install @capacitor/core @capacitor/cli @capacitor/android @capacitor/assets
+          npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets
 
       - name: Prepare Game Files
         run: |
@@ -55,6 +55,7 @@ jobs:
 
       - name: Generate App Icons and Splash
         run: |
+          mkdir -p assets
           if [ -f "icon.png" ]; then cp icon.png assets/icon.png 2>/dev/null || true; fi
           if [ -f "splash.png" ]; then cp splash.png assets/splash.png 2>/dev/null || true; fi
           npx @capacitor/assets generate --android
