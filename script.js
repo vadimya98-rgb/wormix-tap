@@ -113,8 +113,6 @@ const ARTIFACT_SETTINGS = {
     'ucheniy': { w: 94, y: 32, x: 101 },
     'zezl': { w: 85, y: 44, x: 62 }
 };
-    
-};
 
 const ARTIFACT_SETTINGS = {
 
