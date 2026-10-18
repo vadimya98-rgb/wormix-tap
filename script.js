@@ -3,13 +3,17 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
     boostMultiplier: 1, boostEndTime: 0,
     hats: [], artifacts: [],
     equippedHat: '', equippedArtifact: '', 
-    hatTiers: {}, artifactTiers: {}
+    hatTiers: {}, artifactTiers: {},
+    lastBonusTime: 0, // Время последнего получения бонуса
+    bonusDay: 1       // Текущий день бонуса (1-7)
 };
 
 if (!player.equippedHat) player.equippedHat = '';
 if (!player.equippedArtifact) player.equippedArtifact = '';
 if (!player.hatTiers) player.hatTiers = {};
 if (!player.artifactTiers) player.artifactTiers = {};
+if (player.lastBonusTime === undefined) player.lastBonusTime = 0;
+if (player.bonusDay === undefined) player.bonusDay = 1;
 
 function saveGame() { localStorage.setItem('wormixSave', JSON.stringify(player)); }
 
@@ -49,7 +53,6 @@ function showToast(message, isError = false) {
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-// Базовый URL для картинок (чтобы не было путаницы с путями)
 const baseUrl = "https://vadimya98-rgb.github.io/wormix-tap/";
 
 // --- БАЗА ВСЕХ ШАПОК ---
