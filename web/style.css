@@ -67,3 +67,11 @@ img { -webkit-touch-callout: none; }
 .btn-save:active { background: #1976D2; transform: scale(0.98); }
 .btn-load { background: #9C27B0; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
 .btn-load:active { background: #7B1FA2; transform: scale(0.98); }
+
+/* Центрирование кнопки Применить в админке */
+.admin-box .btn-green {
+    width: 100%;
+    margin: 10px auto;
+    display: block;
+    box-sizing: border-box;
+}
