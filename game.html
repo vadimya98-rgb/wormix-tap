@@ -4,18 +4,21 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=6">
+    <link rel="stylesheet" href="style.css?v=9">
     <style>
-        /* Стили для чит-меню */
-        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
-        .admin-box { background: #222; padding: 20px; border-radius: 10px; border: 2px solid #F44336; width: 80%; max-width: 300px; text-align: center; }
-        .admin-input { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px; }
+        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: flex-start; overflow-y: auto; padding: 20px 0; }
+        .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
+        .slider-group { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; background: #111; padding: 8px; border-radius: 5px; }
+        .slider-group label { width: 70px; text-align: left; font-size: 12px; }
+        .slider-group input[type="range"] { flex-grow: 1; margin: 0 10px; }
+        .slider-group span { width: 30px; font-size: 12px; text-align: right; }
+        .admin-select { width: 100%; padding: 10px; margin-bottom: 15px; background: #333; color: white; border: 1px solid #555; border-radius: 5px; font-size: 16px; }
+        #code-output { width: 100%; height: 100px; background: #000; color: #00FF00; font-family: monospace; font-size: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; border: 1px solid #4CAF50; display: none;}
     </style>
 </head>
 <body>
     <div class="top-bar">
-        <a href="menu.html" class="btn-back">☰ Дом</a>
-        <!-- ДОБАВЛЕН ID ДЛЯ ПЕРЕХВАТА КЛИКОВ -->
+        <a href="menu.html" class="btn-back" id="secret-home-btn">☰ Дом</a>
         <div class="balance" id="secret-balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -40,171 +43,245 @@
         </div>
     </div>
 
-    <!-- СЕКРЕТНОЕ ЧИТ-МЕНЮ -->
+    <!-- РЕДАКТОР ПОЛОЖЕНИЯ -->
     <div id="admin-panel" class="admin-modal">
         <div class="admin-box">
-            <h3 style="color:#F44336; margin-top:0;">Админ-Панель</h3>
-            <input type="number" id="admin-fuzes" class="admin-input" placeholder="Кол-во фузов">
-            <input type="number" id="admin-rubies" class="admin-input" placeholder="Кол-во рубинов">
-            <button class="btn-green" style="width:100%;" onclick="saveAdminChanges()">Применить</button>
-            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('admin-panel').style.display='none'">Закрыть</button>
+            <h3 style="color:#FF9800; margin-top:0;">Редактор (Скрытый)</h3>
+            
+            <select id="item-selector" class="admin-select" onchange="loadItemToEditor()"></select>
+            
+            <div id="sliders-container"></div>
+
+            <button class="btn-green" style="width:100%; margin:10px 0; background:#2196F3;" onclick="generateCode()">Сгенерировать код</button>
+            <textarea id="code-output" readonly></textarea>
+            <button class="btn-green" style="width:100%; margin:10px 0;" onclick="copyCode()">Скопировать код</button>
+            <button class="btn-back" style="width:100%;" onclick="document.getElementById('admin-panel').style.display='none'">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=9"></script>
     <script>
         document.getElementById('character').src = player.race;
-        
-        // Загружаем Шапку
-        let hatImg = document.getElementById('equipped-hat');
-        if (player.equippedHat && allHats[player.equippedHat]) {
-            hatImg.src = allHats[player.equippedHat].img;
-            hatImg.style.display = 'block';
-            let tier = player.hatTiers[player.equippedHat] || 0;
-            hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
+
+        // --- ЛОГИКА ПРИМЕНЕНИЯ НАСТРОЕК ---
+        function applySettings() {
+            let hatImg = document.getElementById('equipped-hat');
+            if (player.equippedHat && allHats[player.equippedHat]) {
+                hatImg.src = allHats[player.equippedHat].img;
+                hatImg.style.display = 'block';
+                
+                let hs = HAT_SETTINGS[player.equippedHat] || { w: 220, y: 60, x: 50 };
+                hatImg.style.width = hs.w + 'px';
+                hatImg.style.top = hs.y + 'px';
+                hatImg.style.left = hs.x + '%';
+                
+                let tier = player.hatTiers[player.equippedHat] || 0;
+                hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
+            }
+
+            let artImg = document.getElementById('equipped-artifact');
+            if (player.equippedArtifact && allArtifacts[player.equippedArtifact]) {
+                artImg.src = allArtifacts[player.equippedArtifact].img;
+                artImg.style.display = 'block';
+                
+                let as = ARTIFACT_SETTINGS[player.equippedArtifact] || { w: 110, y: 10, x: -30 };
+                artImg.style.width = as.w + 'px';
+                artImg.style.bottom = as.y + 'px';
+                artImg.style.right = as.x + 'px';
+                
+                let tier = player.artifactTiers[player.equippedArtifact] || 0;
+                artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
+            }
         }
 
-        // Загружаем Артефакт
-        let artImg = document.getElementById('equipped-artifact');
-        if (player.equippedArtifact && allArtifacts[player.equippedArtifact]) {
-            artImg.src = allArtifacts[player.equippedArtifact].img;
-            artImg.style.display = 'block';
-            let tier = player.artifactTiers[player.equippedArtifact] || 0;
-            artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
-        }
-
+        applySettings();
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
-        function tap(event) {
-            let earned = 1 * getCurrentMultiplier();
-            player.fuzes += earned;
-            
-            let isRuby = Math.random() < 0.005; 
-            if (isRuby) player.rubies += 1;
-
-            updateBalanceUI();
-            saveGame();
-            
-            let clientX = event.clientX;
-            let clientY = event.clientY;
-            
-            let text = document.createElement('div');
-            text.className = 'floating-text';
-            
-            if (isRuby) { text.innerHTML = `+1 <img src="images/rubin.png">`; } 
-            else { text.innerHTML = `+${earned} <img src="images/fuz.png">`; }
-            
-            text.style.left = (clientX - 30) + 'px';
-            text.style.top = (clientY - 30) + 'px';
-            
-            document.body.appendChild(text);
-            setTimeout(() => text.remove(), 800);
-        }
-
-        // --- ЛОГИКА СЕКРЕТНОГО ЧИТ-МЕНЮ ---
-        let clickCount = 0;
-        let clickTimer;
-        document.getElementById('secret-balance').addEventListener('pointerdown', () => {
-            clickCount++;
-            clearTimeout(clickTimer);
-            
-            // Если нажали 5 раз подряд
-            if (clickCount >= 5) {
-                clickCount = 0;
-                document.getElementById('admin-panel').style.display = 'flex';
-                document.getElementById('admin-fuzes').value = player.fuzes;
-                document.getElementById('admin-rubies').value = player.rubies;
-            } else {
-                clickTimer = setTimeout(() => { clickCount = 0; }, 1000); // Сброс через 1 сек
+        // --- СКРЫТЫЙ РЕДАКТОР ---
+        let homeClicks = 0;
+        document.getElementById('secret-home-btn').addEventListener('click', (e) => {
+            homeClicks++;
+            if (homeClicks >= 3) {
+                e.preventDefault(); // Отменяем переход в меню
+                homeClicks = 0;
+                openEditor();
             }
+            setTimeout(() => { homeClicks = 0; }, 1000); // Сброс кликов
         });
 
-        function saveAdminChanges() {
-            player.fuzes = parseInt(document.getElementById('admin-fuzes').value) || 0;
-            player.rubies = parseInt(document.getElementById('admin-rubies').value) || 0;
-            saveGame();
-            updateBalanceUI();
-            document.getElementById('admin-panel').style.display = 'none';
-            showToast("Данные изменены!");
+        function openEditor() {
+            let selector = document.getElementById('item-selector');
+            selector.innerHTML = '<option value="">-- Выберите предмет --</option>';
+            
+            // Добавляем все шапки
+            selector.innerHTML += '<optgroup label="Шапки">';
+            for (let id in allHats) {
+                let selected = (id === player.equippedHat) ? 'selected' : '';
+                selector.innerHTML += `<option value="hat_${id}" ${selected}>Шапка: ${allHats[id].name}</option>`;
+            }
+            selector.innerHTML += '</optgroup>';
+
+            // Добавляем все артефакты
+            selector.innerHTML += '<optgroup label="Артефакты">';
+            for (let id in allArtifacts) {
+                let selected = (id === player.equippedArtifact) ? 'selected' : '';
+                selector.innerHTML += `<option value="art_${id}" ${selected}>Артефакт: ${allArtifacts[id].name}</option>`;
+            }
+            selector.innerHTML += '</optgroup>';
+
+            document.getElementById('admin-panel').style.display = 'flex';
+            if (selector.value) loadItemToEditor();
         }
 
-        // --- ЛОГИКА ЕЖЕДНЕВНЫХ БОНУСОВ ---
-        const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
-        const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+        function loadItemToEditor() {
+            let val = document.getElementById('item-selector').value;
+            let box = document.getElementById('sliders-container');
+            box.innerHTML = '';
+            document.getElementById('code-output').style.display = 'none';
+            if (!val) return;
 
-        const bonusRewards = [
-            { text: `1000 ${fuzImg}`, type: "fuzes", amount: 1000 },
-            { text: `10 ${rubImg}`, type: "rubies", amount: 10 },
-            { text: "x10 ⚡ (10м)", type: "boost", mult: 10, time: 10 },
-            { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
-            { text: `30 ${rubImg}`, type: "rubies", amount: 30 },
-            { text: "x20 ⚡ (5м)", type: "boost", mult: 20, time: 5 },
-            { text: `30 ${rubImg} + 3000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 3000 }
-        ];
+            let isHat = val.startsWith('hat_');
+            let id = val.replace('hat_', '').replace('art_', '');
+            
+            let data = isHat ? HAT_SETTINGS[id] : ARTIFACT_SETTINGS[id];
+            let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
+            let settings = data || defaults;
 
-        const COOLDOWN = 24 * 60 * 60 * 1000;
-        let canClaim = false;
+            let yLabel = isHat ? 'Верх (Y)' : 'Низ (Y)';
+            let xLabel = isHat ? 'Центр (X)' : 'Сдвиг (X)';
+            let xMin = isHat ? 0 : -150;
+            let xMax = isHat ? 100 : 50;
+            let maxW = isHat ? 350 : 250;
 
-        function checkDailyBonus() {
-            let timeSinceLast = Date.now() - player.lastBonusTime;
-            if (timeSinceLast >= COOLDOWN) {
-                canClaim = true;
-                renderBonusGrid();
-                document.getElementById('bonus-modal').style.display = 'flex';
+            box.innerHTML = `
+                <div class="slider-group"><label>Размер</label><input type="range" min="30" max="${maxW}" value="${settings.w}" oninput="previewChange('${val}', 'w', this.value, ${isHat})"><span>${settings.w}</span></div>
+                <div class="slider-group"><label>${yLabel}</label><input type="range" min="-100" max="200" value="${settings.y}" oninput="previewChange('${val}', 'y', this.value, ${isHat})"><span>${settings.y}</span></div>
+                <div class="slider-group"><label>${xLabel}</label><input type="range" min="${xMin}" max="${xMax}" value="${settings.x}" oninput="previewChange('${val}', 'x', this.value, ${isHat})"><span>${settings.x}</span></div>
+            `;
+
+            // Временно применяем к персонажу для наглядности
+            if (isHat) player.equippedHat = id; else player.equippedArtifact = id;
+            applySettings();
+        }
+
+        // Временное хранилище для редактора
+        let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
+        let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
+
+        function previewChange(val, key, num, isHat) {
+            let id = val.replace('hat_', '').replace('art_', '');
+            let numVal = parseInt(num);
+            event.target.nextElementSibling.innerText = numVal;
+
+            if (isHat) {
+                if (!tempHatSettings[id]) tempHatSettings[id] = { w: 220, y: 60, x: 50 };
+                tempHatSettings[id][key] = numVal;
+                
+                // Применяем визуально
+                let img = document.getElementById('equipped-hat');
+                img.style.width = tempHatSettings[id].w + 'px';
+                img.style.top = tempHatSettings[id].y + 'px';
+                img.style.left = tempHatSettings[id].x + '%';
+            } else {
+                if (!tempArtSettings[id]) tempArtSettings[id] = { w: 110, y: 10, x: -30 };
+                tempArtSettings[id][key] = numVal;
+                
+                // Применяем визуально
+                let img = document.getElementById('equipped-artifact');
+                img.style.width = tempArtSettings[id].w + 'px';
+                img.style.bottom = tempArtSettings[id].y + 'px';
+                img.style.right = tempArtSettings[id].x + 'px';
             }
         }
 
+        function generateCode() {
+            let out = document.getElementById('code-output');
+            
+            let hatCode = "const HAT_SETTINGS = {\n" + Object.keys(tempHatSettings).map(k => `    '${k}': { w: ${tempHatSettings[k].w}, y: ${tempHatSettings[k].y}, x: ${tempHatSettings[k].x} }`).join(",\n") + "\n};\n\n";
+            let artCode = "const ARTIFACT_SETTINGS = {\n" + Object.keys(tempArtSettings).map(k => `    '${k}': { w: ${tempArtSettings[k].w}, y: ${tempArtSettings[k].y}, x: ${tempArtSettings[k].x} }`).join(",\n") + "\n};";
+
+            out.value = hatCode + artCode;
+            out.style.display = 'block';
+        }
+
+        function copyCode() {
+            let out = document.getElementById('code-output');
+            if (!out.value) { showToast("Сначала нажмите 'Сгенерировать'", true); return; }
+            out.select();
+            document.execCommand('copy');
+            showToast("Код скопирован! Вставьте его в script.js");
+        }
+
+        // --- ТАП И ЧИТ-МЕНЮ ---
+        function tap(event) {
+            let earned = 1 * getCurrentMultiplier();
+            player.fuzes += earned; let isRuby = Math.random() < 0.005; 
+            if (isRuby) player.rubies += 1;
+            updateBalanceUI(); saveGame();
+            let clientX = event.clientX; let clientY = event.clientY;
+            let text = document.createElement('div'); text.className = 'floating-text';
+            if (isRuby) { text.innerHTML = `+1 <img src="images/rubin.png">`; } 
+            else { text.innerHTML = `+${earned} <img src="images/fuz.png">`; }
+            text.style.left = (clientX - 30) + 'px'; text.style.top = (clientY - 30) + 'px';
+            document.body.appendChild(text); setTimeout(() => text.remove(), 800);
+        }
+
+        let clickCount = 0; let clickTimer;
+        document.getElementById('secret-balance').addEventListener('pointerdown', () => {
+            clickCount++; clearTimeout(clickTimer);
+            if (clickCount >= 5) {
+                clickCount = 0;
+                let f = prompt("Введите количество фузов:", player.fuzes);
+                let r = prompt("Введите количество рубинов:", player.rubies);
+                if (f !== null) player.fuzes = parseInt(f) || 0;
+                if (r !== null) player.rubies = parseInt(r) || 0;
+                saveGame(); updateBalanceUI(); showToast("Баланс изменен!");
+            } else { clickTimer = setTimeout(() => { clickCount = 0; }, 1000); }
+        });
+
+        // --- БОНУСЫ ---
+        const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+        const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+        const bonusRewards = [
+            { text: `1000 ${fuzImg}`, type: "fuzes", amount: 1000 }, { text: `10 ${rubImg}`, type: "rubies", amount: 10 },
+            { text: "x10 ⚡ (10м)", type: "boost", mult: 10, time: 10 }, { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
+            { text: `30 ${rubImg}`, type: "rubies", amount: 30 }, { text: "x20 ⚡ (5м)", type: "boost", mult: 20, time: 5 },
+            { text: `30 ${rubImg} + 3000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 3000 }
+        ];
+        const COOLDOWN = 24 * 60 * 60 * 1000; let canClaim = false;
+        function checkDailyBonus() {
+            if (Date.now() - player.lastBonusTime >= COOLDOWN) {
+                canClaim = true; renderBonusGrid(); document.getElementById('bonus-modal').style.display = 'flex';
+            }
+        }
         function renderBonusGrid() {
-            let grid = document.getElementById('bonus-days');
-            grid.innerHTML = '';
+            let grid = document.getElementById('bonus-days'); grid.innerHTML = '';
             for (let i = 0; i < 7; i++) {
-                let dayNum = i + 1;
-                let isCurrent = (player.bonusDay === dayNum);
-                let isPassed = (player.bonusDay > dayNum);
-                
-                let div = document.createElement('div');
-                div.className = 'bonus-day';
+                let dayNum = i + 1, isCurrent = (player.bonusDay === dayNum), isPassed = (player.bonusDay > dayNum);
+                let div = document.createElement('div'); div.className = 'bonus-day';
                 if (isCurrent && canClaim) div.classList.add('active');
                 if (!isCurrent && !isPassed) div.classList.add('locked');
                 if (isPassed) div.classList.add('passed');
-                
-                div.innerHTML = `
-                    <div style="font-size:12px; margin-bottom:5px;">День ${dayNum}</div>
-                    <div style="font-size:14px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:2px;">${bonusRewards[i].text}</div>
-                `;
+                div.innerHTML = `<div style="font-size:12px; margin-bottom:5px;">День ${dayNum}</div><div style="font-size:14px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:2px;">${bonusRewards[i].text}</div>`;
                 grid.appendChild(div);
             }
         }
-
         document.getElementById('claim-bonus-btn').onclick = () => {
             if (!canClaim) return;
             let reward = bonusRewards[player.bonusDay - 1];
-            
             if (reward.type === 'fuzes') player.fuzes += reward.amount;
             else if (reward.type === 'rubies') player.rubies += reward.amount;
             else if (reward.type === 'boost') {
                 player.boostMultiplier = reward.mult;
                 let now = Date.now();
-                if (player.boostEndTime > now) { player.boostEndTime += reward.time * 60000; } 
-                else { player.boostEndTime = now + (reward.time * 60000); }
+                if (player.boostEndTime > now) { player.boostEndTime += reward.time * 60000; } else { player.boostEndTime = now + (reward.time * 60000); }
                 startTimerUI('ui-boost-timer');
-            } else if (reward.type === 'mix') {
-                player.rubies += reward.rubies;
-                player.fuzes += reward.fuzes;
-            }
-            
-            player.bonusDay++;
-            if (player.bonusDay > 7) player.bonusDay = 1;
-            player.lastBonusTime = Date.now();
-            
-            saveGame();
-            updateBalanceUI();
-            showToast("Бонус получен!");
-            document.getElementById('bonus-modal').style.display = 'none';
-            canClaim = false;
+            } else if (reward.type === 'mix') { player.rubies += reward.rubies; player.fuzes += reward.fuzes; }
+            player.bonusDay++; if (player.bonusDay > 7) player.bonusDay = 1;
+            player.lastBonusTime = Date.now(); saveGame(); updateBalanceUI(); showToast("Бонус получен!");
+            document.getElementById('bonus-modal').style.display = 'none'; canClaim = false;
         };
-
         setTimeout(checkDailyBonus, 500);
     </script>
 </body>
