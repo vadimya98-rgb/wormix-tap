@@ -23,13 +23,12 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova, Gradle and ImageMagick
+      - name: Install Cordova, Gradle, and cordova-res
         run: |
-          npm install -g cordova
+          npm install -g cordova cordova-res
           wget -q https://services.gradle.org/distributions/gradle-8.13-bin.zip
           unzip -q gradle-8.13-bin.zip -d /opt/
           export PATH=$PATH:/opt/gradle-8.13/bin
-          sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
@@ -51,30 +50,14 @@ jobs:
           cd cordova-app
           cordova platform add android@12
 
-      - name: Replace Icons Directly
+      # ИСПОЛЬЗУЕМ cordova-res ДЛЯ ГЕНЕРАЦИИ ИКОНОК
+      - name: Generate App Icons with cordova-res
         run: |
-          if [ -f icon.png ]; then
-            REPO_ROOT=$(pwd)
-            cd cordova-app/platforms/android/app/src/main/res
-            rm -rf mipmap-anydpi-v26
-            find . -name "ic_launcher.png" -delete
-            find . -name "ic_launcher_round.png" -delete
-            find . -name "ic_launcher_foreground.png" -delete
-            
-            for dir in mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi; do
-              if [ -d "$dir" ]; then
-                case $dir in
-                  mipmap-mdpi) size=48 ;;
-                  mipmap-hdpi) size=72 ;;
-                  mipmap-xhdpi) size=96 ;;
-                  mipmap-xxhdpi) size=144 ;;
-                  mipmap-xxxhdpi) size=192 ;;
-                esac
-                convert "$REPO_ROOT/icon.png" -resize ${size}x${size} $dir/ic_launcher.png
-                convert "$REPO_ROOT/icon.png" -resize ${size}x${size} $dir/ic_launcher_round.png
-              fi
-            done
-          fi
+          cd cordova-app
+          mkdir -p resources
+          if [ -f "../icon.png" ]; then cp ../icon.png resources/icon.png; fi
+          # Генерируем иконки для Android и копируем их в проект
+          cordova-res android --skip-config --copy
 
       - name: Build Debug APK
         env:
