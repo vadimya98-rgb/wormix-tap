@@ -4,11 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=3">
 </head>
 <body>
     <div class="top-bar">
-        <a href="menu.html" class="btn-back">☰ Меню</a>
+        <!-- ИЗМЕНЕНО НА ДОМ -->
+        <a href="menu.html" class="btn-back">☰ Дом</a>
         <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
@@ -24,7 +25,17 @@
         </div>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <!-- ОКНО ЕЖЕДНЕВНОГО БОНУСА -->
+    <div id="bonus-modal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
+            <div class="bonus-grid" id="bonus-days"></div>
+            <button id="claim-bonus-btn" class="btn-green" style="margin: 15px auto; width: 80%;">Получить</button>
+            <button id="close-bonus-btn" class="btn-back" style="display:none; margin: 0 auto; width: 80%; text-align:center;">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=3"></script>
     <script>
         document.getElementById('character').src = player.race;
         
@@ -50,10 +61,12 @@
         startTimerUI('ui-boost-timer');
 
         function tap(event) {
-            let earned = 5 * getCurrentMultiplier();
+            // ТЕПЕРЬ 1 ФУЗ ЗА ТАП (умножается на буст)
+            let earned = 1 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            let isRuby = Math.random() < 0.01; 
+            // ШАНС РУБИНА 0.5% (в 2 раза реже)
+            let isRuby = Math.random() < 0.005; 
             if (isRuby) player.rubies += 1;
 
             updateBalanceUI();
@@ -74,6 +87,103 @@
             document.body.appendChild(text);
             setTimeout(() => text.remove(), 800);
         }
+
+        // --- ЛОГИКА ЕЖЕДНЕВНЫХ БОНУСОВ ---
+        const bonusRewards = [
+            { text: "1000 💎", type: "fuzes", amount: 1000 },
+            { text: "10 🔴", type: "rubies", amount: 10 },
+            { text: "x10 ⚡ (10м)", type: "boost", mult: 10, time: 10 },
+            { text: "5000 💎", type: "fuzes", amount: 5000 },
+            { text: "30 🔴", type: "rubies", amount: 30 },
+            { text: "x20 ⚡ (5м)", type: "boost", mult: 20, time: 5 },
+            { text: "30 🔴 + 3000 💎", type: "mix", rubies: 30, fuzes: 3000 }
+        ];
+
+        const COOLDOWN = 24 * 60 * 60 * 1000; // 24 часа
+        let canClaim = false;
+
+        function checkDailyBonus() {
+            let timeSinceLast = Date.now() - player.lastBonusTime;
+            
+            // Если прошло 24 часа или это первый заход
+            if (timeSinceLast >= COOLDOWN) {
+                canClaim = true;
+                document.getElementById('claim-bonus-btn').style.display = 'block';
+                document.getElementById('close-bonus-btn').style.display = 'none';
+            } else {
+                canClaim = false;
+                document.getElementById('claim-bonus-btn').style.display = 'none';
+                document.getElementById('close-bonus-btn').style.display = 'block';
+            }
+            
+            renderBonusGrid();
+            document.getElementById('bonus-modal').style.display = 'flex';
+        }
+
+        function renderBonusGrid() {
+            let grid = document.getElementById('bonus-days');
+            grid.innerHTML = '';
+            
+            for (let i = 0; i < 7; i++) {
+                let dayNum = i + 1;
+                let isCurrent = (player.bonusDay === dayNum);
+                let isPassed = (player.bonusDay > dayNum);
+                
+                let div = document.createElement('div');
+                div.className = 'bonus-day';
+                if (isCurrent && canClaim) div.classList.add('active');
+                if (!isCurrent && !isPassed) div.classList.add('locked');
+                if (isPassed) div.classList.add('passed');
+                
+                div.innerHTML = `
+                    <div style="font-size:12px; margin-bottom:5px;">День ${dayNum}</div>
+                    <div style="font-size:14px; font-weight:bold;">${bonusRewards[i].text}</div>
+                `;
+                grid.appendChild(div);
+            }
+        }
+
+        document.getElementById('claim-bonus-btn').onclick = () => {
+            if (!canClaim) return;
+            
+            let reward = bonusRewards[player.bonusDay - 1];
+            
+            if (reward.type === 'fuzes') {
+                player.fuzes += reward.amount;
+            } else if (reward.type === 'rubies') {
+                player.rubies += reward.amount;
+            } else if (reward.type === 'boost') {
+                player.boostMultiplier = reward.mult;
+                let now = Date.now();
+                if (player.boostEndTime > now) { player.boostEndTime += reward.time * 60000; } 
+                else { player.boostEndTime = now + (reward.time * 60000); }
+                startTimerUI('ui-boost-timer');
+            } else if (reward.type === 'mix') {
+                player.rubies += reward.rubies;
+                player.fuzes += reward.fuzes;
+            }
+            
+            // Переход на следующий день
+            player.bonusDay++;
+            if (player.bonusDay > 7) player.bonusDay = 1;
+            player.lastBonusTime = Date.now();
+            
+            saveGame();
+            updateBalanceUI();
+            showToast("Бонус получен!");
+            
+            document.getElementById('claim-bonus-btn').style.display = 'none';
+            document.getElementById('close-bonus-btn').style.display = 'block';
+            canClaim = false;
+            renderBonusGrid();
+        };
+
+        document.getElementById('close-bonus-btn').onclick = () => {
+            document.getElementById('bonus-modal').style.display = 'none';
+        };
+
+        // Проверяем бонус при загрузке страницы
+        setTimeout(checkDailyBonus, 500);
     </script>
 </body>
 </html>
