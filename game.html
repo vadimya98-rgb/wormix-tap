@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=13">
+    <link rel="stylesheet" href="style.css?v=14">
     <style>
-        /* Стили для окон админа и редактора */
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
         .slider-group { display: flex; justify-content: space-between; align-items: center; margin: 5px 0; background: #111; padding: 8px; border-radius: 5px; }
@@ -18,16 +17,16 @@
         #code-output { width: 100%; height: 100px; background: #000; color: #00FF00; font-family: monospace; font-size: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; border: 1px solid #4CAF50; display: none;}
         
         /* Баннер режима перетаскивания */
-        #drag-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #4CAF50; color: white; text-align: center; padding: 15px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        #drag-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #4CAF50; color: white; text-align: center; padding: 15px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 14px;}
         #drag-banner button { background: white; color: #4CAF50; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 15px; cursor: pointer; }
         
-        /* ФИКС: Подсветка и разрешение кликов */
+        /* Подсветка предметов в режиме редактирования */
         .editing-item { 
             outline: 2px dashed #FFD700; 
             outline-offset: 5px; 
             cursor: grab; 
-            touch-action: none; /* Запрещает скролл во время движения */
-            pointer-events: auto !important; /* ПРИНУДИТЕЛЬНО РАЗРЕШАЕМ КЛИКИ */
+            touch-action: none; /* Запрещает скролл страницы при редактировании */
+            pointer-events: auto !important; 
             z-index: 99 !important;
         }
     </style>
@@ -35,7 +34,7 @@
 <body>
     <!-- БАННЕР ПЕРЕТАСКИВАНИЯ -->
     <div id="drag-banner">
-        Двигайте предмет пальцем 
+        1 палец — двигать, 2 пальца — размер
         <button onclick="finishDragging()">Готово</button>
     </div>
 
@@ -84,7 +83,6 @@
             <select id="item-selector" class="admin-select" onchange="loadItemToEditor()"></select>
             <div id="sliders-container"></div>
             
-            <!-- КНОПКА ДЛЯ РЕЖИМА ПЕРЕТАСКИВАНИЯ -->
             <button class="btn-green" style="width:100%; margin:10px 0; background:#4CAF50;" onclick="startDragging()">Двигать пальцем</button>
             
             <button class="btn-green" style="width:100%; margin:10px 0; background:#2196F3;" onclick="generateCode()">Сгенерировать код</button>
@@ -94,7 +92,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=13"></script>
+    <script src="script.js?v=14"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -146,6 +144,9 @@
         }
 
         // --- 2. СКРЫТЫЙ РЕДАКТОР ---
+        let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
+        let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
+
         let homeClicks = 0; let navTimer;
         document.getElementById('secret-home-btn').addEventListener('click', (e) => {
             homeClicks++; clearTimeout(navTimer);
@@ -185,7 +186,8 @@
             let isHat = val.startsWith('hat_');
             let id = val.replace('hat_', '').replace('art_', '');
             
-            let data = isHat ? HAT_SETTINGS[id] : ARTIFACT_SETTINGS[id];
+            // ИСПОЛЬЗУЕМ ВРЕМЕННЫЕ НАСТРОЙКИ, А НЕ ОРИГИНАЛЬНЫЕ
+            let data = isHat ? tempHatSettings[id] : tempArtSettings[id];
             let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
             let settings = data || defaults;
 
@@ -205,9 +207,6 @@
             applySettings();
         }
 
-        let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
-        let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
-
         function previewChange(val, key, num, isHat) {
             let id = val.replace('hat_', '').replace('art_', '');
             let numVal = parseInt(num);
@@ -224,87 +223,118 @@
             }
         }
 
-        // --- РЕЖИМ ПЕРЕТАСКИВАНИЯ ---
+        // --- РЕЖИМ ПЕРЕТАСКИВАНИЯ И МАСШТАБИРОВАНИЯ ---
         let isDraggingMode = false;
-        let draggedItem = null;
-        let startPointerX, startPointerY, startItemX, startItemY;
+        let activeEditEl = null;
+        let activeEditType = null; // 'hat' or 'art'
+
+        // Переменные для тач-событий
+        let startTouchX = 0, startTouchY = 0;
+        let startObjX = 0, startObjY = 0;
+        let pinchStartDist = 0;
+        let startObjWidth = 0;
 
         function startDragging() {
+            let val = document.getElementById('item-selector').value;
+            if (!val) { showToast("Выберите предмет!", true); return; }
+
             document.getElementById('editor-panel').style.display = 'none';
             document.getElementById('drag-banner').style.display = 'block';
             isDraggingMode = true;
 
-            // Включаем клики и подсветку
-            if (player.equippedHat) document.getElementById('equipped-hat').classList.add('editing-item');
-            if (player.equippedArtifact) document.getElementById('equipped-artifact').classList.add('editing-item');
+            if (val.startsWith('hat_')) {
+                activeEditType = 'hat';
+                activeEditEl = document.getElementById('equipped-hat');
+            } else {
+                activeEditType = 'art';
+                activeEditEl = document.getElementById('equipped-artifact');
+            }
+            
+            activeEditEl.classList.add('editing-item');
         }
 
         function finishDragging() {
             document.getElementById('drag-banner').style.display = 'none';
             isDraggingMode = false;
-            draggedItem = null;
             
-            if (player.equippedHat) document.getElementById('equipped-hat').classList.remove('editing-item');
-            if (player.equippedArtifact) document.getElementById('equipped-artifact').classList.remove('editing-item');
+            if (activeEditEl) activeEditEl.classList.remove('editing-item');
 
-            document.getElementById('editor-panel').style.display = 'flex';
-            
-            // Синхронизируем ползунки с новыми координатами
-            if (player.equippedHat) {
+            // СИНХРОНИЗАЦИЯ ПОЛЗУНКОВ С НОВЫМИ ДАННЫМИ
+            if (activeEditType === 'hat') {
                 let id = player.equippedHat;
-                let hs = tempHatSettings[id];
-                if(!hs) { hs = { w: 220, y: 60, x: 50 }; tempHatSettings[id] = hs; }
-                hs.y = parseInt(document.getElementById('equipped-hat').style.top) || 60;
-                hs.x = parseInt(document.getElementById('equipped-hat').style.left) || 50;
-            }
-            if (player.equippedArtifact) {
+                if(!tempHatSettings[id]) tempHatSettings[id] = { w: 220, y: 60, x: 50 };
+                tempHatSettings[id].y = Math.round(parseFloat(activeEditEl.style.top) || 60);
+                tempHatSettings[id].x = Math.round(parseFloat(activeEditEl.style.left) || 50);
+                tempHatSettings[id].w = Math.round(parseFloat(activeEditEl.style.width) || 220);
+            } else if (activeEditType === 'art') {
                 let id = player.equippedArtifact;
-                let as = tempArtSettings[id];
-                if(!as) { as = { w: 110, y: 10, x: -30 }; tempArtSettings[id] = as; }
-                as.y = parseInt(document.getElementById('equipped-artifact').style.bottom) || 10;
-                as.x = parseInt(document.getElementById('equipped-artifact').style.right) || -30;
+                if(!tempArtSettings[id]) tempArtSettings[id] = { w: 110, y: 10, x: -30 };
+                tempArtSettings[id].y = Math.round(parseFloat(activeEditEl.style.bottom) || 10);
+                tempArtSettings[id].x = Math.round(parseFloat(activeEditEl.style.right) || -30);
+                tempArtSettings[id].w = Math.round(parseFloat(activeEditEl.style.width) || 110);
             }
             
-            loadItemToEditor(); 
+            document.getElementById('editor-panel').style.display = 'flex';
+            loadItemToEditor(); // Обновляем ползунки
         }
 
-        // Обработчики событий
-        document.getElementById('equipped-hat').addEventListener('pointerdown', (e) => {
-            if (!isDraggingMode) return;
-            e.stopPropagation(); e.preventDefault();
-            draggedItem = 'hat';
-            startPointerX = e.clientX; startPointerY = e.clientY;
-            startItemX = parseFloat(e.target.style.left) || 50; 
-            startItemY = parseFloat(e.target.style.top) || 60;
-        });
+        // Обработка тач-событий (1 палец - движение, 2 пальца - масштаб)
+        document.getElementById('tap-area').addEventListener('touchstart', (e) => {
+            if (!isDraggingMode || !activeEditEl) return;
+            e.preventDefault(); // Отменяем скролл и зум страницы
 
-        document.getElementById('equipped-artifact').addEventListener('pointerdown', (e) => {
-            if (!isDraggingMode) return;
-            e.stopPropagation(); e.preventDefault();
-            draggedItem = 'art';
-            startPointerX = e.clientX; startPointerY = e.clientY;
-            startItemX = parseFloat(e.target.style.right) || -30;
-            startItemY = parseFloat(e.target.style.bottom) || 10;
-        });
-
-        document.addEventListener('pointermove', (e) => {
-            if (!isDraggingMode || !draggedItem) return;
-            e.preventDefault();
-            
-            let dx = e.clientX - startPointerX;
-            let dy = e.clientY - startPointerY;
-
-            if (draggedItem === 'hat') {
-                let hatImg = document.getElementById('equipped-hat');
-                hatImg.style.top = (startItemY + dy) + 'px';
-                let newLeftPercent = startItemX + (dx / window.innerWidth * 100);
-                hatImg.style.left = newLeftPercent + '%';
-            } else if (draggedItem === 'art') {
-                let artImg = document.getElementById('equipped-artifact');
-                artImg.style.bottom = (startItemY - dy) + 'px';
-                artImg.style.right = (startItemX - dx) + 'px';
+            if (e.touches.length === 1) {
+                startTouchX = e.touches[0].clientX;
+                startTouchY = e.touches[0].clientY;
+                
+                if (activeEditType === 'hat') {
+                    startObjX = parseFloat(activeEditEl.style.left) || 50; // в процентах
+                    startObjY = parseFloat(activeEditEl.style.top) || 60;
+                } else {
+                    startObjX = parseFloat(activeEditEl.style.right) || -30;
+                    startObjY = parseFloat(activeEditEl.style.bottom) || 10;
+                }
+            } else if (e.touches.length === 2) {
+                pinchStartDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                startObjWidth = parseFloat(activeEditEl.style.width) || 100;
             }
-        });
+        }, {passive: false});
+
+        document.getElementById('tap-area').addEventListener('touchmove', (e) => {
+            if (!isDraggingMode || !activeEditEl) return;
+            e.preventDefault();
+
+            if (e.touches.length === 1) {
+                // Движение
+                let dx = e.touches[0].clientX - startTouchX;
+                let dy = e.touches[0].clientY - startTouchY;
+
+                if (activeEditType === 'hat') {
+                    activeEditEl.style.top = (startObjY + dy) + 'px';
+                    let newLeftPercent = startObjX + (dx / window.innerWidth * 100);
+                    activeEditEl.style.left = newLeftPercent + '%';
+                } else {
+                    activeEditEl.style.bottom = (startObjY - dy) + 'px';
+                    activeEditEl.style.right = (startObjX - dx) + 'px';
+                }
+            } else if (e.touches.length === 2) {
+                // Масштабирование
+                let currentDist = Math.hypot(
+                    e.touches[0].clientX - e.touches[1].clientX,
+                    e.touches[0].clientY - e.touches[1].clientY
+                );
+                let scale = currentDist / pinchStartDist;
+                let newWidth = startObjWidth * scale;
+
+                if (newWidth > 20 && newWidth < 500) {
+                    activeEditEl.style.width = newWidth + 'px';
+                }
+            }
+        }, {passive: false});
+
 
         // --- ГЕНЕРАЦИЯ КОДА ---
         function generateCode() {
