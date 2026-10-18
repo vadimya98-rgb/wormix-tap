@@ -17,39 +17,45 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova and cordova-res
-        run: npm install -g cordova cordova-res
+      - name: Install Cordova and ImageMagick
+        run: |
+          npm install -g cordova
+          sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
+      # ИСПРАВЛЕННЫЙ ШАГ: Копируем абсолютно всё
       - name: Copy Game Files to Cordova
         run: |
-          cp -r web/* cordova-app/www/ 2>/dev/null || true
-          cp *.html cordova-app/www/ 2>/dev/null || true
-          cp *.css cordova-app/www/ 2>/dev/null || true
-          cp *.js cordova-app/www/ 2>/dev/null || true
-          cp -r images cordova-app/www/ 2>/dev/null || true
+          # Копируем всё из папки docs
+          cp -r docs/* cordova-app/www/ 2>/dev/null || true
+          
+          # На всякий случай копируем стили и скрипты из корня, если они там
+          cp style.css cordova-app/www/ 2>/dev/null || true
+          cp script.js cordova-app/www/ 2>/dev/null || true
+          
+          # Копируем папку с картинками (учитываем возможный перевод)
+          [ -d "images" ] && cp -r images cordova-app/www/ || true
+          [ -d "изображения" ] && cp -r изображения cordova-app/www/ || true
+          [ -d "docs/images" ] && cp -r docs/images cordova-app/www/ || true
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android
 
-      # БЛОК ГЕНЕРАЦИИ ИКОНКИ И ЗАСТАВКИ
-      - name: Generate Icons and Splash
+      - name: Replace Icons Directly
         run: |
-          mkdir -p cordova-app/resources
           if [ -f icon.png ]; then
-            # Копируем иконку
-            cp icon.png cordova-app/resources/icon.png
-            # Устанавливаем ImageMagick для создания заставки
-            sudo apt-get update && sudo apt-get install -y imagemagick
-            # Создаем splash.png 2732x2732 с иконкой по центру
-            convert icon.png -resize 2732x2732^ -gravity center -extent 2732x2732 cordova-app/resources/splash.png
+            cd cordova-app/platforms/android/app/src/main/res
+            for dir in mipmap-*; do
+              if [ -d "$dir" ]; then
+                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher.png 2>/dev/null || true
+                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher_round.png 2>/dev/null || true
+              fi
+            done
           fi
-          cd cordova-app
-          cordova-res android --skip-config --copy
 
       - name: Build Debug APK
         run: |
