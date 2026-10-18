@@ -145,5 +145,10 @@
             } catch (err) { showToast("Ошибка! Код поврежден.", true); }
         }
     </script>
+    <script>
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+        window.Capacitor.Plugins.StatusBar.hide();
+    }
+</script>
 </body>
 </html>
