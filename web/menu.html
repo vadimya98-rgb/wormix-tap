@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=24">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
@@ -29,35 +29,41 @@
         <a href="shop.html" class="btn-green" style="background:#FF9800;">Буст</a>
     </div>
 
+    <!-- СЕКРЕТНОЕ МЕНЮ -->
     <div id="admin-choice-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
             <button class="btn-green" style="width:100%; margin: 5px 0; background:#F44336;" onclick="openBalanceEditor()">Редактор Баланса</button>
-            <button class="btn-green" style="width:100%; margin: 5px 0; background:#FF9800;" onclick="window.location.href='game.html?edit=items'">Редактор Шапок</button>
+            <!-- ИСПРАВЛЕНА КНОПКА РЕДАКТОРА -->
+            <button class="btn-green" style="width:100%; margin: 5px 0; background:#FF9800;" onclick="openItemEditor()">Редактор Шапок</button>
             <button class="btn-back" style="width:100%; margin-top:5px;" onclick="document.getElementById('admin-choice-panel').style.display='none'">Отмена</button>
         </div>
     </div>
 
+    <!-- ОКНО ИЗМЕНЕНИЯ БАЛАНСА -->
     <div id="balance-panel" class="admin-modal">
         <div class="admin-box" style="border-color: #F44336;">
             <h3 style="color:#F44336; margin-top:0;">Изменение баланса</h3>
             <input type="number" id="input-fuzes" class="admin-input" placeholder="Фузы">
             <input type="number" id="input-rubies" class="admin-input" placeholder="Рубины">
-            <button class="btn-green" style="width:100%; background:#F44336;" onclick="saveBalanceChanges()">Применить</button>
-            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('balance-panel').style.display='none'">Закрыть</button>
+            <button class="btn-green" style="width:100%; margin: 10px auto; background:#F44336;" onclick="saveBalanceChanges()">Применить</button>
+            <button class="btn-back" style="width:100%; margin-top:5px;" onclick="document.getElementById('balance-panel').style.display='none'">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js?v=99"></script>
+    <script src="script.js?v=24"></script>
     <script>
         updateBalanceUI();
+
         let clickCount = 0; let clickTimer;
         document.getElementById('secret-balance-menu').addEventListener('pointerdown', () => {
             clickCount++; clearTimeout(clickTimer);
             if (clickCount >= 5) {
                 clickCount = 0;
                 document.getElementById('admin-choice-panel').style.display = 'flex';
-            } else { clickTimer = setTimeout(() => { clickCount = 0; }, 1000); }
+            } else { 
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000); 
+            }
         });
 
         function openBalanceEditor() {
@@ -67,10 +73,17 @@
             document.getElementById('balance-panel').style.display = 'flex';
         }
 
+        function openItemEditor() {
+            // Записываем команду в память и переходим на главный экран
+            sessionStorage.setItem('openEditor', 'true');
+            window.location.href = 'game.html';
+        }
+
         function saveBalanceChanges() {
             player.fuzes = parseInt(document.getElementById('input-fuzes').value) || 0;
             player.rubies = parseInt(document.getElementById('input-rubies').value) || 0;
-            saveGame(); updateBalanceUI();
+            saveGame(); 
+            updateBalanceUI();
             document.getElementById('balance-panel').style.display = 'none';
             showToast("Баланс изменен!");
         }
