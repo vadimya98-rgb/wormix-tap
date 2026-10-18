@@ -23,15 +23,17 @@ jobs:
         with:
           node-version: '18'
 
-      # ЖЕСТКО СТАВИМ ПРАВИЛЬНУЮ ВЕРСИЮ GRADLE ДЛЯ СИСТЕМЫ
+      # ЖЕСТКО СТАВИМ ПРАВИЛЬНУЮ ВЕРСИЮ GRADLE
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v3
         with:
           gradle-version: '8.7'
 
-      - name: Install Cordova and cordova-res
+      # УСТАНАВЛИВАЕМ IMAGEMAGICK ДЛЯ РАБОТЫ С КАРТИНКАМИ
+      - name: Install Cordova, cordova-res and ImageMagick
         run: |
           npm install -g cordova cordova-res
+          sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
@@ -54,23 +56,27 @@ jobs:
           cd cordova-app
           cordova platform add android@12
 
-      # КОПИРУЕМ ОБЕ КАРТИНКИ В ПАПКУ РЕСУРСОВ
+      # АВТОМАТИЧЕСКОЕ УВЕЛИЧЕНИЕ ЗАСТАВКИ ДО 2732x2732
       - name: Prepare Resources
         run: |
           cd cordova-app
           mkdir -p resources
           if [ -f "../icon.png" ]; then cp ../icon.png resources/icon.png; fi
-          if [ -f "../splash.png" ]; then cp ../splash.png resources/splash.png; fi
+          if [ -f "../splash.png" ]; then 
+            # Увеличиваем картинку до 2732x2732, чтобы cordova-res была довольна
+            convert ../splash.png -resize 2732x2732^ -gravity center -extent 2732x2732 resources/splash.png
+          fi
 
-      # ГЕНЕРИРУЕМ ИКОНКИ И ЗАСТАВКИ (теперь ошибки не будет)
       - name: Generate Icons and Splash
         run: |
           cd cordova-app
           cordova-res android --skip-config --copy
 
+      # ОЧИСТКА И СБОРКА
       - name: Build Debug APK
         run: |
           cd cordova-app
+          cordova clean
           cordova build android --debug
 
       - name: Upload APK Artifact
