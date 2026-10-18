@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=24">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -17,6 +17,13 @@
         #drag-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #4CAF50; color: white; text-align: center; padding: 15px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 14px;}
         #drag-banner button { background: white; color: #4CAF50; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 15px; cursor: pointer; }
         .editing-item { outline: 2px dashed #FFD700; outline-offset: 5px; cursor: grab; touch-action: none; pointer-events: auto !important; z-index: 99 !important; }
+        
+        /* Стили для кнопок сохранения */
+        .save-load-container { display: flex; justify-content: center; gap: 15px; padding: 10px; margin-bottom: 20px; z-index: 100; }
+        .btn-save { background: #2196F3; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-save:active { background: #1976D2; transform: scale(0.98); }
+        .btn-load { background: #9C27B0; color: white; border: none; padding: 10px 15px; border-radius: 8px; font-size: 14px; font-weight: bold; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        .btn-load:active { background: #7B1FA2; transform: scale(0.98); }
     </style>
 </head>
 <body>
@@ -41,9 +48,8 @@
     </div>
 
     <div class="save-load-container">
-        <button class="btn-save" onclick="saveProgressToFile()">💾 Сохранить</button>
-        <button class="btn-load" onclick="document.getElementById('file-input').click()">📂 Загрузить</button>
-        <input type="file" id="file-input" accept=".txt" style="display: none;" onchange="loadProgressFromFile(event)">
+        <button class="btn-save" onclick="saveProgress()">💾 Сохранить</button>
+        <button class="btn-load" onclick="loadProgress()">📂 Загрузить</button>
     </div>
 
     <div id="bonus-modal" class="modal-overlay">
@@ -76,7 +82,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=99"></script>
+    <script src="script.js?v=24"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -108,38 +114,37 @@
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
-        const urlParams = new URLSearchParams(window.location.search);
-        if (urlParams.get('edit') === 'items') {
-            openEditor();
-            window.history.replaceState({}, document.title, window.location.pathname);
+        // --- ПРОВЕРКА НА ОТКРЫТИЕ РЕДАКТОРА ---
+        if (sessionStorage.getItem('openEditor') === 'true') {
+            sessionStorage.removeItem('openEditor');
+            // Небольшая задержка, чтобы страница успела прогрузиться
+            setTimeout(() => { openEditor(); }, 500); 
         }
 
-        function saveProgressToFile() {
+        // --- НАДЕЖНОЕ СОХРАНЕНИЕ/ЗАГРУЗКА ---
+        function saveProgress() {
             let data = JSON.stringify(player);
             let encoded = btoa(unescape(encodeURIComponent(data)));
-            let blob = new Blob([encoded], {type: "text/plain"});
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a');
-            a.href = url; a.download = 'wormix_save.txt';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            alert("Файл wormix_save.txt сохранен в папку 'Загрузки' (Download).");
+            prompt("Скопируйте этот код сохранения и сохраните в заметках (или отправьте себе в Telegram):", encoded);
         }
 
-        function loadProgressFromFile(event) {
-            let file = event.target.files[0]; if (!file) return;
-            let reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    let data = JSON.parse(decodeURIComponent(escape(atob(e.target.result))));
-                    if (data.fuzes !== undefined && data.rubies !== undefined) {
-                        localStorage.setItem('wormixSave', JSON.stringify(data));
-                        alert("Прогресс успешно загружен! Игра перезагрузится.");
-                        window.location.reload();
-                    } else { alert("Неверный файл сохранения!"); }
-                } catch(err) { alert("Ошибка при чтении файла!"); }
-            };
-            reader.readAsText(file);
+        function loadProgress() {
+            let code = prompt("Вставьте ваш код сохранения:");
+            if (!code) return;
+            try {
+                let decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
+                if (decoded.fuzes !== undefined && decoded.rubies !== undefined) {
+                    localStorage.setItem('wormixSave', JSON.stringify(decoded));
+                    alert("Прогресс успешно загружен! Игра перезагрузится.");
+                    window.location.reload();
+                } else {
+                    alert("Неверный код сохранения!");
+                }
+            } catch (err) {
+                alert("Ошибка при чтении кода! Проверьте, что вы скопировали его полностью.");
+            }
         }
+        // ------------------------------------
 
         let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
         let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
@@ -178,12 +183,15 @@
             let box = document.getElementById('sliders-container');
             box.innerHTML = ''; document.getElementById('code-output').style.display = 'none';
             if (!val) return;
+
             let isHat = val.startsWith('hat_'); let id = val.replace('hat_', '').replace('art_', '');
             let data = isHat ? (tempHatSettings[editorRace] && tempHatSettings[editorRace][id]) : (tempArtSettings[editorRace] && tempArtSettings[editorRace][id]);
             let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
             let settings = data || defaults;
+
             let yLabel = isHat ? 'Верх (Y)' : 'Низ (Y)'; let xLabel = isHat ? 'Центр (X)' : 'Сдвиг (X)';
             let xMin = isHat ? 0 : -150; let xMax = isHat ? 100 : 50; let maxW = isHat ? 350 : 250;
+
             box.innerHTML = `
                 <div class="slider-group"><label>Размер</label><input type="range" min="30" max="${maxW}" value="${settings.w}" oninput="previewChange('${val}', 'w', this.value, ${isHat})"><span>${settings.w}</span></div>
                 <div class="slider-group"><label>${yLabel}</label><input type="range" min="-100" max="200" value="${settings.y}" oninput="previewChange('${val}', 'y', this.value, ${isHat})"><span>${settings.y}</span></div>
