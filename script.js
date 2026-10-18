@@ -51,7 +51,7 @@ function showToast(message, isError = false) {
     setTimeout(() => { toast.classList.remove('show'); }, 2000);
 }
 
-// ФУНКЦИЯ ГЕНЕРАЦИИ ЦЕНЫ (Стабильная для каждого предмета)
+// ФУНКЦИЯ ГЕНЕРАЦИИ ЦЕНЫ (Стабильная)
 function getPrice(itemId, isHat) {
     let hash = 0;
     for (let i = 0; i < itemId.length; i++) {
@@ -59,62 +59,54 @@ function getPrice(itemId, isHat) {
     }
     hash = Math.abs(hash);
     
-    if (isHat) {
-        // Шапки от 6000 до 10000
-        return 6000 + (hash % 4001);
-    } else {
-        // Артефакты от 5000 до 8000
-        return 5000 + (hash % 3001);
-    }
+    if (isHat) return 6000 + (hash % 4001);
+    else return 5000 + (hash % 3001);
 }
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-const baseUrl = "https://vadimya98-rgb.github.io/wormix-tap/";
-
-// --- БАЗА ВСЕХ ШАПОК ---
+// ТЕПЕРЬ ОТНОСИТЕЛЬНЫЕ ПУТИ ДЛЯ ОФЛАЙН-ИГРЫ
 const allHats = {
-    'alhimik': { name: 'Алхимик', img: baseUrl + 'images/hats/alhimik.png' },
-    'assassin': { name: 'Ассасин', img: baseUrl + 'images/hats/assassin.png' },
-    'captain': { name: 'Капитан', img: baseUrl + 'images/hats/captain.png' },
-    'fantom': { name: 'Фантом', img: baseUrl + 'images/hats/fantom.png' },
-    'gorayhii': { name: 'Горящий', img: baseUrl + 'images/hats/gorayhii.png' },
-    'hacker': { name: 'Хакер', img: baseUrl + 'images/hats/hacker.png' },
-    'iluzionist': { name: 'Иллюзионист', img: baseUrl + 'images/hats/iluzionist.png' },
-    'imperator': { name: 'Император', img: baseUrl + 'images/hats/imperator.png' },
-    'inzhiner': { name: 'Инженер', img: baseUrl + 'images/hats/inzhiner.png' },
-    'izverg': { name: 'Изверг', img: baseUrl + 'images/hats/izverg.png' },
-    'korol': { name: 'Король', img: baseUrl + 'images/hats/korol.png' },
-    'krolik': { name: 'Кролик', img: baseUrl + 'images/hats/krolik.png' },
-    'master_vetra': { name: 'Мастер Ветра', img: baseUrl + 'images/hats/master_vetra.png' },
-    'okulyar': { name: 'Окуляр', img: baseUrl + 'images/hats/okulyar.png' },
-    'paladin': { name: 'Паладин', img: baseUrl + 'images/hats/paladin.png' },
-    'pirat': { name: 'Пират', img: baseUrl + 'images/hats/pirat.png' },
-    'pobednui': { name: 'Победный', img: baseUrl + 'images/hats/pobednui.png' },
-    'prizrak': { name: 'Призрак', img: baseUrl + 'images/hats/prizrak.png' },
-    'psaiker': { name: 'Псайкер', img: baseUrl + 'images/hats/psaiker.png' },
-    'respirator': { name: 'Респиратор', img: baseUrl + 'images/hats/respirator.png' },
-    'samuray': { name: 'Самурай', img: baseUrl + 'images/hats/samuray.png' },
-    'shaman_vudu': { name: 'Шаман Вуду', img: baseUrl + 'images/hats/shaman_vudu.png' },
-    'shapka': { name: 'Шапка', img: baseUrl + 'images/hats/shapka.png' },
-    'slem': { name: 'Шлем', img: baseUrl + 'images/hats/slem.png' },
-    'spetsnaz': { name: 'Спецназ', img: baseUrl + 'images/hats/spetsnaz.png' },
-    'strazgi': { name: 'Стражи', img: baseUrl + 'images/hats/strazgi.png' },
-    'telepat': { name: 'Телепат', img: baseUrl + 'images/hats/telepat.png' },
-    'temniy': { name: 'Темный', img: baseUrl + 'images/hats/temniy.png' },
-    'viking': { name: 'Викинг', img: baseUrl + 'images/hats/viking.png' },
-    'vor': { name: 'Вор', img: baseUrl + 'images/hats/vor.png' },
-    'voron': { name: 'Ворон', img: baseUrl + 'images/hats/voron.png' },
-    'yakudza': { name: 'Якудза', img: baseUrl + 'images/hats/yakudza.png' }
+    'alhimik': { name: 'Алхимик', img: 'images/hats/alhimik.png' },
+    'assassin': { name: 'Ассасин', img: 'images/hats/assassin.png' },
+    'captain': { name: 'Капитан', img: 'images/hats/captain.png' },
+    'fantom': { name: 'Фантом', img: 'images/hats/fantom.png' },
+    'gorayhii': { name: 'Горящий', img: 'images/hats/gorayhii.png' },
+    'hacker': { name: 'Хакер', img: 'images/hats/hacker.png' },
+    'iluzionist': { name: 'Иллюзионист', img: 'images/hats/iluzionist.png' },
+    'imperator': { name: 'Император', img: 'images/hats/imperator.png' },
+    'inzhiner': { name: 'Инженер', img: 'images/hats/inzhiner.png' },
+    'izverg': { name: 'Изверг', img: 'images/hats/izverg.png' },
+    'korol': { name: 'Король', img: 'images/hats/korol.png' },
+    'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
+    'master_vetra': { name: 'Мастер Ветра', img: 'images/hats/master_vetra.png' },
+    'okulyar': { name: 'Окуляр', img: 'images/hats/okulyar.png' },
+    'paladin': { name: 'Паладин', img: 'images/hats/paladin.png' },
+    'pirat': { name: 'Пират', img: 'images/hats/pirat.png' },
+    'pobednui': { name: 'Победный', img: 'images/hats/pobednui.png' },
+    'prizrak': { name: 'Призрак', img: 'images/hats/prizrak.png' },
+    'psaiker': { name: 'Псайкер', img: 'images/hats/psaiker.png' },
+    'respirator': { name: 'Респиратор', img: 'images/hats/respirator.png' },
+    'samuray': { name: 'Самурай', img: 'images/hats/samuray.png' },
+    'shaman_vudu': { name: 'Шаман Вуду', img: 'images/hats/shaman_vudu.png' },
+    'shapka': { name: 'Шапка', img: 'images/hats/shapka.png' },
+    'slem': { name: 'Шлем', img: 'images/hats/slem.png' },
+    'spetsnaz': { name: 'Спецназ', img: 'images/hats/spetsnaz.png' },
+    'strazgi': { name: 'Стражи', img: 'images/hats/strazgi.png' },
+    'telepat': { name: 'Телепат', img: 'images/hats/telepat.png' },
+    'temniy': { name: 'Темный', img: 'images/hats/temniy.png' },
+    'viking': { name: 'Викинг', img: 'images/hats/viking.png' },
+    'vor': { name: 'Вор', img: 'images/hats/vor.png' },
+    'voron': { name: 'Ворон', img: 'images/hats/voron.png' },
+    'yakudza': { name: 'Якудза', img: 'images/hats/yakudza.png' }
 };
 
-// --- БАЗА ВСЕХ АРТЕФАКТОВ ---
 const allArtifacts = {
-    'arhi': { name: 'Архи', img: baseUrl + 'images/artefacts/arhi.png' },
-    'arkhidemon': { name: 'Архидемон', img: baseUrl + 'images/artefacts/arkhidemon.png' },
-    'posoh': { name: 'Посох', img: baseUrl + 'images/artefacts/posoh.png' },
-    'shit': { name: 'Щит', img: baseUrl + 'images/artefacts/shit.png' },
-    'simbiot': { name: 'Симбиот', img: baseUrl + 'images/artefacts/simbiot.png' },
-    'ucheniy': { name: 'Ученый', img: baseUrl + 'images/artefacts/ucheniy.png' },
-    'zezl': { name: 'Жезл', img: baseUrl + 'images/artefacts/zezl.png' }
+    'arhi': { name: 'Архи', img: 'images/artefacts/arhi.png' },
+    'arkhidemon': { name: 'Архидемон', img: 'images/artefacts/arkhidemon.png' },
+    'posoh': { name: 'Посох', img: 'images/artefacts/posoh.png' },
+    'shit': { name: 'Щит', img: 'images/artefacts/shit.png' },
+    'simbiot': { name: 'Симбиот', img: 'images/artefacts/simbiot.png' },
+    'ucheniy': { name: 'Ученый', img: 'images/artefacts/ucheniy.png' },
+    'zezl': { name: 'Жезл', img: 'images/artefacts/zezl.png' }
 };
