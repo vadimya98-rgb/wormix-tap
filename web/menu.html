@@ -4,16 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=22">
+    <style>
+        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
+        .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
+        .admin-input { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
+    </style>
 </head>
 <body>
     <div class="top-bar">
         <a href="game.html" class="btn-back">← В игру</a>
-        <div class="balance">
+        <!-- Баланс в меню, по которому мы будем кликать -->
+        <div class="balance" id="secret-balance-menu">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
+    
     <div class="content" style="display:flex; flex-direction:column; justify-content:center; gap:10px;">
         <a href="wardrobe.html" class="btn-green" style="background:#9C27B0;">Шкаф</a> 
         <a href="race.html" class="btn-green">Расса</a>
@@ -22,7 +29,59 @@
         <a href="craft.html" class="btn-green">Крафт</a>
         <a href="shop.html" class="btn-green" style="background:#FF9800;">Буст</a>
     </div>
-    <script src="script.js?v=2"></script>
-    <script>updateBalanceUI();</script>
+
+    <!-- СЕКРЕТНОЕ МЕНЮ (Открывается только здесь) -->
+    <div id="admin-choice-panel" class="admin-modal">
+        <div class="admin-box">
+            <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
+            <button class="btn-green" style="width:100%; margin: 5px 0; background:#F44336;" onclick="openBalanceEditor()">Редактор Баланса</button>
+            <button class="btn-green" style="width:100%; margin: 5px 0; background:#FF9800;" onclick="window.location.href='game.html?edit=items'">Редактор Шапок</button>
+            <button class="btn-back" style="width:100%; margin-top:5px;" onclick="document.getElementById('admin-choice-panel').style.display='none'">Отмена</button>
+        </div>
+    </div>
+
+    <!-- ОКНО ИЗМЕНЕНИЯ БАЛАНСА -->
+    <div id="balance-panel" class="admin-modal">
+        <div class="admin-box" style="border-color: #F44336;">
+            <h3 style="color:#F44336; margin-top:0;">Изменение баланса</h3>
+            <input type="number" id="input-fuzes" class="admin-input" placeholder="Фузы">
+            <input type="number" id="input-rubies" class="admin-input" placeholder="Рубины">
+            <button class="btn-green" style="width:100%; background:#F44336;" onclick="saveBalanceChanges()">Применить</button>
+            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('balance-panel').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=22"></script>
+    <script>
+        updateBalanceUI();
+
+        // --- СЕКРЕТНЫЕ 5 КЛИКОВ ТОЛЬКО В МЕНЮ ---
+        let clickCount = 0; let clickTimer;
+        document.getElementById('secret-balance-menu').addEventListener('pointerdown', () => {
+            clickCount++; clearTimeout(clickTimer);
+            if (clickCount >= 5) {
+                clickCount = 0;
+                document.getElementById('admin-choice-panel').style.display = 'flex';
+            } else { 
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000); 
+            }
+        });
+
+        function openBalanceEditor() {
+            document.getElementById('admin-choice-panel').style.display = 'none';
+            document.getElementById('input-fuzes').value = player.fuzes;
+            document.getElementById('input-rubies').value = player.rubies;
+            document.getElementById('balance-panel').style.display = 'flex';
+        }
+
+        function saveBalanceChanges() {
+            player.fuzes = parseInt(document.getElementById('input-fuzes').value) || 0;
+            player.rubies = parseInt(document.getElementById('input-rubies').value) || 0;
+            saveGame(); 
+            updateBalanceUI();
+            document.getElementById('balance-panel').style.display = 'none';
+            showToast("Баланс изменен!");
+        }
+    </script>
 </body>
 </html>
