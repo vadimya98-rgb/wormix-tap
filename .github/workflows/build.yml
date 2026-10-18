@@ -17,34 +17,37 @@ jobs:
         with:
           node-version: '18'
 
-      # Устанавливаем Cordova и утилиту для генерации иконок
       - name: Install Cordova and cordova-res
         run: npm install -g cordova cordova-res
 
-      # СОЗДАЕМ ПРОЕКТ С НОВЫМ ИМЕНЕМ (WormixTAP)
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
       - name: Copy Game Files to Cordova
         run: |
           cp -r web/* cordova-app/www/ 2>/dev/null || true
-          cp index.html cordova-app/www/ 2>/dev/null || true
           cp *.html cordova-app/www/ 2>/dev/null || true
           cp *.css cordova-app/www/ 2>/dev/null || true
           cp *.js cordova-app/www/ 2>/dev/null || true
           cp -r images cordova-app/www/ 2>/dev/null || true
 
-      # ВАЖНО: Сначала добавляем платформу Android!
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android
 
-      # ТЕПЕРЬ ГЕНЕРИРУЕМ ИКОНКУ (когда платформа уже готова)
-      - name: Generate App Icons
+      # БЛОК ГЕНЕРАЦИИ ИКОНКИ И ЗАСТАВКИ
+      - name: Generate Icons and Splash
         run: |
           mkdir -p cordova-app/resources
-          if [ -f icon.png ]; then cp icon.png cordova-app/resources/icon.png; fi
+          if [ -f icon.png ]; then
+            # Копируем иконку
+            cp icon.png cordova-app/resources/icon.png
+            # Устанавливаем ImageMagick для создания заставки
+            sudo apt-get update && sudo apt-get install -y imagemagick
+            # Создаем splash.png 2732x2732 с иконкой по центру
+            convert icon.png -resize 2732x2732^ -gravity center -extent 2732x2732 cordova-app/resources/splash.png
+          fi
           cd cordova-app
           cordova-res android --skip-config --copy
 
