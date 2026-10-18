@@ -23,16 +23,9 @@ jobs:
         with:
           node-version: '18'
 
-      # ОФИЦИАЛЬНЫЙ ИНСТРУМЕНТ GITHUB ДЛЯ УСТАНОВКИ ПРАВИЛЬНОГО GRADLE
-      - name: Setup Gradle
-        uses: gradle/actions/setup-gradle@v3
-        with:
-          gradle-version: '8.7'
-
-      - name: Install Cordova, cordova-res, ImageMagick
+      - name: Install Cordova
         run: |
-          npm install -g cordova cordova-res
-          sudo apt-get update && sudo apt-get install -y imagemagick
+          npm install -g cordova
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
@@ -40,29 +33,51 @@ jobs:
       - name: Copy Game Files to Cordova
         run: |
           rm -rf cordova-app/www/*
-          cp -a web/. cordova-app/www/
+          if [ -d "web" ]; then cp -a web/. cordova-app/www/; fi
+          if [ -d "веб" ]; then cp -a веб/. cordova-app/www/; fi
+          cp *.html cordova-app/www/ 2>/dev/null || true
+          cp *.css cordova-app/www/ 2>/dev/null || true
+          cp *.js cordova-app/www/ 2>/dev/null || true
           mkdir -p cordova-app/www/images
-          cp -a images/. cordova-app/www/images/
+          if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
+          if [ -d "изображения" ]; then cp -a изображения/. cordova-app/www/images/; fi
+          if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android@12
 
-      # ГЕНЕРАЦИЯ ИКОНКИ (Создаем splash, чтобы cordova-res не падал)
-      - name: Generate Icons
+      # ЖЕСТКАЯ И ПРОСТАЯ ЗАМЕНА ИКОНКИ (БЕЗ ВСЯКИХ CORDOVA-RES)
+      - name: Replace Icon directly
         run: |
-          cd cordova-app
-          mkdir -p resources
-          if [ -f "../icon.png" ]; then
-            cp ../icon.png resources/icon.png
-            # Создаем картинку заставки из иконки
-            convert ../icon.png -resize 2732x2732^ -gravity center -extent 2732x2732 resources/splash.png
+          if [ -f icon.png ]; then
+            cd cordova-app/platforms/android/app/src/main/res
+            
+            # Удаляем папку, которая вызывает ошибку дубликатов (XML файлы)
+            rm -rf mipmap-anydpi-v26
+            
+            # Просто копируем нашу иконку поверх стандартных PNG-файлов
+            cp ../../../../../../icon.png mipmap-mdpi/ic_launcher.png 2>/dev/null || true
+            cp ../../../../../../icon.png mipmap-mdpi/ic_launcher_round.png 2>/dev/null || true
+            
+            cp ../../../../../../icon.png mipmap-hdpi/ic_launcher.png 2>/dev/null || true
+            cp ../../../../../../icon.png mipmap-hdpi/ic_launcher_round.png 2>/dev/null || true
+            
+            cp ../../../../../../icon.png mipmap-xhdpi/ic_launcher.png 2>/dev/null || true
+            cp ../../../../../../icon.png mipmap-xhdpi/ic_launcher_round.png 2>/dev/null || true
+            
+            cp ../../../../../../icon.png mipmap-xxhdpi/ic_launcher.png 2>/dev/null || true
+            cp ../../../../../../icon.png mipmap-xxhdpi/ic_launcher_round.png 2>/dev/null || true
+            
+            cp ../../../../../../icon.png mipmap-xxxhdpi/ic_launcher.png 2>/dev/null || true
+            cp ../../../../../../icon.png mipmap-xxxhdpi/ic_launcher_round.png 2>/dev/null || true
           fi
-          # Автоматически генерируем все размеры иконок для Android
-          cordova-res android --skip-config --copy
 
       - name: Build Debug APK
+        env:
+          JAVA_HOME: ${{ env.JAVA_HOME }}
+          CORDOVA_ANDROID_GRADLE_DISTRIBUTION_URL: https://services.gradle.org/distributions/gradle-8.13-bin.zip
         run: |
           cd cordova-app
           cordova build android --debug
