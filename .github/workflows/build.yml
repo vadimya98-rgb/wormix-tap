@@ -23,9 +23,9 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova
+      - name: Install Cordova and cordova-res
         run: |
-          npm install -g cordova
+          npm install -g cordova cordova-res
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
@@ -48,32 +48,25 @@ jobs:
           cd cordova-app
           cordova platform add android@12
 
-      # ЖЕСТКАЯ ЗАЧИСТКА И УСТАНОВКА ТВОЕЙ ИКОНКИ
-      - name: Bruteforce Icon Replacement
+      # КОПИРУЕМ ТВОИ БОЛЬШИЕ КАРТИНКИ
+      - name: Prepare Resources
         run: |
-          if [ -f icon.png ]; then
-            cd cordova-app/platforms/android/app/src/main/res
-            
-            # Полностью удаляем старые иконки
-            rm -rf mipmap-*
-            
-            # Создаем папки заново
-            mkdir -p mipmap-mdpi mipmap-hdpi mipmap-xhdpi mipmap-xxhdpi mipmap-xxxhdpi
-            
-            # Копируем твою иконку во все папки
-            cp $GITHUB_WORKSPACE/icon.png mipmap-mdpi/ic_launcher.png
-            cp $GITHUB_WORKSPACE/icon.png mipmap-hdpi/ic_launcher.png
-            cp $GITHUB_WORKSPACE/icon.png mipmap-xhdpi/ic_launcher.png
-            cp $GITHUB_WORKSPACE/icon.png mipmap-xxhdpi/ic_launcher.png
-            cp $GITHUB_WORKSPACE/icon.png mipmap-xxxhdpi/ic_launcher.png
-          fi
+          cd cordova-app
+          mkdir -p resources
+          if [ -f "../icon.png" ]; then cp ../icon.png resources/icon.png; fi
+          if [ -f "../splash.png" ]; then cp ../splash.png resources/splash.png; fi
 
-      # СБОРКА НАПРЯМУЮ ЧЕРЕЗ GRADLE (без команд cordova build)
-      - name: Build APK directly with Gradle
+      # ГЕНЕРИРУЕМ ИКОНКИ И ЗАСТАВКИ
+      - name: Generate Icons and Splash
         run: |
-          cd cordova-app/platforms/android
-          chmod +x gradlew
-          ./gradlew assembleDebug
+          cd cordova-app
+          cordova-res android --skip-config --copy
+
+      # СТАНДАРТНАЯ СБОРКА CORDOVA
+      - name: Build Debug APK
+        run: |
+          cd cordova-app
+          cordova build android --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
