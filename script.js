@@ -66,7 +66,7 @@ const allArtifacts = {
 };
 
 // =========================================================================
-// НАСТРОЙКИ ДЛЯ КАЖДОЙ РАСЫ ОТДЕЛЬНО
+// ВАШИ ГОТОВЫЕ НАСТРОЙКИ (ЗАШИТЫ В ИГРУ)
 // =========================================================================
 const HAT_SETTINGS = {
     'images/dragon.png': {
@@ -87,12 +87,114 @@ const HAT_SETTINGS = {
         'viking': { w: 250, y: -12, x: 52 }, 'vor': { w: 275, y: 71, x: 62 },
         'voron': { w: 404, y: -107, x: 41 }, 'yakudza': { w: 220, y: 60, x: 50 }
     },
-    'images/robot.png': {},
-    'images/demon.png': {},
-    'images/cat.png': {},
-    'images/zombie.png': {},
-    'images/dog.png': {},
-    'images/rabit.png': {}
+    'images/robot.png': {
+        'alhimik': { w: 222, y: -57, x: 50 }, 'assassin': { w: 310, y: 39, x: 71 },
+        'captain': { w: 220, y: 23, x: 51 }, 'fantom': { w: 244, y: 7, x: 60 },
+        'gorayhii': { w: 252, y: -16, x: 55 }, 'hacker': { w: 180, y: 103, x: 55 },
+        'iluzionist': { w: 343, y: -160, x: 49 }, 'imperator': { w: 337, y: -39, x: 71 },
+        'inzhiner': { w: 243, y: 31, x: 62 }, 'izverg': { w: 236, y: 32, x: 63 },
+        'korol': { w: 206, y: -36, x: 54 }, 'krolik': { w: 183, y: 32, x: 57 },
+        'master_vetra': { w: 237, y: -28, x: 69 }, 'okulayr': { w: 194, y: 97, x: 52 },
+        'paladin': { w: 220, y: -55, x: 59 }, 'pirat': { w: 183, y: -11, x: 51 },
+        'pobednui': { w: 323, y: -77, x: 57 }, 'prizrak': { w: 188, y: 65, x: 53 },
+        'psaiker': { w: 220, y: 6, x: 57 }, 'respirator': { w: 207, y: 105, x: 53 },
+        'samuray': { w: 266, y: 43, x: 60 }, 'shaman_vudu': { w: 384, y: -83, x: 48 },
+        'shapka': { w: 220, y: 36, x: 55 }, 'slem': { w: 219, y: 41, x: 59 },
+        'spetsnaz': { w: 220, y: 39, x: 56 }, 'strazgi': { w: 220, y: 31, x: 53 },
+        'telepat': { w: 303, y: 44, x: 71 }, 'temniy': { w: 277, y: 10, x: 68 },
+        'viking': { w: 222, y: -12, x: 52 }, 'vor': { w: 255, y: 63, x: 64 },
+        'voron': { w: 407, y: -118, x: 47 }, 'yakudza': { w: 186, y: 60, x: 53 }
+    },
+    'images/demon.png': {
+        'alhimik': { w: 222, y: -55, x: 50 }, 'assassin': { w: 310, y: 39, x: 66 },
+        'captain': { w: 220, y: 23, x: 51 }, 'fantom': { w: 244, y: 18, x: 62 },
+        'gorayhii': { w: 304, y: -49, x: 61 }, 'hacker': { w: 183, y: 102, x: 53 },
+        'iluzionist': { w: 371, y: -188, x: 51 }, 'imperator': { w: 337, y: -57, x: 71 },
+        'inzhiner': { w: 249, y: 27, x: 61 }, 'izverg': { w: 236, y: 30, x: 62 },
+        'korol': { w: 206, y: -36, x: 53 }, 'krolik': { w: 227, y: 11, x: 61 },
+        'master_vetra': { w: 238, y: -39, x: 71 }, 'okulayr': { w: 188, y: 94, x: 51 },
+        'paladin': { w: 220, y: -49, x: 58 }, 'pirat': { w: 198, y: -19, x: 54 },
+        'pobednui': { w: 392, y: -122, x: 60 }, 'prizrak': { w: 220, y: 55, x: 56 },
+        'psaiker': { w: 220, y: 12, x: 57 }, 'respirator': { w: 220, y: 99, x: 52 },
+        'samuray': { w: 266, y: 43, x: 61 }, 'shaman_vudu': { w: 384, y: -72, x: 47 },
+        'shapka': { w: 220, y: 33, x: 55 }, 'slem': { w: 249, y: 25, x: 62 },
+        'spetsnaz': { w: 220, y: 40, x: 56 }, 'strazgi': { w: 220, y: 31, x: 55 },
+        'telepat': { w: 306, y: 49, x: 72 }, 'temniy': { w: 273, y: 17, x: 68 },
+        'viking': { w: 219, y: -7, x: 53 }, 'vor': { w: 257, y: 65, x: 65 },
+        'voron': { w: 404, y: -119, x: 45 }, 'yakudza': { w: 196, y: 52, x: 55 }
+    },
+    'images/cat.png': {
+        'alhimik': { w: 202, y: -35, x: 49 }, 'assassin': { w: 266, y: 61, x: 64 },
+        'captain': { w: 189, y: 39, x: 52 }, 'fantom': { w: 196, y: 52, x: 57 },
+        'gorayhii': { w: 266, y: -19, x: 60 }, 'hacker': { w: 158, y: 113, x: 51 },
+        'iluzionist': { w: 343, y: -158, x: 51 }, 'imperator': { w: 337, y: -36, x: 69 },
+        'inzhiner': { w: 224, y: 48, x: 61 }, 'izverg': { w: 206, y: 52, x: 60 },
+        'korol': { w: 171, y: 0, x: 50 }, 'krolik': { w: 206, y: 21, x: 59 },
+        'master_vetra': { w: 208, y: -9, x: 66 }, 'okulayr': { w: 184, y: 103, x: 53 },
+        'paladin': { w: 194, y: -27, x: 57 }, 'pirat': { w: 168, y: 10, x: 51 },
+        'pobednui': { w: 318, y: -68, x: 56 }, 'prizrak': { w: 192, y: 72, x: 53 },
+        'psaiker': { w: 193, y: 28, x: 55 }, 'respirator': { w: 220, y: 102, x: 53 },
+        'samuray': { w: 266, y: 49, x: 61 }, 'shaman_vudu': { w: 384, y: -76, x: 49 },
+        'shapka': { w: 220, y: 43, x: 56 }, 'slem': { w: 223, y: 47, x: 62 },
+        'spetsnaz': { w: 220, y: 45, x: 57 }, 'strazgi': { w: 196, y: 39, x: 56 },
+        'telepat': { w: 281, y: 59, x: 71 }, 'temniy': { w: 252, y: 24, x: 68 },
+        'viking': { w: 207, y: 5, x: 53 }, 'vor': { w: 227, y: 76, x: 63 },
+        'voron': { w: 404, y: -107, x: 41 }, 'yakudza': { w: 192, y: 63, x: 56 }
+    },
+    'images/zombie.png': {
+        'alhimik': { w: 193, y: -49, x: 48 }, 'assassin': { w: 246, y: 46, x: 62 },
+        'captain': { w: 220, y: 23, x: 51 }, 'fantom': { w: 190, y: 31, x: 55 },
+        'gorayhii': { w: 246, y: -24, x: 56 }, 'hacker': { w: 165, y: 92, x: 51 },
+        'iluzionist': { w: 286, y: -123, x: 45 }, 'imperator': { w: 337, y: -49, x: 71 },
+        'inzhiner': { w: 210, y: 35, x: 56 }, 'izverg': { w: 204, y: 33, x: 56 },
+        'korol': { w: 172, y: -31, x: 51 }, 'krolik': { w: 192, y: 15, x: 58 },
+        'master_vetra': { w: 238, y: -2, x: 64 }, 'okulayr': { w: 191, y: 84, x: 52 },
+        'paladin': { w: 198, y: -42, x: 56 }, 'pirat': { w: 188, y: -3, x: 50 },
+        'pobednui': { w: 324, y: -88, x: 55 }, 'prizrak': { w: 173, y: 62, x: 50 },
+        'psaiker': { w: 199, y: 9, x: 57 }, 'respirator': { w: 202, y: 96, x: 49 },
+        'samuray': { w: 255, y: 40, x: 57 }, 'shaman_vudu': { w: 384, y: -93, x: 46 },
+        'shapka': { w: 220, y: 22, x: 54 }, 'slem': { w: 230, y: 24, x: 59 },
+        'spetsnaz': { w: 204, y: 40, x: 53 }, 'strazgi': { w: 197, y: 21, x: 55 },
+        'telepat': { w: 276, y: 44, x: 70 }, 'temniy': { w: 277, y: -9, x: 70 },
+        'viking': { w: 222, y: -14, x: 54 }, 'vor': { w: 228, y: 59, x: 61 },
+        'voron': { w: 357, y: -109, x: 45 }, 'yakudza': { w: 192, y: 48, x: 53 }
+    },
+    'images/dog.png': {
+        'alhimik': { w: 222, y: -51, x: 49 }, 'assassin': { w: 272, y: 63, x: 66 },
+        'captain': { w: 220, y: 23, x: 51 }, 'fantom': { w: 215, y: 51, x: 58 },
+        'gorayhii': { w: 304, y: -34, x: 56 }, 'hacker': { w: 185, y: 120, x: 52 },
+        'iluzionist': { w: 343, y: -147, x: 49 }, 'imperator': { w: 337, y: -36, x: 69 },
+        'inzhiner': { w: 232, y: 48, x: 62 }, 'izverg': { w: 212, y: 55, x: 61 },
+        'korol': { w: 183, y: 0, x: 52 }, 'krolik': { w: 227, y: 21, x: 61 },
+        'master_vetra': { w: 238, y: 15, x: 64 }, 'okulayr': { w: 152, y: 121, x: 49 },
+        'paladin': { w: 220, y: -30, x: 59 }, 'pirat': { w: 183, y: 15, x: 52 },
+        'pobednui': { w: 348, y: -79, x: 59 }, 'prizrak': { w: 168, y: 88, x: 53 },
+        'psaiker': { w: 220, y: 23, x: 58 }, 'respirator': { w: 220, y: 114, x: 55 },
+        'samuray': { w: 253, y: 63, x: 61 }, 'shaman_vudu': { w: 384, y: -58, x: 49 },
+        'shapka': { w: 220, y: 53, x: 55 }, 'slem': { w: 235, y: 50, x: 60 },
+        'spetsnaz': { w: 201, y: 63, x: 56 }, 'strazgi': { w: 220, y: 46, x: 48 },
+        'telepat': { w: 275, y: 81, x: 67 }, 'temniy': { w: 277, y: 21, x: 69 },
+        'viking': { w: 229, y: 4, x: 53 }, 'vor': { w: 238, y: 81, x: 65 },
+        'voron': { w: 404, y: -113, x: 45 }, 'yakudza': { w: 178, y: 74, x: 54 }
+    },
+    'images/rabit.png': {
+        'alhimik': { w: 195, y: -24, x: 47 }, 'assassin': { w: 281, y: 66, x: 63 },
+        'captain': { w: 200, y: 37, x: 51 }, 'fantom': { w: 216, y: 38, x: 54 },
+        'gorayhii': { w: 293, y: -38, x: 55 }, 'hacker': { w: 144, y: 126, x: 47 },
+        'iluzionist': { w: 319, y: -126, x: 45 }, 'imperator': { w: 337, y: -25, x: 69 },
+        'inzhiner': { w: 229, y: 54, x: 56 }, 'izverg': { w: 204, y: 63, x: 55 },
+        'korol': { w: 181, y: -1, x: 49 }, 'krolik': { w: 217, y: 25, x: 58 },
+        'master_vetra': { w: 238, y: 20, x: 62 }, 'okulayr': { w: 160, y: 116, x: 48 },
+        'paladin': { w: 185, y: -14, x: 53 }, 'pirat': { w: 176, y: 15, x: 48 },
+        'pobednui': { w: 346, y: -76, x: 54 }, 'prizrak': { w: 175, y: 84, x: 49 },
+        'psaiker': { w: 191, y: 36, x: 52 }, 'respirator': { w: 195, y: 121, x: 48 },
+        'samuray': { w: 246, y: 66, x: 56 }, 'shaman_vudu': { w: 418, y: -94, x: 46 },
+        'shapka': { w: 220, y: 56, x: 51 }, 'slem': { w: 215, y: 60, x: 56 },
+        'spetsnaz': { w: 220, y: 57, x: 54 }, 'strazgi': { w: 191, y: 52, x: 51 },
+        'telepat': { w: 286, y: 65, x: 68 }, 'temniy': { w: 286, y: 5, x: 68 },
+        'viking': { w: 213, y: 13, x: 50 }, 'vor': { w: 234, y: 81, x: 60 },
+        'voron': { w: 404, y: -114, x: 46 }, 'yakudza': { w: 192, y: 70, x: 49 }
+    }
 };
 
 const ARTIFACT_SETTINGS = {
@@ -102,10 +204,38 @@ const ARTIFACT_SETTINGS = {
         'simbiot': { w: 79, y: 43, x: 89 }, 'ucheniy': { w: 94, y: 32, x: 101 },
         'zezl': { w: 85, y: 44, x: 62 }
     },
-    'images/robot.png': {},
-    'images/demon.png': {},
-    'images/cat.png': {},
-    'images/zombie.png': {},
-    'images/dog.png': {},
-    'images/rabit.png': {}
+    'images/robot.png': {
+        'arhi': { w: 110, y: 64, x: 56 }, 'arkhidemon': { w: 140, y: 41, x: 7 },
+        'posoh': { w: 152, y: 43, x: -10 }, 'shit': { w: 144, y: 40, x: 14 },
+        'simbiot': { w: 79, y: 58, x: 82 }, 'ucheniy': { w: 94, y: 44, x: 93 },
+        'zezl': { w: 85, y: 44, x: 62 }
+    },
+    'images/demon.png': {
+        'arhi': { w: 110, y: 21, x: 37 }, 'posoh': { w: 152, y: 24, x: -9 },
+        'arkhidemon': { w: 140, y: 14, x: -9 }, 'shit': { w: 144, y: 14, x: 5 },
+        'simbiot': { w: 79, y: 43, x: 89 }, 'ucheniy': { w: 94, y: 32, x: 101 },
+        'zezl': { w: 85, y: 44, x: 62 }
+    },
+    'images/cat.png': {
+        'arhi': { w: 110, y: 21, x: 37 }, 'arkhidemon': { w: 140, y: 25, x: 1 },
+        'shit': { w: 144, y: 14, x: 5 }, 'zezl': { w: 85, y: 44, x: 62 }
+    },
+    'images/zombie.png': {
+        'arhi': { w: 94, y: 79, x: 66 }, 'arkhidemon': { w: 140, y: 43, x: 8 },
+        'posoh': { w: 152, y: 45, x: -10 }, 'shit': { w: 144, y: 49, x: 8 },
+        'simbiot': { w: 79, y: 59, x: 84 }, 'ucheniy': { w: 94, y: 53, x: 79 },
+        'zezl': { w: 85, y: 66, x: 48 }
+    },
+    'images/dog.png': {
+        'arhi': { w: 110, y: 35, x: 44 }, 'arkhidemon': { w: 140, y: 26, x: -6 },
+        'posoh': { w: 152, y: 23, x: -25 }, 'shit': { w: 144, y: 14, x: 5 },
+        'simbiot': { w: 79, y: 43, x: 73 }, 'ucheniy': { w: 94, y: 26, x: 71 },
+        'zezl': { w: 85, y: 33, x: 45 }
+    },
+    'images/rabit.png': {
+        'arhi': { w: 110, y: 45, x: 53 }, 'arkhidemon': { w: 140, y: 31, x: -1 },
+        'posoh': { w: 152, y: 24, x: -9 }, 'shit': { w: 144, y: 14, x: 5 },
+        'simbiot': { w: 79, y: 43, x: 89 }, 'ucheniy': { w: 94, y: 32, x: 101 },
+        'zezl': { w: 85, y: 44, x: 62 }
+    }
 };
