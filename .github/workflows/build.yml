@@ -25,32 +25,41 @@ jobs:
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
+      # ЖЕЛЕЗОБЕТОННОЕ КОПИРОВАНИЕ
       - name: Copy Game Files to Cordova
         run: |
-          [ -d "веб" ] && mv веб web || true
-          [ -d "изображения" ] && mv изображения images || true
-          cp -r web/* cordova-app/www/ 2>/dev/null || true
+          rm -rf cordova-app/www/*
+          
+          # 1. Копируем файлы из web
+          if [ -d "web" ]; then cp -a web/. cordova-app/www/; fi
+          if [ -d "docs" ]; then cp -a docs/. cordova-app/www/; fi
+          
+          # 2. На всякий случай копируем HTML/CSS/JS из корня, если они там остались
           cp *.html cordova-app/www/ 2>/dev/null || true
           cp *.css cordova-app/www/ 2>/dev/null || true
           cp *.js cordova-app/www/ 2>/dev/null || true
-          cp -r images cordova-app/www/ 2>/dev/null || true
+
+          # 3. Ищем картинки везде, где можно, и кидаем их в www/images
+          mkdir -p cordova-app/www/images
+          if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
+          if [ -d "изображения" ]; then cp -a изображения/. cordova-app/www/images/; fi
+          if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android
 
-      # ПРЯМАЯ ЗАМЕНА ИКОНОК (БЕЗ СТОРОННИХ БИБЛИОТЕК)
       - name: Replace Icons Directly
         run: |
           if [ -f icon.png ]; then
+            REPO_ROOT=$(pwd)
             cd cordova-app/platforms/android/app/src/main/res
+            rm -rf mipmap-anydpi-v26
             for dir in mipmap-*; do
               if [ -d "$dir" ]; then
-                # Принудительно перезаписываем все иконки на нашу
-                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher.png 2>/dev/null || true
-                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher_round.png 2>/dev/null || true
-                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher_foreground.png 2>/dev/null || true
+                convert "$REPO_ROOT/icon.png" -resize 48x48 $dir/ic_launcher.png 2>/dev/null || true
+                convert "$REPO_ROOT/icon.png" -resize 48x48 $dir/ic_launcher_round.png 2>/dev/null || true
               fi
             done
           fi
@@ -64,4 +73,4 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: WormixTAP-APK
-          path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
+          path: cordova-app/platforms/android/app/build/outputs/apk/debug/apk-debug.apk
