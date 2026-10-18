@@ -25,30 +25,23 @@ jobs:
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
-      # ЖЕЛЕЗОБЕТОННОЕ КОПИРОВАНИЕ
       - name: Copy Game Files to Cordova
         run: |
           rm -rf cordova-app/www/*
-          
-          # 1. Копируем файлы из web
           if [ -d "web" ]; then cp -a web/. cordova-app/www/; fi
           if [ -d "docs" ]; then cp -a docs/. cordova-app/www/; fi
-          
-          # 2. На всякий случай копируем HTML/CSS/JS из корня, если они там остались
           cp *.html cordova-app/www/ 2>/dev/null || true
           cp *.css cordova-app/www/ 2>/dev/null || true
           cp *.js cordova-app/www/ 2>/dev/null || true
-
-          # 3. Ищем картинки везде, где можно, и кидаем их в www/images
           mkdir -p cordova-app/www/images
           if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
-          if [ -d "изображения" ]; then cp -a изображения/. cordova-app/www/images/; fi
           if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
 
+      # ЯВНО УКАЗЫВАЕМ СТАБИЛЬНУЮ ВЕРСИЮ ANDROID ПЛАТФОРМЫ
       - name: Add Android Platform
         run: |
           cd cordova-app
-          cordova platform add android
+          cordova platform add android@12
 
       - name: Replace Icons Directly
         run: |
@@ -64,13 +57,15 @@ jobs:
             done
           fi
 
+      # ОЧИЩАЕМ КЕШ GRADLE ПЕРЕД СБОРКОЙ
       - name: Build Debug APK
         run: |
           cd cordova-app
+          ./platforms/android/gradlew clean 2>/dev/null || true
           cordova build android --debug
 
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: WormixTAP-APK
-          path: cordova-app/platforms/android/app/build/outputs/apk/debug/apk-debug.apk
+          path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
