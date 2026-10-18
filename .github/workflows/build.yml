@@ -23,12 +23,13 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova, Gradle, and cordova-res
+      - name: Install Cordova, Gradle, and ImageMagick
         run: |
-          npm install -g cordova cordova-res
+          npm install -g cordova
           wget -q https://services.gradle.org/distributions/gradle-8.13-bin.zip
           unzip -q gradle-8.13-bin.zip -d /opt/
           export PATH=$PATH:/opt/gradle-8.13/bin
+          sudo apt-get update && sudo apt-get install -y imagemagick
 
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
@@ -36,28 +37,41 @@ jobs:
       - name: Copy Game Files to Cordova
         run: |
           rm -rf cordova-app/www/*
-          if [ -d "web" ]; then cp -a web/. cordova-app/www/; fi
-          if [ -d "docs" ]; then cp -a docs/. cordova-app/www/; fi
-          cp *.html cordova-app/www/ 2>/dev/null || true
-          cp *.css cordova-app/www/ 2>/dev/null || true
-          cp *.js cordova-app/www/ 2>/dev/null || true
+          cp -a web/. cordova-app/www/
           mkdir -p cordova-app/www/images
-          if [ -d "images" ]; then cp -a images/. cordova-app/www/images/; fi
-          if [ -d "web/images" ]; then cp -a web/images/. cordova-app/www/images/; fi
+          cp -a images/. cordova-app/www/images/
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android@12
 
-      # ИСПОЛЬЗУЕМ cordova-res ДЛЯ ГЕНЕРАЦИИ ИКОНОК
-      - name: Generate App Icons with cordova-res
+      # ПРОСТАЯ И НАДЕЖНАЯ ЗАМЕНА ИКОНОК
+      - name: Replace Icons Directly
         run: |
-          cd cordova-app
-          mkdir -p resources
-          if [ -f "../icon.png" ]; then cp ../icon.png resources/icon.png; fi
-          # Генерируем иконки для Android и копируем их в проект
-          cordova-res android --skip-config --copy
+          if [ -f icon.png ]; then
+            REPO_ROOT=$(pwd)
+            cd cordova-app/platforms/android/app/src/main/res
+            
+            # Удаляем адаптивные XML-иконки
+            rm -rf mipmap-anydpi-v26
+            
+            # Нарезаем иконку под все размеры экранов
+            convert "$REPO_ROOT/icon.png" -resize 48x48 mipmap-mdpi/ic_launcher.png
+            convert "$REPO_ROOT/icon.png" -resize 48x48 mipmap-mdpi/ic_launcher_round.png
+            
+            convert "$REPO_ROOT/icon.png" -resize 72x72 mipmap-hdpi/ic_launcher.png
+            convert "$REPO_ROOT/icon.png" -resize 72x72 mipmap-hdpi/ic_launcher_round.png
+            
+            convert "$REPO_ROOT/icon.png" -resize 96x96 mipmap-xhdpi/ic_launcher.png
+            convert "$REPO_ROOT/icon.png" -resize 96x96 mipmap-xhdpi/ic_launcher_round.png
+            
+            convert "$REPO_ROOT/icon.png" -resize 144x144 mipmap-xxhdpi/ic_launcher.png
+            convert "$REPO_ROOT/icon.png" -resize 144x144 mipmap-xxhdpi/ic_launcher_round.png
+            
+            convert "$REPO_ROOT/icon.png" -resize 192x192 mipmap-xxxhdpi/ic_launcher.png
+            convert "$REPO_ROOT/icon.png" -resize 192x192 mipmap-xxxhdpi/ic_launcher_round.png
+          fi
 
       - name: Build Debug APK
         env:
