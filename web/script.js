@@ -217,8 +217,14 @@ const ARTIFACT_SETTINGS = {
         'zezl': { w: 85, y: 44, x: 62 }
     },
     'images/cat.png': {
-        'arhi': { w: 110, y: 21, x: 37 }, 'arkhidemon': { w: 140, y: 25, x: 1 },
-        'shit': { w: 144, y: 14, x: 5 }, 'zezl': { w: 85, y: 44, x: 62 }
+        'arhi': { w: 110, y: 21, x: 37 },
+        'arkhidemon': { w: 140, y: 25, x: 1 },
+        'shit': { w: 144, y: 14, x: 5 },
+        'zezl': { w: 85, y: 44, x: 62 },
+        'simbiot': { w: 79, y: 40, x: 65 },
+        'posoh': { w: 110, y: 51, x: 14 },
+        'ucheniy': { w: 78, y: 44, x: 79 },
+    },
     },
     'images/zombie.png': {
         'arhi': { w: 94, y: 79, x: 66 }, 'arkhidemon': { w: 140, y: 43, x: 8 },
