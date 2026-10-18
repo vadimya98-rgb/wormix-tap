@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=19">
+    <link rel="stylesheet" href="style.css?v=20">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -22,6 +22,7 @@
 </head>
 <body>
     <div id="drag-banner">1 палец — двигать, 2 пальца — размер <button onclick="finishDragging()">Готово</button></div>
+    
     <div class="top-bar">
         <a href="menu.html" class="btn-back">☰ Дом</a>
         <div class="balance" id="secret-balance">
@@ -29,6 +30,7 @@
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
+    
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
     <div class="character-area" id="tap-area" onpointerdown="tap(event)">
@@ -39,6 +41,14 @@
         </div>
     </div>
 
+    <!-- КНОПКИ СОХРАНЕНИЯ И ЗАГРУЗКИ -->
+    <div class="save-load-container">
+        <button class="btn-save" onclick="saveProgressToFile()">💾 Сохранить</button>
+        <button class="btn-load" onclick="document.getElementById('file-input').click()">📂 Загрузить</button>
+        <input type="file" id="file-input" accept=".txt" style="display: none;" onchange="loadProgressFromFile(event)">
+    </div>
+
+    <!-- ОКНО ЕЖЕДНЕВНОГО БОНУСА -->
     <div id="bonus-modal" class="modal-overlay">
         <div class="modal-content">
             <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
@@ -47,18 +57,18 @@
         </div>
     </div>
 
+    <!-- МЕНЮ АДМИНА -->
     <div id="admin-choice-panel" class="admin-modal" style="z-index: 9998;">
         <div class="admin-box">
             <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
             <button class="btn-green" style="width:100%; margin: 5px 0; background:#F44336;" onclick="openBalanceEditor()">Редактор Баланса</button>
             <button class="btn-green" style="width:100%; margin: 5px 0; background:#FF9800;" onclick="openItemEditor()">Редактор Шапок</button>
-            <button class="btn-green" style="width:100%; margin: 5px 0; background:#2196F3;" onclick="exportSave()">Сохранить прогресс (Код)</button>
-            <button class="btn-green" style="width:100%; margin: 5px 0; background:#9C27B0;" onclick="importSave()">Загрузить прогресс (Код)</button>
             <button class="btn-green" style="width:100%; margin: 5px 0; background:#4CAF50;" onclick="window.location.href='menu.html'">Дом (В меню)</button>
             <button class="btn-back" style="width:100%; margin-top:5px;" onclick="document.getElementById('admin-choice-panel').style.display='none'">Отмена</button>
         </div>
     </div>
 
+    <!-- ОКНО БАЛАНСА -->
     <div id="balance-panel" class="admin-modal">
         <div class="admin-box" style="border-color: #F44336;">
             <h3 style="color:#F44336; margin-top:0;">Изменение баланса</h3>
@@ -69,6 +79,7 @@
         </div>
     </div>
 
+    <!-- ОКНО РЕДАКТОРА -->
     <div id="editor-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FF9800; margin-top:0;">Редактор предметов</h3>
@@ -91,7 +102,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=19"></script>
+    <script src="script.js?v=20"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -123,6 +134,48 @@
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
+        // --- СОХРАНЕНИЕ И ЗАГРУЗКА ФАЙЛА ---
+        function saveProgressToFile() {
+            let data = JSON.stringify(player);
+            let encoded = btoa(unescape(encodeURIComponent(data)));
+            let blob = new Blob([encoded], {type: "text/plain"});
+            let url = URL.createObjectURL(blob);
+            
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'wormix_save.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert("Функция помогает сохранить прогресс игры в памяти телефона для последующего обновления игры.\n\nФайл wormix_save.txt сохранен в папку 'Загрузки' (Download).\n\nПосле обновления игры нажмите кнопку 'Загрузить прогресс' и выберите этот файл.");
+        }
+
+        function loadProgressFromFile(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let encoded = e.target.result;
+                    let data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+                    
+                    if (data.fuzes !== undefined && data.rubies !== undefined) {
+                        localStorage.setItem('wormixSave', JSON.stringify(data));
+                        alert("Прогресс успешно загружен! Игра перезагрузится.");
+                        window.location.reload();
+                    } else {
+                        alert("Неверный файл сохранения!");
+                    }
+                } catch(err) {
+                    alert("Ошибка при чтении файла! Убедитесь, что выбран правильный файл wormix_save.txt.");
+                }
+            };
+            reader.readAsText(file);
+        }
+        // -----------------------------------
+
         let clickCount = 0; let clickTimer;
         document.getElementById('secret-balance').addEventListener('pointerdown', () => {
             clickCount++; clearTimeout(clickTimer);
@@ -151,30 +204,6 @@
             document.getElementById('balance-panel').style.display = 'none';
             showToast("Баланс изменен!");
         }
-
-        // --- ЭКСПОРТ И ИМПОРТ СОХРАНЕНИЙ ---
-        function exportSave() {
-            let saveStr = btoa(unescape(encodeURIComponent(JSON.stringify(player))));
-            prompt("Скопируйте этот код и сохраните его в блокноте:", saveStr);
-        }
-
-        function importSave() {
-            let code = prompt("Вставьте код вашего сохранения:");
-            if (!code) return;
-            try {
-                let decoded = JSON.parse(decodeURIComponent(escape(atob(code))));
-                if (decoded.fuzes !== undefined && decoded.rubies !== undefined) {
-                    localStorage.setItem('wormixSave', JSON.stringify(decoded));
-                    showToast("Успешно! Игра перезагрузится.");
-                    setTimeout(() => window.location.reload(), 1000);
-                } else {
-                    showToast("Неверный формат кода!", true);
-                }
-            } catch (e) {
-                showToast("Ошибка при чтении кода!", true);
-            }
-        }
-        // ----------------------------------
 
         let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
         let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
