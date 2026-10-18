@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=16">
+    <link rel="stylesheet" href="style.css?v=99">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -16,7 +16,7 @@
         <button class="btn-green" onclick="showScreen('s3')">Далее</button>
     </div>
     <div id="s3" class="screen">
-        <div class="intro-text" style="margin-top:20px; font-size:20px;">Выбери свою рассу</div>
+        <div class="intro-text" style="margin-top:20px; font-size:20px;">Выбери свою расу</div>
         <div class="race-grid">
             <div class="race-wrapper" onclick="selectRace('images/dragon.png')"><img src="images/dragon.png" class="race-img"></div>
             <div class="race-wrapper" onclick="selectRace('images/robot.png')"><img src="images/robot.png" class="race-img"></div>
@@ -27,10 +27,9 @@
             <div class="race-wrapper" onclick="selectRace('images/rabit.png')"><img src="images/rabit.png" class="race-img"></div>
         </div>
     </div>
-    <script src="script.js?v=16"></script>
+    <script src="script.js?v=99"></script>
     <script>
         if(player.race !== '') window.location.href = 'game.html';
-        
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
