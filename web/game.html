@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=18">
+    <link rel="stylesheet" href="style.css?v=22">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -13,7 +13,6 @@
         .slider-group input[type="range"] { flex-grow: 1; margin: 0 10px; }
         .slider-group span { width: 30px; font-size: 12px; text-align: right; }
         .admin-select { width: 100%; padding: 10px; margin-bottom: 10px; background: #333; color: white; border: 1px solid #555; border-radius: 5px; font-size: 16px; }
-        .admin-input { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
         #code-output { width: 100%; height: 100px; background: #000; color: #00FF00; font-family: monospace; font-size: 12px; padding: 10px; box-sizing: border-box; margin-top: 10px; border: 1px solid #4CAF50; display: none;}
         #drag-banner { display: none; position: fixed; top: 0; left: 0; width: 100%; background: #4CAF50; color: white; text-align: center; padding: 15px; z-index: 10000; font-weight: bold; box-shadow: 0 4px 10px rgba(0,0,0,0.5); font-size: 14px;}
         #drag-banner button { background: white; color: #4CAF50; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; margin-left: 15px; cursor: pointer; }
@@ -24,15 +23,14 @@
     <div id="drag-banner">1 палец — двигать, 2 пальца — размер <button onclick="finishDragging()">Готово</button></div>
     
     <div class="top-bar">
-        <!-- Кнопка Дом теперь обычная ссылка с мгновенным переходом -->
         <a href="menu.html" class="btn-back">☰ Дом</a>
-        
-        <!-- Клик по этому блоку (5 раз) вызывает меню админа -->
-        <div class="balance" id="secret-balance">
+        <!-- УБРАН ID, чтобы случайно не кликалось -->
+        <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
+    
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
     <div class="character-area" id="tap-area" onpointerdown="tap(event)">
@@ -41,6 +39,13 @@
             <img id="equipped-hat" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
             <img id="equipped-artifact" src="data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=">
         </div>
+    </div>
+
+    <!-- КНОПКИ СОХРАНЕНИЯ И ЗАГРУЗКИ -->
+    <div class="save-load-container">
+        <button class="btn-save" onclick="saveProgressToFile()">💾 Сохранить</button>
+        <button class="btn-load" onclick="document.getElementById('file-input').click()">📂 Загрузить</button>
+        <input type="file" id="file-input" accept=".txt" style="display: none;" onchange="loadProgressFromFile(event)">
     </div>
 
     <!-- ОКНО ЕЖЕДНЕВНОГО БОНУСА -->
@@ -52,33 +57,10 @@
         </div>
     </div>
 
-    <!-- МЕНЮ АДМИНА (ВЫБОР) -->
-    <div id="admin-choice-panel" class="admin-modal" style="z-index: 9998;">
-        <div class="admin-box">
-            <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
-            <button class="btn-green" style="width:100%; margin: 10px 0; background:#F44336;" onclick="openBalanceEditor()">Редактор Баланса</button>
-            <button class="btn-green" style="width:100%; margin: 10px 0; background:#FF9800;" onclick="openItemEditor()">Редактор Шапок</button>
-            <button class="btn-green" style="width:100%; margin: 10px 0; background:#4CAF50;" onclick="window.location.href='menu.html'">Дом (В меню)</button>
-            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('admin-choice-panel').style.display='none'">Отмена</button>
-        </div>
-    </div>
-
-    <!-- ОКНО ИЗМЕНЕНИЯ БАЛАНСА -->
-    <div id="balance-panel" class="admin-modal">
-        <div class="admin-box" style="border-color: #F44336;">
-            <h3 style="color:#F44336; margin-top:0;">Изменение баланса</h3>
-            <input type="number" id="input-fuzes" class="admin-input" placeholder="Фузы">
-            <input type="number" id="input-rubies" class="admin-input" placeholder="Рубины">
-            <button class="btn-green" style="width:100%; background:#F44336;" onclick="saveBalanceChanges()">Применить</button>
-            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('balance-panel').style.display='none'">Закрыть</button>
-        </div>
-    </div>
-
-    <!-- ОКНО РЕДАКТОРА ПРЕДМЕТОВ -->
+    <!-- ОКНО РЕДАКТОРА (Открывается только если пришли из меню) -->
     <div id="editor-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FF9800; margin-top:0;">Редактор предметов</h3>
-            
             <select id="editor-race-selector" class="admin-select" style="border-color: #FFD700;" onchange="changeEditorRace(this.value)">
                 <option value="images/dragon.png">Дракон</option>
                 <option value="images/robot.png">Робот</option>
@@ -88,18 +70,17 @@
                 <option value="images/dog.png">Собака</option>
                 <option value="images/rabit.png">Заяц</option>
             </select>
-
             <select id="item-selector" class="admin-select" onchange="loadItemToEditor()"></select>
             <div id="sliders-container"></div>
-            <button class="btn-green" style="width:100%; margin:10px 0; background:#4CAF50;" onclick="startDragging()">Двигать пальцем</button>
-            <button class="btn-green" style="width:100%; margin:10px 0; background:#2196F3;" onclick="generateCode()">Сгенерировать код</button>
+            <button class="btn-green" style="width:100%; margin:5px 0; background:#4CAF50;" onclick="startDragging()">Двигать пальцем</button>
+            <button class="btn-green" style="width:100%; margin:5px 0; background:#2196F3;" onclick="generateCode()">Сгенерировать код</button>
             <textarea id="code-output" readonly></textarea>
-            <button class="btn-green" style="width:100%; margin:10px 0;" onclick="copyCode()">Скопировать код</button>
+            <button class="btn-green" style="width:100%; margin:5px 0;" onclick="copyCode()">Скопировать код</button>
             <button class="btn-back" style="width:100%;" onclick="document.getElementById('editor-panel').style.display='none'">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js?v=18"></script>
+    <script src="script.js?v=22"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -131,38 +112,56 @@
         updateBalanceUI();
         startTimerUI('ui-boost-timer');
 
-        // --- СЕКРЕТНОЕ МЕНЮ (5 кликов по балансу) ---
-        let clickCount = 0; let clickTimer;
-        document.getElementById('secret-balance').addEventListener('pointerdown', () => {
-            clickCount++; clearTimeout(clickTimer);
-            if (clickCount >= 5) {
-                clickCount = 0;
-                document.getElementById('admin-choice-panel').style.display = 'flex';
-            } else { clickTimer = setTimeout(() => { clickCount = 0; }, 1000); }
-        });
-
-        // Функции для меню выбора
-        function openBalanceEditor() {
-            document.getElementById('admin-choice-panel').style.display = 'none';
-            document.getElementById('input-fuzes').value = player.fuzes;
-            document.getElementById('input-rubies').value = player.rubies;
-            document.getElementById('balance-panel').style.display = 'flex';
-        }
-
-        function openItemEditor() {
-            document.getElementById('admin-choice-panel').style.display = 'none';
+        // --- АВТО-ОТКРЫТИЕ РЕДАКТОРА ИЗ МЕНЮ ---
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('edit') === 'items') {
             openEditor();
+            // Очищаем URL, чтобы при обновлении страницы редактор не открывался снова
+            window.history.replaceState({}, document.title, window.location.pathname);
         }
 
-        function saveBalanceChanges() {
-            player.fuzes = parseInt(document.getElementById('input-fuzes').value) || 0;
-            player.rubies = parseInt(document.getElementById('input-rubies').value) || 0;
-            saveGame(); updateBalanceUI();
-            document.getElementById('balance-panel').style.display = 'none';
-            showToast("Баланс изменен!");
+        // --- СОХРАНЕНИЕ И ЗАГРУЗКА ФАЙЛА ---
+        function saveProgressToFile() {
+            let data = JSON.stringify(player);
+            let encoded = btoa(unescape(encodeURIComponent(data)));
+            let blob = new Blob([encoded], {type: "text/plain"});
+            let url = URL.createObjectURL(blob);
+            
+            let a = document.createElement('a');
+            a.href = url;
+            a.download = 'wormix_save.txt';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            alert("Функция помогает сохранить прогресс игры в памяти телефона для последующего обновления игры.\n\nФайл wormix_save.txt сохранен в папку 'Загрузки' (Download).\n\nПосле обновления игры нажмите кнопку 'Загрузить прогресс' и выберите этот файл.");
         }
 
-        // --- РЕДАКТОР ПРЕДМЕТОВ ---
+        function loadProgressFromFile(event) {
+            let file = event.target.files[0];
+            if (!file) return;
+            
+            let reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    let encoded = e.target.result;
+                    let data = JSON.parse(decodeURIComponent(escape(atob(encoded))));
+                    
+                    if (data.fuzes !== undefined && data.rubies !== undefined) {
+                        localStorage.setItem('wormixSave', JSON.stringify(data));
+                        alert("Прогресс успешно загружен! Игра перезагрузится.");
+                        window.location.reload();
+                    } else {
+                        alert("Неверный файл сохранения!");
+                    }
+                } catch(err) {
+                    alert("Ошибка при чтении файла! Убедитесь, что выбран правильный файл wormix_save.txt.");
+                }
+            };
+            reader.readAsText(file);
+        }
+        // -----------------------------------
+
         let tempHatSettings = JSON.parse(JSON.stringify(HAT_SETTINGS));
         let tempArtSettings = JSON.parse(JSON.stringify(ARTIFACT_SETTINGS));
         let editorRace = player.race;
@@ -170,7 +169,6 @@
         function openEditor() {
             editorRace = player.race;
             document.getElementById('editor-race-selector').value = editorRace;
-            
             let selector = document.getElementById('item-selector');
             selector.innerHTML = '<option value="">-- Выберите предмет --</option>';
             selector.innerHTML += '<optgroup label="Шапки">';
@@ -203,7 +201,6 @@
             if (!val) return;
 
             let isHat = val.startsWith('hat_'); let id = val.replace('hat_', '').replace('art_', '');
-            
             let data = isHat ? (tempHatSettings[editorRace] && tempHatSettings[editorRace][id]) : (tempArtSettings[editorRace] && tempArtSettings[editorRace][id]);
             let defaults = isHat ? { w: 220, y: 60, x: 50 } : { w: 110, y: 10, x: -30 };
             let settings = data || defaults;
@@ -216,7 +213,6 @@
                 <div class="slider-group"><label>${yLabel}</label><input type="range" min="-100" max="200" value="${settings.y}" oninput="previewChange('${val}', 'y', this.value, ${isHat})"><span>${settings.y}</span></div>
                 <div class="slider-group"><label>${xLabel}</label><input type="range" min="${xMin}" max="${xMax}" value="${settings.x}" oninput="previewChange('${val}', 'x', this.value, ${isHat})"><span>${settings.x}</span></div>
             `;
-            
             if (isHat) player.equippedHat = id; else player.equippedArtifact = id;
             applySettings();
         }
@@ -224,7 +220,6 @@
         function previewChange(val, key, num, isHat) {
             let id = val.replace('hat_', '').replace('art_', '');
             let numVal = parseInt(num); event.target.nextElementSibling.innerText = numVal;
-            
             if (isHat) {
                 if (!tempHatSettings[editorRace]) tempHatSettings[editorRace] = {};
                 if (!tempHatSettings[editorRace][id]) tempHatSettings[editorRace][id] = { w: 220, y: 60, x: 50 };
@@ -253,7 +248,6 @@
         function finishDragging() {
             document.getElementById('drag-banner').style.display = 'none'; isDraggingMode = false;
             if (activeEditEl) activeEditEl.classList.remove('editing-item');
-
             if (activeEditType === 'hat') {
                 let id = player.equippedHat;
                 if(!tempHatSettings[editorRace]) tempHatSettings[editorRace] = {};
@@ -315,7 +309,6 @@
                 hatCode += `    },\n`;
             }
             hatCode += "};\n\n";
-
             let artCode = "const ARTIFACT_SETTINGS = {\n";
             for (let race in tempArtSettings) {
                 artCode += `    '${race}': {\n`;
@@ -326,7 +319,6 @@
                 artCode += `    },\n`;
             }
             artCode += "};";
-
             out.value = hatCode + artCode; out.style.display = 'block';
         }
 
@@ -349,7 +341,6 @@
             document.body.appendChild(text); setTimeout(() => text.remove(), 800);
         }
 
-        // --- БОНУСЫ ---
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const bonusRewards = [
