@@ -12,40 +12,41 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 1. Устанавливаем стабильную версию Node.js (16), чтобы избежать ошибок npm
       - name: Setup Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: '16'
+          node-version: '18'
 
-      # 2. Автоматически переносим все файлы игры в папку web
-      - name: Move all game files to web folder
+      - name: Install Cordova
+        run: npm install -g cordova
+
+      - name: Create Cordova Project
+        run: cordova create cordova-app com.example.wormixtap "Wormix Tap"
+
+      - name: Copy Game Files to Cordova
         run: |
-          [ -f index.html ] && mv index.html web/ || true
-          [ -f game.html ] && mv game.html web/ || true
-          [ -f menu.html ] && mv menu.html web/ || true
-          [ -f race.html ] && mv race.html web/ || true
-          [ -f shop.html ] && mv shop.html web/ || true
-          [ -f hats.html ] && mv hats.html web/ || true
-          [ -f artifacts.html ] && mv artifacts.html web/ || true
-          [ -f craft.html ] && mv craft.html web/ || true
-          [ -f craft-detail.html ] && mv craft-detail.html web/ || true
-          [ -f wardrobe.html ] && mv wardrobe.html web/ || true
-          [ -f style.css ] && mv style.css web/ || true
-          [ -f script.js ] && mv script.js web/ || true
-          [ -d images ] && mv images web/ || true
+          # Копируем все файлы из папки web (или из корня, если они там) в www Cordova
+          cp -r web/* cordova-app/www/ 2>/dev/null || true
+          cp index.html cordova-app/www/ 2>/dev/null || true
+          cp game.html cordova-app/www/ 2>/dev/null || true
+          cp *.html cordova-app/www/ 2>/dev/null || true
+          cp *.css cordova-app/www/ 2>/dev/null || true
+          cp *.js cordova-app/www/ 2>/dev/null || true
+          cp -r images cordova-app/www/ 2>/dev/null || true
+          cp -r web/images cordova-app/www/ 2>/dev/null || true
 
-      # 3. Собираем APK
-      - name: Build APK from Web
-        uses: darkshredder/web-to-app-action@main
-        with:
-          build-folder-path: "web"
-          app-name: "Wormix Tap"
-          output-folder-path: "apk"
+      - name: Add Android Platform
+        run: |
+          cd cordova-app
+          cordova platform add android
 
-      # 4. Сохраняем готовый файл
+      - name: Build Debug APK
+        run: |
+          cd cordova-app
+          cordova build android --debug
+
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
           name: WormixTap-APK
-          path: apk/
+          path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
