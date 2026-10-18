@@ -4,8 +4,8 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
     hats: [], artifacts: [],
     equippedHat: '', equippedArtifact: '', 
     hatTiers: {}, artifactTiers: {},
-    lastBonusTime: 0, // Время последнего получения бонуса
-    bonusDay: 1       // Текущий день бонуса (1-7)
+    lastBonusTime: 0,
+    bonusDay: 1
 };
 
 if (!player.equippedHat) player.equippedHat = '';
@@ -49,6 +49,23 @@ function showToast(message, isError = false) {
     toast.innerText = message;
     toast.className = isError ? 'toast-msg show error' : 'toast-msg show';
     setTimeout(() => { toast.classList.remove('show'); }, 2000);
+}
+
+// ФУНКЦИЯ ГЕНЕРАЦИИ ЦЕНЫ (Стабильная для каждого предмета)
+function getPrice(itemId, isHat) {
+    let hash = 0;
+    for (let i = 0; i < itemId.length; i++) {
+        hash = itemId.charCodeAt(i) + ((hash << 5) - hash);
+    }
+    hash = Math.abs(hash);
+    
+    if (isHat) {
+        // Шапки от 6000 до 10000
+        return 6000 + (hash % 4001);
+    } else {
+        // Артефакты от 5000 до 8000
+        return 5000 + (hash % 3001);
+    }
 }
 
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
