@@ -17,23 +17,30 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install Cordova
-        run: npm install -g cordova
+      # Устанавливаем Cordova и утилиту для генерации иконок
+      - name: Install Cordova and cordova-res
+        run: npm install -g cordova cordova-res
 
+      # СОЗДАЕМ ПРОЕКТ С НОВЫМ ИМЕНЕМ (WormixTAP)
       - name: Create Cordova Project
-        run: cordova create cordova-app com.example.wormixtap "Wormix Tap"
+        run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
       - name: Copy Game Files to Cordova
         run: |
-          # Копируем все файлы из папки web (или из корня, если они там) в www Cordova
           cp -r web/* cordova-app/www/ 2>/dev/null || true
           cp index.html cordova-app/www/ 2>/dev/null || true
-          cp game.html cordova-app/www/ 2>/dev/null || true
           cp *.html cordova-app/www/ 2>/dev/null || true
           cp *.css cordova-app/www/ 2>/dev/null || true
           cp *.js cordova-app/www/ 2>/dev/null || true
           cp -r images cordova-app/www/ 2>/dev/null || true
-          cp -r web/images cordova-app/www/ 2>/dev/null || true
+
+      # ГЕНЕРАЦИЯ ИКОНКИ (Берет ваш icon.png из корня и делает все размеры для Android)
+      - name: Generate App Icons
+        run: |
+          mkdir -p cordova-app/resources
+          if [ -f icon.png ]; then cp icon.png cordova-app/resources/icon.png; fi
+          cd cordova-app
+          cordova-res android --skip-config --copy
 
       - name: Add Android Platform
         run: |
@@ -45,8 +52,9 @@ jobs:
           cd cordova-app
           cordova build android --debug
 
+      # СОХРАНЯЕМ ПОД НОВЫМ ИМЕНЕМ
       - name: Upload APK Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: WormixTap-APK
+          name: WormixTAP-APK
           path: cordova-app/platforms/android/app/build/outputs/apk/debug/app-debug.apk
