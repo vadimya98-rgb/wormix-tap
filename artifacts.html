@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Артефакты</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="top-bar">
@@ -12,19 +12,22 @@
         <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=5"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
-        let basePrice = 1500; 
 
         for (let id in allArtifacts) {
             if (player.artifacts.includes(id)) continue; 
+            
+            // Вычисляем цену для артефакта
+            let price = getPrice(id, false);
+
             list.innerHTML += `
                 <div class="item-card" id="card-${id}">
                     <img src="${allArtifacts[id].img}" class="item-icon">
-                    <div style="flex-grow:1;"><b>${allArtifacts[id].name}</b><br><span style="color:#aaa; font-size:12px;">${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span></div>
-                    <button class="btn-buy" onclick="buyItem('${id}', ${basePrice})">${basePrice} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;"></button>
+                    <div style="flex-grow:1;"><b>${allArtifacts[id].name}</b><br><span style="color:#aaa; font-size:12px;">${price} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span></div>
+                    <button class="btn-buy" onclick="buyItem('${id}', ${price})">${price} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;"></button>
                 </div>
             `;
         }
