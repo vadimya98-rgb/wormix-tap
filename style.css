@@ -56,10 +56,10 @@ img { -webkit-touch-callout: none; }
 /* НАСТРОЙКИ ШАПКИ И АРТЕФАКТА */
 #equipped-hat { 
     position: absolute; 
-    top: 40px;       /* Опустил шапку ниже на голову (было 20px) */
+    top: 60px;       /* Опустили шапку ниже, чтобы не закрывала глаза */
     left: 50%; 
     transform: translateX(-50%); 
-    width: 180px;    /* Сделал шапку больше (было 130px) */
+    width: 220px;    /* Увеличили шапку, теперь она масштабная */
     display: none; 
     pointer-events: none; 
     z-index: 5; 
@@ -67,9 +67,9 @@ img { -webkit-touch-callout: none; }
 
 #equipped-artifact { 
     position: absolute; 
-    bottom: 15px;    
-    right: -10px;    /* Придвинул артефакт ближе к персонажу */
-    width: 70px;     /* Уменьшил размер артефакта, чтобы не был гигантским */
+    bottom: 10px;    
+    right: -30px;    /* Вернули артефакт на место */
+    width: 110px;    /* Вернули идеальный размер артефакта */
     height: auto;
     display: none; 
     pointer-events: none; 
