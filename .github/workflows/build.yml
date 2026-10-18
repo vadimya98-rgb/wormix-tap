@@ -25,26 +25,31 @@ jobs:
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
-      # ИСПРАВЛЕННЫЙ ШАГ: Копируем абсолютно всё
+      # УМНЫЙ ПЕРДОС ФАЙЛОВ (Ищет папку web или docs)
       - name: Copy Game Files to Cordova
         run: |
-          # Копируем всё из папки docs
-          cp -r docs/* cordova-app/www/ 2>/dev/null || true
+          rm -rf cordova-app/www/*
           
-          # На всякий случай копируем стили и скрипты из корня, если они там
-          cp style.css cordova-app/www/ 2>/dev/null || true
-          cp script.js cordova-app/www/ 2>/dev/null || true
-          
-          # Копируем папку с картинками (учитываем возможный перевод)
-          [ -d "images" ] && cp -r images cordova-app/www/ || true
-          [ -d "изображения" ] && cp -r изображения cordova-app/www/ || true
-          [ -d "docs/images" ] && cp -r docs/images cordova-app/www/ || true
+          if [ -d "web" ]; then
+            echo "Found web folder. Copying..."
+            cp -a web/. cordova-app/www/
+          elif [ -d "docs" ]; then
+            echo "Found docs folder. Copying..."
+            cp -a docs/. cordova-app/www/
+          else
+            echo "No web or docs folder found. Copying root..."
+            cp *.html cordova-app/www/ 2>/dev/null || true
+            cp *.css cordova-app/www/ 2>/dev/null || true
+            cp *.js cordova-app/www/ 2>/dev/null || true
+            cp -r images cordova-app/www/ 2>/dev/null || true
+          fi
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android
 
+      # УСТАНОВКА ИКОНКИ
       - name: Replace Icons Directly
         run: |
           if [ -f icon.png ]; then
