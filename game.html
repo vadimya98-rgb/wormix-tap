@@ -4,12 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=4">
+    <link rel="stylesheet" href="style.css?v=6">
+    <style>
+        /* Стили для чит-меню */
+        .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; justify-content: center; align-items: center; }
+        .admin-box { background: #222; padding: 20px; border-radius: 10px; border: 2px solid #F44336; width: 80%; max-width: 300px; text-align: center; }
+        .admin-input { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px; }
+    </style>
 </head>
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">☰ Дом</a>
-        <div class="balance">
+        <!-- ДОБАВЛЕН ID ДЛЯ ПЕРЕХВАТА КЛИКОВ -->
+        <div class="balance" id="secret-balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
@@ -30,12 +37,21 @@
             <h2 style="margin-top:0; color:#FFD700;">Ежедневный бонус</h2>
             <div class="bonus-grid" id="bonus-days"></div>
             <button id="claim-bonus-btn" class="btn-green" style="margin: 15px auto; width: 80%;">Получить</button>
-            <!-- Кнопка закрыть скрыта, так как окно теперь закрывается автоматически -->
-            <button id="close-bonus-btn" class="btn-back" style="display:none; margin: 0 auto; width: 80%; text-align:center;">Закрыть</button>
         </div>
     </div>
 
-    <script src="script.js?v=4"></script>
+    <!-- СЕКРЕТНОЕ ЧИТ-МЕНЮ -->
+    <div id="admin-panel" class="admin-modal">
+        <div class="admin-box">
+            <h3 style="color:#F44336; margin-top:0;">Админ-Панель</h3>
+            <input type="number" id="admin-fuzes" class="admin-input" placeholder="Кол-во фузов">
+            <input type="number" id="admin-rubies" class="admin-input" placeholder="Кол-во рубинов">
+            <button class="btn-green" style="width:100%;" onclick="saveAdminChanges()">Применить</button>
+            <button class="btn-back" style="width:100%; margin-top:10px;" onclick="document.getElementById('admin-panel').style.display='none'">Закрыть</button>
+        </div>
+    </div>
+
+    <script src="script.js?v=6"></script>
     <script>
         document.getElementById('character').src = player.race;
         
@@ -45,7 +61,7 @@
             hatImg.src = allHats[player.equippedHat].img;
             hatImg.style.display = 'block';
             let tier = player.hatTiers[player.equippedHat] || 0;
-            hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+            hatImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
         }
 
         // Загружаем Артефакт
@@ -54,7 +70,7 @@
             artImg.src = allArtifacts[player.equippedArtifact].img;
             artImg.style.display = 'block';
             let tier = player.artifactTiers[player.equippedArtifact] || 0;
-            artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+            artImg.className = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
         }
 
         updateBalanceUI();
@@ -86,6 +102,33 @@
             setTimeout(() => text.remove(), 800);
         }
 
+        // --- ЛОГИКА СЕКРЕТНОГО ЧИТ-МЕНЮ ---
+        let clickCount = 0;
+        let clickTimer;
+        document.getElementById('secret-balance').addEventListener('pointerdown', () => {
+            clickCount++;
+            clearTimeout(clickTimer);
+            
+            // Если нажали 5 раз подряд
+            if (clickCount >= 5) {
+                clickCount = 0;
+                document.getElementById('admin-panel').style.display = 'flex';
+                document.getElementById('admin-fuzes').value = player.fuzes;
+                document.getElementById('admin-rubies').value = player.rubies;
+            } else {
+                clickTimer = setTimeout(() => { clickCount = 0; }, 1000); // Сброс через 1 сек
+            }
+        });
+
+        function saveAdminChanges() {
+            player.fuzes = parseInt(document.getElementById('admin-fuzes').value) || 0;
+            player.rubies = parseInt(document.getElementById('admin-rubies').value) || 0;
+            saveGame();
+            updateBalanceUI();
+            document.getElementById('admin-panel').style.display = 'none';
+            showToast("Данные изменены!");
+        }
+
         // --- ЛОГИКА ЕЖЕДНЕВНЫХ БОНУСОВ ---
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
@@ -100,13 +143,11 @@
             { text: `30 ${rubImg} + 3000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 3000 }
         ];
 
-        const COOLDOWN = 24 * 60 * 60 * 1000; // 24 часа
+        const COOLDOWN = 24 * 60 * 60 * 1000;
         let canClaim = false;
 
         function checkDailyBonus() {
             let timeSinceLast = Date.now() - player.lastBonusTime;
-            
-            // Показываем окно ТОЛЬКО если бонус доступен
             if (timeSinceLast >= COOLDOWN) {
                 canClaim = true;
                 renderBonusGrid();
@@ -117,7 +158,6 @@
         function renderBonusGrid() {
             let grid = document.getElementById('bonus-days');
             grid.innerHTML = '';
-            
             for (let i = 0; i < 7; i++) {
                 let dayNum = i + 1;
                 let isCurrent = (player.bonusDay === dayNum);
@@ -139,14 +179,11 @@
 
         document.getElementById('claim-bonus-btn').onclick = () => {
             if (!canClaim) return;
-            
             let reward = bonusRewards[player.bonusDay - 1];
             
-            if (reward.type === 'fuzes') {
-                player.fuzes += reward.amount;
-            } else if (reward.type === 'rubies') {
-                player.rubies += reward.amount;
-            } else if (reward.type === 'boost') {
+            if (reward.type === 'fuzes') player.fuzes += reward.amount;
+            else if (reward.type === 'rubies') player.rubies += reward.amount;
+            else if (reward.type === 'boost') {
                 player.boostMultiplier = reward.mult;
                 let now = Date.now();
                 if (player.boostEndTime > now) { player.boostEndTime += reward.time * 60000; } 
@@ -164,13 +201,10 @@
             saveGame();
             updateBalanceUI();
             showToast("Бонус получен!");
-            
-            // СРАЗУ ЗАКРЫВАЕМ ОКНО
             document.getElementById('bonus-modal').style.display = 'none';
             canClaim = false;
         };
 
-        // Проверяем бонус при загрузке страницы
         setTimeout(checkDailyBonus, 500);
     </script>
 </body>
