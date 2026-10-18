@@ -16,27 +16,23 @@
     <script src="script.js?v=3"></script>
     <script>
         updateBalanceUI();
+        
+        // ТЕПЕРЬ ТУТ ТОЛЬКО 2 БУСТА
         const boosts = [
-            { name: 'Удвоение (10 мин)', cost: 10, mult: 2, time: 10 },
-            { name: 'Удвоение (20 мин)', cost: 20, mult: 2, time: 20 },
-            { name: 'Удвоение (30 мин)', cost: 30, mult: 2, time: 30 },
-            { name: 'Утроение (10 мин)', cost: 15, mult: 3, time: 10 },
-            { name: 'Утроение (20 мин)', cost: 25, mult: 3, time: 20 },
-            { name: 'Утроение (30 мин)', cost: 40, mult: 3, time: 30 },
-            { name: 'Учетверение (10 мин)', cost: 20, mult: 4, time: 10 },
-            { name: 'Учетверение (20 мин)', cost: 40, mult: 4, time: 20 },
-            { name: 'Учетверение (30 мин)', cost: 50, mult: 4, time: 30 },
             { name: 'x10 Буст (10 мин)', cost: 50, mult: 10, time: 10, highlight: true },
             { name: 'x20 Буст (10 мин)', cost: 100, mult: 20, time: 10, highlight: true }
         ];
 
         let list = document.getElementById('shop-list');
         boosts.forEach((b, i) => {
-            let bg = b.highlight ? 'style="border: 2px solid #FFD700;"' : '';
+            let bg = b.highlight ? 'style="border: 2px solid #FFD700; background: rgba(255, 215, 0, 0.1);"' : '';
             list.innerHTML += `
                 <div class="item-card" ${bg}>
-                    <div><b>${b.name}</b><br><span style="font-size:12px; color:#aaa;">Множитель: x${b.mult}</span></div>
-                    <button class="btn-buy" onclick="buyBoost(${i})">
+                    <div>
+                        <b>${b.name}</b><br>
+                        <span style="font-size:12px; color:#aaa;">Множитель фузов: x${b.mult}</span>
+                    </div>
+                    <button class="btn-buy" onclick="buyBoost(${i})" style="background:#FF9800;">
                         ${b.cost} <img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin:0;">
                     </button>
                 </div>
@@ -51,7 +47,7 @@
                 let now = Date.now();
                 if (player.boostEndTime > now) { player.boostEndTime += b.time * 60000; } 
                 else { player.boostEndTime = now + (b.time * 60000); }
-                saveGame(); updateBalanceUI(); showToast(`Буст активирован!`);
+                saveGame(); updateBalanceUI(); showToast(`Буст x${b.mult} активирован!`);
             } else { showToast("Недостаточно средств!", true); }
         }
     </script>
