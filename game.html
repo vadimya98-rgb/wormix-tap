@@ -8,7 +8,6 @@
 </head>
 <body>
     <div class="top-bar">
-        <!-- ИЗМЕНЕНО НА ДОМ -->
         <a href="menu.html" class="btn-back">☰ Дом</a>
         <div class="balance">
             <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
@@ -61,11 +60,9 @@
         startTimerUI('ui-boost-timer');
 
         function tap(event) {
-            // ТЕПЕРЬ 1 ФУЗ ЗА ТАП (умножается на буст)
             let earned = 1 * getCurrentMultiplier();
             player.fuzes += earned;
             
-            // ШАНС РУБИНА 0.5% (в 2 раза реже)
             let isRuby = Math.random() < 0.005; 
             if (isRuby) player.rubies += 1;
 
@@ -89,14 +86,18 @@
         }
 
         // --- ЛОГИКА ЕЖЕДНЕВНЫХ БОНУСОВ ---
+        // ТЕПЕРЬ С КАРТИНКАМИ
+        const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+        const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+
         const bonusRewards = [
-            { text: "1000 💎", type: "fuzes", amount: 1000 },
-            { text: "10 🔴", type: "rubies", amount: 10 },
+            { text: `1000 ${fuzImg}`, type: "fuzes", amount: 1000 },
+            { text: `10 ${rubImg}`, type: "rubies", amount: 10 },
             { text: "x10 ⚡ (10м)", type: "boost", mult: 10, time: 10 },
-            { text: "5000 💎", type: "fuzes", amount: 5000 },
-            { text: "30 🔴", type: "rubies", amount: 30 },
+            { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
+            { text: `30 ${rubImg}`, type: "rubies", amount: 30 },
             { text: "x20 ⚡ (5м)", type: "boost", mult: 20, time: 5 },
-            { text: "30 🔴 + 3000 💎", type: "mix", rubies: 30, fuzes: 3000 }
+            { text: `30 ${rubImg} + 3000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 3000 }
         ];
 
         const COOLDOWN = 24 * 60 * 60 * 1000; // 24 часа
@@ -105,7 +106,6 @@
         function checkDailyBonus() {
             let timeSinceLast = Date.now() - player.lastBonusTime;
             
-            // Если прошло 24 часа или это первый заход
             if (timeSinceLast >= COOLDOWN) {
                 canClaim = true;
                 document.getElementById('claim-bonus-btn').style.display = 'block';
@@ -137,7 +137,7 @@
                 
                 div.innerHTML = `
                     <div style="font-size:12px; margin-bottom:5px;">День ${dayNum}</div>
-                    <div style="font-size:14px; font-weight:bold;">${bonusRewards[i].text}</div>
+                    <div style="font-size:14px; font-weight:bold; display:flex; align-items:center; justify-content:center; gap:2px;">${bonusRewards[i].text}</div>
                 `;
                 grid.appendChild(div);
             }
@@ -163,7 +163,6 @@
                 player.fuzes += reward.fuzes;
             }
             
-            // Переход на следующий день
             player.bonusDay++;
             if (player.bonusDay > 7) player.bonusDay = 1;
             player.lastBonusTime = Date.now();
@@ -182,7 +181,6 @@
             document.getElementById('bonus-modal').style.display = 'none';
         };
 
-        // Проверяем бонус при загрузке страницы
         setTimeout(checkDailyBonus, 500);
     </script>
 </body>
