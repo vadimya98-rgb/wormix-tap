@@ -225,7 +225,6 @@ const ARTIFACT_SETTINGS = {
         'posoh': { w: 110, y: 51, x: 14 },
         'ucheniy': { w: 78, y: 44, x: 79 },
     },
-    },
     'images/zombie.png': {
         'arhi': { w: 94, y: 79, x: 66 }, 'arkhidemon': { w: 140, y: 43, x: 8 },
         'posoh': { w: 152, y: 45, x: -10 }, 'shit': { w: 144, y: 49, x: 8 },
