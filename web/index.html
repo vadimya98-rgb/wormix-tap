@@ -4,18 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=99">
+    <link rel="stylesheet" href="style.css?v=26">
 </head>
 <body>
     <div id="s1" class="screen active">
         <div class="intro-text">Приветствую тебя в игре<br><b>Вормикс ТАП</b></div>
         <button class="btn-green" onclick="showScreen('s2')">Далее</button>
     </div>
+    
     <div id="s2" class="screen">
         <div class="intro-text">В этой игре тебе предстоит выбивать фузы и рубины, чтобы одеть своего персонажа.<br><br>Покупай шапки и артефакты, выбивай легендарку.</div>
         <button class="btn-green" onclick="showScreen('s3')">Далее</button>
     </div>
+
+    <!-- НОВЫЙ ЭКРАН С ИНСТРУКЦИЕЙ -->
     <div id="s3" class="screen">
+        <div class="content" style="justify-content:center; text-align:center; padding: 20px;">
+            <h2 style="color:#FFD700; margin-bottom:10px;">Об игре</h2>
+            <p style="font-size:16px; line-height:1.4; margin-bottom:20px;">
+                Тапай по персонажу, чтобы получать фузы. Иногда выпадают рубины.<br>
+                В разделе «Дом» ты можешь купить шапки, артефакты и улучшать их.
+            </p>
+            
+            <h2 style="color:#2196F3; margin-bottom:10px;">Как сохранить прогресс?</h2>
+            <p style="font-size:14px; line-height:1.4; color:#ccc; margin-bottom:15px;">
+                Игра сохраняется на телефоне, но при обновлении приложения прогресс может сброситься.<br><br>
+                <b>Чтобы сохранить:</b> Зайди в «Дом» -> нажми «Сохранить» внизу -> скопируй код в заметки.<br><br>
+                <b>Чтобы загрузить:</b> Зайди в «Дом» -> нажми «Загрузить» -> вставь код.
+            </p>
+        </div>
+        <button class="btn-green" onclick="showScreen('s4')">Понятно, выбрать расу</button>
+    </div>
+
+    <div id="s4" class="screen">
         <div class="intro-text" style="margin-top:20px; font-size:20px;">Выбери свою расу</div>
         <div class="race-grid">
             <div class="race-wrapper" onclick="selectRace('images/dragon.png')"><img src="images/dragon.png" class="race-img"></div>
@@ -27,9 +48,11 @@
             <div class="race-wrapper" onclick="selectRace('images/rabit.png')"><img src="images/rabit.png" class="race-img"></div>
         </div>
     </div>
-    <script src="script.js?v=99"></script>
+    
+    <script src="script.js?v=26"></script>
     <script>
         if(player.race !== '') window.location.href = 'game.html';
+        
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
