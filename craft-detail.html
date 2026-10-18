@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Перекрафт</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=5">
 </head>
 <body>
     <div class="top-bar">
@@ -13,7 +13,7 @@
     </div>
     <div class="content"><div id="craft-ui"></div></div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=5"></script>
     <script>
         updateBalanceUI();
         const urlParams = new URLSearchParams(window.location.search);
@@ -22,6 +22,7 @@
         
         let itemData = itemType === 'hat' ? allHats[itemId] : allArtifacts[itemId];
         let playerTiers = itemType === 'hat' ? player.hatTiers : player.artifactTiers;
+        let craftPrice = itemType === 'hat' ? 5000 : 6000; // Фиксированная цена
 
         if (!itemId || !itemData) {
             document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center;'>Ошибка: Предмет не найден</h3>";
@@ -33,51 +34,80 @@
             let tier = playerTiers[itemId] || 0;
             let ui = document.getElementById('craft-ui');
             
-            if (tier === 3) {
-                ui.innerHTML = `<div class="craft-result" style="flex-direction:column;"><img src="${itemData.img}" style="width:100px; height:100px;" class="tier-gold"><h3 style="margin:10px 0; color:#FFD700;">Золото (Максимум)</h3><p>Достигнут максимальный уровень!</p></div>`;
+            if (tier === 4) { // 4 - это Алмаз (максимум)
+                ui.innerHTML = `<div class="craft-result" style="flex-direction:column;"><img src="${itemData.img}" style="width:100px; height:100px;" class="tier-diamond"><h3 style="margin:10px 0; color:#00FFFF;">Алмаз (Максимум)</h3><p>Достигнут максимальный уровень!</p></div>`;
                 return;
             }
 
-            let nextTierName = tier === 0 ? "Бронза" : (tier === 1 ? "Серебро" : "Золото");
-            let chance = tier === 0 ? 50 : (tier === 1 ? 40 : 2);
-            let price = tier === 0 ? 4000 : 6000;
-            let nextTierClass = tier === 0 ? 'tier-bronze' : (tier === 1 ? 'tier-silver' : 'tier-gold');
+            // Верхняя панель - какие бывают шапки
+            let possibleTiersHTML = `
+                <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:15px;">
+                    <img src="${itemData.img}" class="item-icon tier-bronze" title="Бронза">
+                    <img src="${itemData.img}" class="item-icon tier-silver" title="Серебро">
+                    <img src="${itemData.img}" class="item-icon tier-gold" title="Золото">
+                    <img src="${itemData.img}" class="item-icon tier-diamond" title="Алмаз">
+                </div>
+            `;
 
             ui.innerHTML = `
+                ${possibleTiersHTML}
                 <div class="craft-result" style="flex-direction:column;">
-                    <div style="display:flex; gap:20px; align-items:center;">
-                        <div style="text-align:center;">
-                            <img src="${itemData.img}" style="width:80px; height:80px;" class="${tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : '')}">
-                            <div style="font-size:12px;">Сейчас</div>
-                        </div>
-                        <div style="font-size:30px; color:#888;">➡</div>
-                        <div style="text-align:center;">
-                            <img src="${itemData.img}" style="width:80px; height:80px;" class="${nextTierClass}">
-                            <div style="font-size:12px; color:#FFD700; font-weight:bold;">${nextTierName}</div>
-                        </div>
-                    </div>
-                    <h3 style="margin:15px 0 5px 0;">Шанс: ${chance}%</h3>
+                    <img src="${itemData.img}" style="width:100px; height:100px;" class="${tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''))}">
+                    <h3 style="margin:10px 0;">Ваш предмет</h3>
                 </div>
-                <button id="btn-craft" class="btn-green" style="display:flex; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doRecraft(${chance}, ${price})">
-                    Пересобрать (${price} <img src="images/fuz.png" class="coin-icon" style="width:20px; height:20px; margin:0;">)
+                
+                <button id="btn-craft" class="btn-green" style="display:flex; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doRecraft(${craftPrice})">
+                    Пересобрать (${craftPrice} <img src="images/fuz.png" class="coin-icon" style="width:20px; height:20px; margin:0;">)
                 </button>
-                <div id="result-text" style="text-align:center; margin-top:20px; font-weight:bold; font-size:18px; text-shadow: 1px 1px 2px black;"></div>
+                <div id="result-text" style="text-align:center; margin-top:20px; font-weight:bold; font-size:18px; text-shadow: 1px 1px 2px black; min-height:50px;"></div>
             `;
         }
 
-        function doRecraft(chance, price) {
+        function doRecraft(price) {
             if (player.fuzes < price) { showToast("Недостаточно средств!", true); return; }
             player.fuzes -= price;
-            let success = Math.random() * 100 < chance;
-            let resultText = document.getElementById('result-text');
             
-            if (success) {
-                playerTiers[itemId] += 1;
-                resultText.style.color = "#FFD700"; resultText.innerText = "🎉 УСПЕХ! Редкость повышена! 🎉";
-            } else {
-                resultText.style.color = "#FF5252"; resultText.innerText = "Увы, ничего не вышло.";
-            }
-            saveGame(); updateBalanceUI(); setTimeout(() => { renderCraftPage(); }, 2000);
+            let resultText = document.getElementById('result-text');
+            resultText.style.color = "#aaa";
+            resultText.innerText = "Куем...";
+            
+            // Скрываем кнопку, чтобы не спамили
+            document.getElementById('btn-craft').style.display = 'none';
+
+            setTimeout(() => {
+                let roll = Math.random() * 100;
+                let newTier = 0;
+                
+                // Логика шансов (50 / 30 / 10 / 2)
+                if (roll < 50) newTier = 1; // Бронза
+                else if (roll < 80) newTier = 2; // Серебро
+                else if (roll < 90) newTier = 3; // Золото
+                else if (roll < 92) newTier = 4; // Алмаз
+                else newTier = 0; // Провал
+
+                let currentTier = playerTiers[itemId] || 0;
+                
+                // Если выпавший уровень выше текущего - улучшаем
+                if (newTier > currentTier) {
+                    playerTiers[itemId] = newTier;
+                    let tierNames = ["", "Бронза", "Серебро", "Золото", "Алмаз"];
+                    let colors = ["", "#CD7F32", "#C0C0C0", "#FFD700", "#00FFFF"];
+                    
+                    resultText.style.color = colors[newTier];
+                    resultText.innerText = `УСПЕХ! Выпала ${tierNames[newTier]}!`;
+                } else {
+                    // Иначе провал (или выпал такой же/низший уровень)
+                    resultText.style.color = "#FF5252";
+                    resultText.innerText = "Неудача. Предмет не изменился.";
+                }
+
+                saveGame(); 
+                updateBalanceUI(); 
+                
+                // Обновляем картинку через 1.5 секунды
+                setTimeout(() => { renderCraftPage(); }, 1500);
+                
+            }, 1000); // Небольшая задержка для интриги
         }
     </script>
 </body>
