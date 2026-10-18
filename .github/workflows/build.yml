@@ -25,39 +25,32 @@ jobs:
       - name: Create Cordova Project
         run: cordova create cordova-app com.example.wormixtap "WormixTAP"
 
-      # УМНЫЙ ПЕРДОС ФАЙЛОВ (Ищет папку web или docs)
       - name: Copy Game Files to Cordova
         run: |
-          rm -rf cordova-app/www/*
-          
-          if [ -d "web" ]; then
-            echo "Found web folder. Copying..."
-            cp -a web/. cordova-app/www/
-          elif [ -d "docs" ]; then
-            echo "Found docs folder. Copying..."
-            cp -a docs/. cordova-app/www/
-          else
-            echo "No web or docs folder found. Copying root..."
-            cp *.html cordova-app/www/ 2>/dev/null || true
-            cp *.css cordova-app/www/ 2>/dev/null || true
-            cp *.js cordova-app/www/ 2>/dev/null || true
-            cp -r images cordova-app/www/ 2>/dev/null || true
-          fi
+          [ -d "веб" ] && mv веб web || true
+          [ -d "изображения" ] && mv изображения images || true
+          cp -r web/* cordova-app/www/ 2>/dev/null || true
+          cp *.html cordova-app/www/ 2>/dev/null || true
+          cp *.css cordova-app/www/ 2>/dev/null || true
+          cp *.js cordova-app/www/ 2>/dev/null || true
+          cp -r images cordova-app/www/ 2>/dev/null || true
 
       - name: Add Android Platform
         run: |
           cd cordova-app
           cordova platform add android
 
-      # УСТАНОВКА ИКОНКИ
+      # ПРЯМАЯ ЗАМЕНА ИКОНОК (БЕЗ СТОРОННИХ БИБЛИОТЕК)
       - name: Replace Icons Directly
         run: |
           if [ -f icon.png ]; then
             cd cordova-app/platforms/android/app/src/main/res
             for dir in mipmap-*; do
               if [ -d "$dir" ]; then
+                # Принудительно перезаписываем все иконки на нашу
                 convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher.png 2>/dev/null || true
                 convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher_round.png 2>/dev/null || true
+                convert ../../../../../../icon.png -resize 48x48 $dir/ic_launcher_foreground.png 2>/dev/null || true
               fi
             done
           fi
