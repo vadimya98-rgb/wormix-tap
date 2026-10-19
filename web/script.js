@@ -7,7 +7,8 @@ try {
 } catch (e) {}
 
 if (!player || typeof player !== 'object') {
-    player = { fuzes: 0, rubies: 0, race: '', unlockedRaces: [], boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1, totalClicks: 0 };
+    // Добавлена переменная lastBonusDate для новой системы бонусов
+    player = { fuzes: 0, rubies: 0, race: '', unlockedRaces: [], boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, lastBonusDate: '', bonusDay: 1, totalClicks: 0 };
 }
 
 if (player.totalClicks === undefined) player.totalClicks = 0;
@@ -28,6 +29,7 @@ if (!player.artifactTiers) player.artifactTiers = {};
 if (!player.equippedHat) player.equippedHat = '';
 if (!player.equippedArtifact) player.equippedArtifact = '';
 if (player.lastBonusTime === undefined) player.lastBonusTime = 0;
+if (player.lastBonusDate === undefined) player.lastBonusDate = ''; // Защита для старых сохранений
 if (player.bonusDay === undefined) player.bonusDay = 1;
 
 function saveGame() { localStorage.setItem('wormixSave', JSON.stringify(player)); }
