@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин Бустов</title>
-    <link rel="stylesheet" href="style.css?v=49">
+    <link rel="stylesheet" href="style.css?v=53">
 </head>
 <body>
     <div class="top-bar">
@@ -13,17 +13,15 @@
             <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
         </div>
     </div>
-    
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js?v=49"></script>
+    <script src="script.js?v=53"></script>
     <script>
         updateBalanceUI();
         
-        // ОБНОВЛЕННЫЕ БУСТЫ (x1.5 и x3)
+        // Оставляем только х2
         const boosts = [
-            { name: 'x1.5 Буст (10 мин)', cost: 50, mult: 1.5, time: 10, highlight: true },
-            { name: 'x3 Буст (10 мин)', cost: 100, mult: 3, time: 10, highlight: true }
+            { name: 'x2 Буст (10 мин)', cost: 50, mult: 2, time: 10, highlight: true }
         ];
 
         let list = document.getElementById('shop-list');
@@ -34,7 +32,7 @@
                 <div class="item-card" ${bg}>
                     <div>
                         <b>${b.name}</b><br>
-                        <span style="font-size:12px; color:#aaa;">Множитель фузов: x${b.mult}</span>
+                        <span style="font-size:12px; color:#aaa;">Удваивает все фузы с кликов</span>
                     </div>
                     <button class="btn-buy" onclick="buyBoost(${i})" style="background:#FF9800;">
                         ${b.cost} <img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin:0;">
@@ -51,7 +49,7 @@
                 player.boostMultiplier = b.mult;
                 let now = Date.now();
                 if (player.boostEndTime > now) { player.boostEndTime += b.time * 60000; } else { player.boostEndTime = now + (b.time * 60000); }
-                saveGame(); updateBalanceUI(); showToast(`Буст x${b.mult} активирован!`);
+                saveGame(); updateBalanceUI(); showToast(`Буст активирован!`);
             } else { 
                 playSound('fail'); vibrate([100, 50, 100]); showToast("Недостаточно средств!", true); 
             }
