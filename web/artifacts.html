@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Артефакты</title>
-    <link rel="stylesheet" href="style.css?v=32">
+    <link rel="stylesheet" href="style.css?v=41">
 </head>
 <body>
     <div class="top-bar">
@@ -12,7 +12,7 @@
         <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=32"></script>
+    <script src="script.js?v=41"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
@@ -31,27 +31,30 @@
         if (list.innerHTML.trim() === "") list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Вы скупили все артефакты!</div>';
 
         function buyItem(id, price) {
-    if (player.fuzes >= price) {
-        playSound('buy'); 
-        vibrate(50); 
+            if (player.fuzes >= price) {
+                
+                playSound('buy');
+                vibrate(50);
 
-        player.fuzes -= price; 
-        if (id.startsWith('hat_')) {
-            player.hats.push(id); player.hatTiers[id] = 0;
-        } else {
-            player.artifacts.push(id); player.artifactTiers[id] = 0;
+                player.fuzes -= price; 
+                player.artifacts.push(id); 
+                player.artifactTiers[id] = 0;
+                
+                saveGame(); 
+                updateBalanceUI(); 
+                showToast("Куплено!");
+                
+                let card = document.getElementById('card-' + id);
+                if(card) {
+                    card.style.opacity = '0'; 
+                    setTimeout(() => { card.remove(); }, 300);
+                }
+            } else { 
+                playSound('fail'); 
+                vibrate([100, 50, 100]);
+                showToast("Недостаточно средств!", true); 
+            }
         }
-        
-        saveGame(); updateBalanceUI(); showToast("Куплено!");
-        
-        let card = document.getElementById('card-' + id);
-        if(card) {
-            card.style.opacity = '0'; 
-            setTimeout(() => { card.remove(); }, 300);
-        }
-    } else { 
-        playSound('fail'); 
-        vibrate([100, 50, 100]);
-        showToast("Недостаточно средств!", true); 
-    }
-}
+    </script>
+</body>
+</html>
