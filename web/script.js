@@ -69,13 +69,24 @@ if (!player || typeof player !== 'object') {
         fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
         hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
         hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
-    };
+let player = null;
+try {
+    let saved = localStorage.getItem('wormixSave');
+    if (saved && saved !== 'undefined' && saved !== 'null') {
+        player = JSON.parse(saved);
+    }
+} catch (e) {}
+
+if (!player || typeof player !== 'object') {
+    player = { fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1 };
 }
 
-if (!Array.isArray(player.hats)) player.hats = player.hats ? Object.keys(player.hats) : [];
-if (!Array.isArray(player.artifacts)) player.artifacts = player.artifacts ? Object.keys(player.artifacts) : [];
-if (typeof player.hatTiers !== 'object' || player.hatTiers === null) player.hatTiers = {};
-if (typeof player.artifactTiers !== 'object' || player.artifactTiers === null) player.artifactTiers = {};
+if (player.fuzes === undefined) player.fuzes = 0;
+if (player.rubies === undefined) player.rubies = 0;
+if (!Array.isArray(player.hats)) player.hats = [];
+if (!Array.isArray(player.artifacts)) player.artifacts = [];
+if (!player.hatTiers) player.hatTiers = {};
+if (!player.artifactTiers) player.artifactTiers = {};
 if (!player.equippedHat) player.equippedHat = '';
 if (!player.equippedArtifact) player.equippedArtifact = '';
 if (player.lastBonusTime === undefined) player.lastBonusTime = 0;
@@ -106,32 +117,29 @@ function showToast(message, isError = false) {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 // БАЗА ДАННЫХ
-const allItemsConfig = {};
-const hatIdsOrder = [
-    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
-    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
-    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
-    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'
-];
-const hatPrices = [
-    10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 
-    900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 
-    1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 
-    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000
-];
-
-hatIdsOrder.forEach((id, index) => {
-    let baseBonus = 10 + (index * 25); 
-    allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
-});
-
-const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
-const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
-const artBaseBonuses = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5];
-
-artIdsOrder.forEach((id, index) => {
-    allItemsConfig[id] = { type: 'ruby', base: artBaseBonuses[index], price: artPrices[index] };
-});
+const allItemsConfig = {
+    'shapka': { type: 'fuze', base: 10, price: 10000 }, 'krolik': { type: 'fuze', base: 35, price: 50000 },
+    'pirat': { type: 'fuze', base: 60, price: 100000 }, 'hacker': { type: 'fuze', base: 85, price: 200000 },
+    'viking': { type: 'fuze', base: 110, price: 300000 }, 'strazgi': { type: 'fuze', base: 135, price: 500000 },
+    'samuray': { type: 'fuze', base: 160, price: 700000 }, 'temniy': { type: 'fuze', base: 185, price: 800000 },
+    'paladin': { type: 'fuze', base: 210, price: 900000 }, 'vor': { type: 'fuze', base: 235, price: 1000000 },
+    'assassin': { type: 'fuze', base: 260, price: 1100000 }, 'iluzionist': { type: 'fuze', base: 285, price: 1200000 },
+    'captain': { type: 'fuze', base: 310, price: 1300000 }, 'fantom': { type: 'fuze', base: 335, price: 1400000 },
+    'inzhiner': { type: 'fuze', base: 360, price: 1500000 }, 'okulayr': { type: 'fuze', base: 385, price: 1600000 },
+    'izverg': { type: 'fuze', base: 410, price: 1700000 }, 'telepat': { type: 'fuze', base: 435, price: 1800000 },
+    'alhimik': { type: 'fuze', base: 460, price: 1900000 }, 'psaiker': { type: 'fuze', base: 485, price: 2000000 },
+    'master_vetra': { type: 'fuze', base: 510, price: 2100000 }, 'prizrak': { type: 'fuze', base: 535, price: 2200000 },
+    'imperator': { type: 'fuze', base: 560, price: 2300000 }, 'respirator': { type: 'fuze', base: 585, price: 2400000 },
+    'slem': { type: 'fuze', base: 610, price: 2500000 }, 'spetsnaz': { type: 'fuze', base: 635, price: 2600000 },
+    'gorayhii': { type: 'fuze', base: 660, price: 2700000 }, 'voron': { type: 'fuze', base: 685, price: 2800000 },
+    'shaman_vudu': { type: 'fuze', base: 710, price: 2900000 }, 'yakudza': { type: 'fuze', base: 735, price: 3000000 },
+    'korol': { type: 'fuze', base: 760, price: 3100000 }, 'pobednui': { type: 'fuze', base: 785, price: 3200000 },
+    
+    'zezl': { type: 'ruby', base: 0.2, price: 10000 }, 'shit': { type: 'ruby', base: 0.4, price: 20000 },
+    'ucheniy': { type: 'ruby', base: 0.6, price: 30000 }, 'posoh': { type: 'ruby', base: 0.8, price: 40000 },
+    'arhi': { type: 'ruby', base: 1.0, price: 50000 }, 'simbiot': { type: 'ruby', base: 1.2, price: 60000 },
+    'arkhidemon': { type: 'ruby', base: 1.5, price: 70000 }
+};
 
 const tierFuzesAdd = [0, 5, 10, 15, 20];
 const tierRubyMult = [1, 2, 3, 4, 5];
