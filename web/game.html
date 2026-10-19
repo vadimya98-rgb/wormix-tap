@@ -301,8 +301,8 @@
 
         function tap(event) {
             if (isDraggingMode) return; 
+            vibrate(20);
             playSound('tap'); 
-            vibrate(20); 
 
             // Правильное получение координат для мобилок и ПК
             let clientX = event.clientX || (event.touches && event.touches[0].clientX) || window.innerWidth / 2;
