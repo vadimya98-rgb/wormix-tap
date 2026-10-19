@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=51">
+    <link rel="stylesheet" href="style.css?v=56">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -35,7 +35,7 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=51"></script>
+    <script src="script.js?v=56"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
@@ -56,15 +56,17 @@
             container.innerHTML = '';
             
             if (currentTab === 'hats') {
-                if (player.hats.length === 0) { container.innerHTML = '<div class="empty-text">Нет шапок.</div>'; return; }
+                if (!player.hats || player.hats.length === 0) { container.innerHTML = '<div class="empty-text">Нет шапок.</div>'; return; }
                 player.hats.forEach(id => {
+                    if (!allHats[id] || !allItemsConfig[id]) return; 
+                    
                     let isEquipped = player.equippedHat === id;
                     let tier = player.hatTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
-                    let tName = tierNames[tier];
-                    let tColor = tierColors[tier];
-                    let bonus = `+${hatBonuses[tier]} фуз`;
+                    let tName = tierNames[tier] || "Стандарт";
+                    let tColor = tierColors[tier] || "#fff";
+                    let bonusText = getItemBonusText(id, tier); 
                     
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('hat', '${id}')">
@@ -72,22 +74,22 @@
                             <img src="${allHats[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allHats[id].name}</div>
                             <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
-                            <div class="item-bonus" style="color: #4CAF50;">${bonus}</div>
+                            <div class="item-bonus" style="color: #4CAF50;">${bonusText}</div>
                         </div>
                     `;
                 });
             } else {
-                if (player.artifacts.length === 0) { container.innerHTML = '<div class="empty-text">Нет артефактов.</div>'; return; }
+                if (!player.artifacts || player.artifacts.length === 0) { container.innerHTML = '<div class="empty-text">Нет артефактов.</div>'; return; }
                 player.artifacts.forEach(id => {
+                    if (!allArtifacts[id] || !allItemsConfig[id]) return; 
+                    
                     let isEquipped = player.equippedArtifact === id;
                     let tier = player.artifactTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
-                    let tName = tierNames[tier];
-                    let tColor = tierColors[tier];
-                    
-                    // ВОТ ЗДЕСЬ ДОБАВЛЕНО СЛОВО "рубинов"
-                    let bonus = `+${artifactBonuses[tier]}% рубинов`;
+                    let tName = tierNames[tier] || "Стандарт";
+                    let tColor = tierColors[tier] || "#fff";
+                    let bonusText = getItemBonusText(id, tier);
                     
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
@@ -95,7 +97,7 @@
                             <img src="${allArtifacts[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allArtifacts[id].name}</div>
                             <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
-                            <div class="item-bonus" style="color: #2196F3;">${bonus}</div>
+                            <div class="item-bonus" style="color: #2196F3;">${bonusText}</div>
                         </div>
                     `;
                 });
