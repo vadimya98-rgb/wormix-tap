@@ -15,7 +15,6 @@ if (!Array.isArray(player.unlockedRaces)) {
     player.unlockedRaces = [];
     if (player.race) player.unlockedRaces.push(player.race); 
 }
-// Теперь максимальный буст может быть х5 (от Зайца)
 if (player.boostMultiplier > 5) {
     player.boostMultiplier = 1;
     player.boostEndTime = 0;
@@ -85,7 +84,6 @@ const allItemsConfig = {};
 const hatIdsOrder = ['shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'];
 const hatPrices = [10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000];
 
-// НОВАЯ ФОРМУЛА: Первая шапка 5, вторая 20, третья 35... (шаг +15)
 hatIdsOrder.forEach((id, index) => {
     let baseBonus = 5 + (index * 15); 
     allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
@@ -93,13 +91,24 @@ hatIdsOrder.forEach((id, index) => {
 
 const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
 const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
+
+const artifactBaseStats = [1.0, 2.5, 4.0, 5.5, 7.0, 8.5, 10.0];
+
+const artifactTierValues = [
+    [1.0, 1.2, 1.4, 1.5, 2.0],
+    [2.5, 3.0, 3.4, 3.5, 4.0],
+    [4.0, 4.5, 4.9, 5.0, 5.5],
+    [5.5, 6.0, 6.4, 6.5, 7.0],
+    [7.0, 7.5, 7.9, 8.0, 8.5],
+    [8.5, 9.0, 9.4, 9.5, 10.0],
+    [10.0, 10.5, 10.9, 11.0, 11.5]
+];
+
 artIdsOrder.forEach((id, index) => {
-    allItemsConfig[id] = { type: 'ruby', base: 0.5, price: artPrices[index] };
+    allItemsConfig[id] = { type: 'ruby', base: artifactBaseStats[index], price: artPrices[index] };
 });
 
-// НОВЫЕ БОНУСЫ УЛУЧШЕНИЙ: [Стандарт, Бронза, Серебро, Золото, Алмаз]
 const tierFuzesAdd = [0, 2, 4, 5, 10];
-const artifactTierStats = [0.5, 0.6, 0.7, 0.8, 1.0];
 
 function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price : 5000; }
 function getItemBonusText(id, tier) {
@@ -109,7 +118,8 @@ function getItemBonusText(id, tier) {
         let val = conf.base + (tierFuzesAdd[tier] || 0);
         return `+${val} фузов`;
     } else {
-        let val = artifactTierStats[tier] || 0.5;
+        let index = artIdsOrder.indexOf(id);
+        let val = artifactTierValues[index][tier] || artifactBaseStats[index];
         return `+${val.toFixed(1)}% рубинов`;
     }
 }
@@ -120,8 +130,9 @@ function getEquippedStats() {
         addFuzes = allItemsConfig[player.equippedHat].base + (tierFuzesAdd[tier] || 0);
     }
     if (player.equippedArtifact && allItemsConfig[player.equippedArtifact]) {
+        let index = artIdsOrder.indexOf(player.equippedArtifact);
         let tier = player.artifactTiers[player.equippedArtifact] || 0;
-        addRubyChance = artifactTierStats[tier] || 0.5;
+        addRubyChance = artifactTierValues[index][tier] || artifactBaseStats[index];
     }
     return { addFuzes, addRubyChance };
 }
