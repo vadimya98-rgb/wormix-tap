@@ -4,12 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=31">
+    <link rel="stylesheet" href="style.css?v=35">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
         .admin-input { width: 100%; padding: 10px; margin: 10px 0; background: #333; border: 1px solid #555; color: white; border-radius: 5px; font-size: 16px; box-sizing: border-box; }
-        
         .save-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9998; justify-content: center; align-items: center; }
         .save-box { background: #222; padding: 20px; border-radius: 10px; border: 2px solid #2196F3; width: 90%; max-width: 400px; text-align: center; }
         .save-box textarea { width: 100%; height: 120px; background: #111; color: #00FF00; border: 1px solid #444; border-radius: 5px; padding: 10px; font-family: monospace; font-size: 12px; margin-bottom: 10px; box-sizing: border-box; resize: none; }
@@ -32,7 +31,6 @@
         <a href="craft.html" class="btn-green">Крафт</a>
         <a href="shop.html" class="btn-green" style="background:#FF9800;">Буст</a>
         
-        <!-- БЛОК С ИНФОРМАЦИЕЙ -->
         <div style="margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
             <span style="font-size: 13px; color: #aaa;">Сохранить или загрузить прогресс</span>
             <button class="info-btn" onclick="document.getElementById('info-modal').style.display='flex'">!</button>
@@ -44,7 +42,6 @@
         </div>
     </div>
 
-    <!-- ОКНО С ИНСТРУКЦИЕЙ (ОБНОВЛЕНО) -->
     <div id="info-modal" class="save-modal">
         <div class="save-box" style="border-color: #FFEB3B;">
             <h3 style="color:#FFEB3B; margin-top:0;">Как сохранить прогресс?</h3>
@@ -56,7 +53,6 @@
                 Нажми <b>«Загрузить»</b>, вставь свой код в поле и подтверди.
             </p>
             
-            <!-- НОВЫЙ ТЕКСТ ПРО ВАЖНОСТЬ -->
             <div style="font-size:13px; line-height:1.4; color:#FFEB3B; margin-bottom:20px; text-align:left; background: rgba(255, 235, 59, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 235, 59, 0.3);">
                 <b>Важно!</b> Эти действия нужны для обновления APK файлов (в web-версии обновлять не нужно, прогресс сохраняется автоматически!).
             </div>
@@ -65,7 +61,6 @@
         </div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА СОХРАНЕНИЯ -->
     <div id="save-modal" class="save-modal">
         <div class="save-box">
             <h3 style="color:#2196F3; margin-top:0;">Сохранение прогресса</h3>
@@ -86,7 +81,6 @@
         </div>
     </div>
 
-    <!-- СЕКРЕТНОЕ МЕНЮ -->
     <div id="admin-choice-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
@@ -106,7 +100,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=31"></script>
+    <script src="script.js?v=35"></script>
     <script>
         updateBalanceUI();
 
@@ -128,7 +122,7 @@
 
         function openItemEditor() {
             sessionStorage.setItem('openEditor', 'true');
-            window.location.href = 'game.html';
+            navigateTo('game.html');
         }
 
         function saveBalanceChanges() {
@@ -166,7 +160,7 @@
                 if (data.fuzes !== undefined && data.rubies !== undefined) {
                     localStorage.setItem('wormixSave', JSON.stringify(data));
                     showToast("Успешно! Перезагрузка...");
-                    setTimeout(() => window.location.href = 'game.html', 1000);
+                    setTimeout(() => navigateTo('game.html'), 1000);
                 } else { showToast("Неверный код!", true); }
             } catch (err) { showToast("Ошибка! Код поврежден.", true); }
         }
