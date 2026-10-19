@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="style.css?v=48">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=38"></script>
+    <script src="script.js?v=48"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -274,13 +274,26 @@
             out.select(); document.execCommand('copy'); showToast("Скопировано! Вставьте в script.js");
         }
 
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ ТАПА С БОНУСАМИ
         function tap(event) {
             if (isDraggingMode) return; 
             playSound('tap'); 
             vibrate(20); 
 
-            let earned = 5 * getCurrentMultiplier(); player.fuzes += earned; let isRuby = Math.random() < 0.02;  
+            // ПОЛУЧАЕМ БОНУСЫ ОТ НАДЕТЫХ ВЕЩЕЙ
+            let bonuses = getEquippedStats();
+            
+            // Считаем фузы: (5 базовых + бонус шапки) * буст
+            let baseFuzes = 5 + bonuses.addFuzes;
+            let earned = baseFuzes * getCurrentMultiplier(); 
+            
+            // Считаем шанс рубина: (2% базовых + бонус артефакта)
+            let rubyChance = (2 + bonuses.addRubyChance) / 100;
+            let isRuby = Math.random() < rubyChance; 
+
+            player.fuzes += earned; 
             if (isRuby) player.rubies += 1;
+            
             updateBalanceUI(); saveGame();
             
             let clientX = event.clientX; let clientY = event.clientY;
@@ -322,8 +335,8 @@
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const bonusRewards = [
             { text: `1000 ${fuzImg}`, type: "fuzes", amount: 1000 }, { text: `10 ${rubImg}`, type: "rubies", amount: 10 },
-            { text: "x10 ⚡ (10м)", type: "boost", mult: 10, time: 10 }, { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
-            { text: `30 ${rubImg}`, type: "rubies", amount: 30 }, { text: "x20 ⚡ (5м)", type: "boost", mult: 20, time: 5 },
+            { text: "x2 ⚡ (10м)", type: "boost", mult: 2, time: 10 }, { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
+            { text: `30 ${rubImg}`, type: "rubies", amount: 30 }, { text: "x4 ⚡ (5м)", type: "boost", mult: 4, time: 5 },
             { text: `30 ${rubImg} + 3000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 3000 }
         ];
         const COOLDOWN = 24 * 60 * 60 * 1000; let canClaim = false;
