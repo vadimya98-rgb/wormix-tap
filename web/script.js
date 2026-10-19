@@ -1,74 +1,3 @@
-let player = JSON.parse(localStorage.getItem('wormixSave')) || {
-    fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
-    hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
-    hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
-};
-
-if (!player.equippedHat) player.equippedHat = '';
-if (!player.equippedArtifact) player.equippedArtifact = '';
-if (!player.hatTiers) player.hatTiers = {};
-if (!player.artifactTiers) player.artifactTiers = {};
-if (player.lastBonusTime === undefined) player.lastBonusTime = 0;
-if (player.bonusDay === undefined) player.bonusDay = 1;
-
-function saveGame() { localStorage.setItem('wormixSave', JSON.stringify(player)); }
-function updateBalanceUI() {
-    let fEl = document.getElementById('ui-fuzes'); let rEl = document.getElementById('ui-rubies');
-    if (fEl) fEl.innerText = player.fuzes; if (rEl) rEl.innerText = player.rubies;
-}
-function getCurrentMultiplier() { if (Date.now() < player.boostEndTime) { return player.boostMultiplier; } else { return 1; } }
-function startTimerUI(timerElementId) {
-    let el = document.getElementById(timerElementId); if(!el) return;
-    setInterval(() => {
-        let timeLeft = player.boostEndTime - Date.now();
-        if (timeLeft > 0) {
-            let m = Math.floor(timeLeft / 60000); let s = Math.floor((timeLeft % 60000) / 1000);
-            el.innerText = `Буст x${player.boostMultiplier}: ${m}м ${s}с`;
-        } else { el.innerText = ''; player.boostMultiplier = 1; player.boostEndTime = 0; }
-    }, 1000);
-}
-function showToast(message, isError = false) {
-    let toast = document.getElementById('game-toast');
-    if (!toast) { toast = document.createElement('div'); toast.id = 'game-toast'; toast.className = 'toast-msg'; document.body.appendChild(toast); }
-    toast.innerText = message; toast.className = isError ? 'toast-msg show error' : 'toast-msg show';
-    setTimeout(() => { toast.classList.remove('show'); }, 2000);
-}
-document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
-
-// =========================================================================
-// НОВАЯ БАЗА ДАННЫХ ПРЕДМЕТОВ
-// =========================================================================
-const allItemsConfig = {};
-const hatIdsOrder = [
-    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
-    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
-    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
-    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol'
-];
-let player = JSON.parse(localStorage.getItem('wormixSave')) || {
-    fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
-    hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
-    hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
-};
-
-// ЗАЩИТА ОТ СТАРЫХ СОХРАНЕНИЙ
-if (!Array.isArray(player.hats)) player.hats = Object.keys(player.hats || {});
-if (!Array.isArray(player.artifacts)) player.artifacts = Object.keys(player.artifacts || {});
-let player = null;
-try {
-    let saved = localStorage.getItem('wormixSave');
-    if (saved && saved !== 'undefined' && saved !== 'null') {
-        player = JSON.parse(saved);
-    }
-} catch (e) {
-    console.error("Ошибка чтения сохранения", e);
-}
-
-if (!player || typeof player !== 'object') {
-    player = {
-        fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
-        hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
-        hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
 let player = null;
 try {
     let saved = localStorage.getItem('wormixSave');
@@ -116,7 +45,7 @@ function showToast(message, isError = false) {
 }
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-// БАЗА ДАННЫХ
+// БАЗА ДАННЫХ ЦЕН И БОНУСОВ
 const allItemsConfig = {
     'shapka': { type: 'fuze', base: 10, price: 10000 }, 'krolik': { type: 'fuze', base: 35, price: 50000 },
     'pirat': { type: 'fuze', base: 60, price: 100000 }, 'hacker': { type: 'fuze', base: 85, price: 200000 },
@@ -149,13 +78,8 @@ function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price
 function getItemBonusText(id, tier) {
     if (!allItemsConfig[id]) return "";
     let conf = allItemsConfig[id];
-    if (conf.type === 'fuze') {
-        let val = conf.base + (tierFuzesAdd[tier] || 0);
-        return `+${val} фузов`;
-    } else {
-        let val = conf.base * (tierRubyMult[tier] || 1);
-        return `+${val.toFixed(1)}% рубинов`;
-    }
+    if (conf.type === 'fuze') return `+${conf.base + (tierFuzesAdd[tier] || 0)} фузов`;
+    else return `+${(conf.base * (tierRubyMult[tier] || 1)).toFixed(1)}% рубинов`;
 }
 
 function getEquippedStats() {
@@ -171,91 +95,59 @@ function getEquippedStats() {
     return { addFuzes, addRubyChance };
 }
 
-// =========================================================================
-// СИСТЕМА ЗВУКОВ И ВИБРАЦИИ (БЕЗ ФОНОВОЙ МУЗЫКИ)
-// =========================================================================
+// ЗВУКИ
 const sounds = {
-    tap: new Audio('audio/tap.mp3'),
-    buy: new Audio('audio/buy.mp3'),
-    fail: new Audio('audio/fail.mp3'),
-    success: new Audio('audio/success.mp3'),
-    click: new Audio('audio/click.mp3')
+    tap: new Audio('audio/tap.mp3'), buy: new Audio('audio/buy.mp3'), fail: new Audio('audio/fail.mp3'), success: new Audio('audio/success.mp3'), click: new Audio('audio/click.mp3')
 };
+sounds.tap.volume = 0.8; sounds.buy.volume = 0.5; sounds.fail.volume = 0.3; sounds.success.volume = 0.6; sounds.click.volume = 0.4;   
 
-// НАСТРОЙКА ГРОМКОСТИ (от 0.0 до 1.0)
-sounds.tap.volume = 0.8;     // Выбивание монет (громче)
-sounds.buy.volume = 0.5;     // Покупка
-sounds.fail.volume = 0.3;    // Провал (тише)
-sounds.success.volume = 0.6; // Успех крафта
-sounds.click.volume = 0.4;   // Нажатия на кнопки (тише)
-
-function playSound(name) {
-    if (sounds[name]) {
-        sounds[name].currentTime = 0; 
-        sounds[name].play().catch(e => console.log('Звук не загружен', e));
-    }
+function playSound(name) { 
+    if (sounds[name]) { 
+        try { sounds[name].currentTime = 0; sounds[name].play().catch(e => {}); } catch(e) {} 
+    } 
 }
+function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
 
-function vibrate(ms) {
-    if (navigator.vibrate) navigator.vibrate(ms);
-}
-
-// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ КНОПОК (С ИСКЛЮЧЕНИЯМИ)
 document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('pointerdown', (e) => {
-        // Ищем кнопку, ссылку или предмет в шкафу
         let target = e.target.closest('button, a, .wardrobe-item');
         if (!target) return;
-
-        // 1. Убираем звук в админ-панели
         if (target.closest('.admin-modal')) return;
-
-        // 2. Убираем звук у кнопок сохранения/загрузки и внутри их окон
         if (target.classList.contains('btn-save') || target.classList.contains('btn-load') || target.closest('.save-modal')) return;
-
-        // 3. Убираем звук у кнопки "Дом" (при переходе в меню) и "В игру"
-        if (target.tagName === 'A') {
-            let href = target.getAttribute('href');
-            if (href === 'menu.html' || href === 'game.html') return;
-        }
-
-        // 4. Убираем звук клика у кнопок покупки и крафта (у них свои звуки)
+        if (target.tagName === 'A' && (target.getAttribute('href') === 'menu.html' || target.getAttribute('href') === 'game.html')) return;
         if (target.classList.contains('btn-buy') || target.id === 'btn-craft' || target.id === 'claim-bonus-btn') return;
-
-        // Во всех остальных случаях играем звук клика (Шкаф, пункты меню и т.д.)
-        playSound('click');
-        vibrate(15);
+        playSound('click'); vibrate(15);
     });
 });
-// =========================================================================
+
 const allHats = {
-    'alhimik': { name: 'Алхимик', img: 'images/hats/alhimik.png' }, 'assassin': { name: 'Ассасин', img: 'images/hats/assassin.png' },
+    'shapka': { name: 'Шапка', img: 'images/hats/shapka.png' }, 'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
+    'pirat': { name: 'Пират', img: 'images/hats/pirat.png' }, 'hacker': { name: 'Хакер', img: 'images/hats/hacker.png' },
+    'viking': { name: 'Викинг', img: 'images/hats/viking.png' }, 'strazgi': { name: 'Стражи', img: 'images/hats/strazgi.png' },
+    'samuray': { name: 'Самурай', img: 'images/hats/samuray.png' }, 'temniy': { name: 'Темный', img: 'images/hats/temniy.png' },
+    'paladin': { name: 'Паладин', img: 'images/hats/paladin.png' }, 'vor': { name: 'Вор', img: 'images/hats/vor.png' },
+    'assassin': { name: 'Ассасин', img: 'images/hats/assassin.png' }, 'iluzionist': { name: 'Иллюзионист', img: 'images/hats/iluzionist.png' },
     'captain': { name: 'Капитан', img: 'images/hats/captain.png' }, 'fantom': { name: 'Фантом', img: 'images/hats/fantom.png' },
-    'gorayhii': { name: 'Горящий', img: 'images/hats/gorayhii.png' }, 'hacker': { name: 'Хакер', img: 'images/hats/hacker.png' },
-    'iluzionist': { name: 'Иллюзионист', img: 'images/hats/iluzionist.png' }, 'imperator': { name: 'Император', img: 'images/hats/imperator.png' },
-    'inzhiner': { name: 'Инженер', img: 'images/hats/inzhiner.png' }, 'izverg': { name: 'Изверг', img: 'images/hats/izverg.png' },
-    'korol': { name: 'Король', img: 'images/hats/korol.png' }, 'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
-    'master_vetra': { name: 'Мастер Ветра', img: 'images/hats/master_vetra.png' }, 'okulayr': { name: 'Окуляр', img: 'images/hats/okulayr.png' },
-    'paladin': { name: 'Паладин', img: 'images/hats/paladin.png' }, 'pirat': { name: 'Пират', img: 'images/hats/pirat.png' },
-    'pobednui': { name: 'Победный', img: 'images/hats/pobednui.png' }, 'prizrak': { name: 'Призрак', img: 'images/hats/prizrak.png' },
-    'psaiker': { name: 'Псайкер', img: 'images/hats/psaiker.png' }, 'respirator': { name: 'Респиратор', img: 'images/hats/respirator.png' },
-    'samuray': { name: 'Самурай', img: 'images/hats/samuray.png' }, 'shaman_vudu': { name: 'Шаман Вуду', img: 'images/hats/shaman_vudu.png' },
-    'shapka': { name: 'Шапка', img: 'images/hats/shapka.png' }, 'slem': { name: 'Шлем', img: 'images/hats/slem.png' },
-    'spetsnaz': { name: 'Спецназ', img: 'images/hats/spetsnaz.png' }, 'strazgi': { name: 'Стражи', img: 'images/hats/strazgi.png' },
-    'telepat': { name: 'Телепат', img: 'images/hats/telepat.png' }, 'temniy': { name: 'Темный', img: 'images/hats/temniy.png' },
-    'viking': { name: 'Викинг', img: 'images/hats/viking.png' }, 'vor': { name: 'Вор', img: 'images/hats/vor.png' },
-    'voron': { name: 'Ворон', img: 'images/hats/voron.png' }, 'yakudza': { name: 'Якудза', img: 'images/hats/yakudza.png' }
+    'inzhiner': { name: 'Инженер', img: 'images/hats/inzhiner.png' }, 'okulayr': { name: 'Окуляр', img: 'images/hats/okulayr.png' },
+    'izverg': { name: 'Изверг', img: 'images/hats/izverg.png' }, 'telepat': { name: 'Телепат', img: 'images/hats/telepat.png' },
+    'alhimik': { name: 'Алхимик', img: 'images/hats/alhimik.png' }, 'psaiker': { name: 'Псайкер', img: 'images/hats/psaiker.png' },
+    'master_vetra': { name: 'Мастер Ветра', img: 'images/hats/master_vetra.png' }, 'prizrak': { name: 'Призрак', img: 'images/hats/prizrak.png' },
+    'imperator': { name: 'Император', img: 'images/hats/imperator.png' }, 'respirator': { name: 'Респиратор', img: 'images/hats/respirator.png' },
+    'slem': { name: 'Шлем', img: 'images/hats/slem.png' }, 'spetsnaz': { name: 'Спецназ', img: 'images/hats/spetsnaz.png' },
+    'gorayhii': { name: 'Горящий', img: 'images/hats/gorayhii.png' }, 'voron': { name: 'Ворон', img: 'images/hats/voron.png' },
+    'shaman_vudu': { name: 'Шаман Вуду', img: 'images/hats/shaman_vudu.png' }, 'yakudza': { name: 'Якудза', img: 'images/hats/yakudza.png' },
+    'korol': { name: 'Король', img: 'images/hats/korol.png' }, 'pobednui': { name: 'Победный', img: 'images/hats/pobednui.png' }
 };
 
 const allArtifacts = {
-    'arhi': { name: 'Архи', img: 'images/artefacts/arhi.png' }, 'arkhidemon': { name: 'Архидемон', img: 'images/artefacts/arkhidemon.png' },
-    'posoh': { name: 'Посох', img: 'images/artefacts/posoh.png' }, 'shit': { name: 'Щит', img: 'images/artefacts/shit.png' },
-    'simbiot': { name: 'Симбиот', img: 'images/artefacts/simbiot.png' }, 'ucheniy': { name: 'Ученый', img: 'images/artefacts/ucheniy.png' },
-    'zezl': { name: 'Жезл', img: 'images/artefacts/zezl.png' }
+    'zezl': { name: 'Жезл', img: 'images/artefacts/zezl.png' }, 'shit': { name: 'Щит', img: 'images/artefacts/shit.png' },
+    'ucheniy': { name: 'Ученый', img: 'images/artefacts/ucheniy.png' }, 'posoh': { name: 'Посох', img: 'images/artefacts/posoh.png' },
+    'arhi': { name: 'Архи', img: 'images/artefacts/arhi.png' }, 'simbiot': { name: 'Симбиот', img: 'images/artefacts/simbiot.png' },
+    'arkhidemon': { name: 'Архидемон', img: 'images/artefacts/arkhidemon.png' }
 };
 
 // =========================================================================
-// НАСТРОЙКИ ШАПОК И АРТЕФАКТОВ
+// ТВОИ НАСТРОЙКИ КООРДИНАТ (ПОЛНОСТЬЮ СОХРАНЕНЫ)
 // =========================================================================
 const HAT_SETTINGS = {
     'images/dragon.png': {
