@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=30">
+    <link rel="stylesheet" href="style.css?v=31">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
@@ -32,7 +32,7 @@
         <a href="craft.html" class="btn-green">Крафт</a>
         <a href="shop.html" class="btn-green" style="background:#FF9800;">Буст</a>
         
-        <!-- НОВЫЙ БЛОК С ИНФОРМАЦИЕЙ -->
+        <!-- БЛОК С ИНФОРМАЦИЕЙ -->
         <div style="margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
             <span style="font-size: 13px; color: #aaa;">Сохранить или загрузить прогресс</span>
             <button class="info-btn" onclick="document.getElementById('info-modal').style.display='flex'">!</button>
@@ -44,16 +44,23 @@
         </div>
     </div>
 
-    <!-- ОКНО С ИНСТРУКЦИЕЙ -->
+    <!-- ОКНО С ИНСТРУКЦИЕЙ (ОБНОВЛЕНО) -->
     <div id="info-modal" class="save-modal">
         <div class="save-box" style="border-color: #FFEB3B;">
             <h3 style="color:#FFEB3B; margin-top:0;">Как сохранить прогресс?</h3>
-            <p style="font-size:14px; line-height:1.5; color:#ccc; margin-bottom:20px; text-align:left;">
+            
+            <p style="font-size:14px; line-height:1.5; color:#ccc; margin-bottom:15px; text-align:left;">
                 <b>Чтобы сохранить:</b><br>
                 Нажми кнопку <b>«Сохранить»</b> ниже, скопируй появившийся код и отправь его себе в Telegram (в «Избранное») или сохрани в заметках.<br><br>
                 <b>Чтобы загрузить:</b><br>
                 Нажми <b>«Загрузить»</b>, вставь свой код в поле и подтверди.
             </p>
+            
+            <!-- НОВЫЙ ТЕКСТ ПРО ВАЖНОСТЬ -->
+            <div style="font-size:13px; line-height:1.4; color:#FFEB3B; margin-bottom:20px; text-align:left; background: rgba(255, 235, 59, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(255, 235, 59, 0.3);">
+                <b>Важно!</b> Эти действия нужны для обновления APK файлов (в web-версии обновлять не нужно, прогресс сохраняется автоматически!).
+            </div>
+            
             <button class="btn-green" style="width:100%; background:#FFEB3B; color:#000; margin:0;" onclick="document.getElementById('info-modal').style.display='none'">Понятно</button>
         </div>
     </div>
@@ -99,7 +106,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=30"></script>
+    <script src="script.js?v=31"></script>
     <script>
         updateBalanceUI();
 
