@@ -474,14 +474,13 @@
             setTimeout(() => text.remove(), 2000);
         }
 
-        // ==========================================
-        // КОНЕЦ БЛОКА ЭФФЕКТОВ
+         // ==========================================
+        // НОВАЯ СИСТЕМА БОНУСОВ (ПО МСК)
         // ==========================================
 
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         
-        // НОВЫЕ ЕЖЕДНЕВНЫЕ БОНУСЫ
         const bonusRewards = [
             { text: `10k ${fuzImg}`, type: "fuzes", amount: 10000 },
             { text: "x2 ⚡ (10м)", type: "boost", mult: 2, time: 10 },
@@ -492,12 +491,31 @@
             { text: `30 ${rubImg} + 50k ${fuzImg}`, type: "mix", rubies: 30, fuzes: 50000 }
         ];
         
-        const COOLDOWN = 24 * 60 * 60 * 1000; let canClaim = false;
+        function getMoscowDateString() {
+            let now = new Date();
+            // Переводим локальное время в UTC, затем прибавляем 3 часа (МСК)
+            let mskTime = new Date(now.getTime() + (now.getTimezoneOffset() * 60000) + (3 * 3600000));
+            let day = mskTime.getDate();
+            let month = mskTime.getMonth() + 1;
+            let year = mskTime.getFullYear();
+            return `${year}-${month}-${day}`;
+        }
+
+        let canClaim = false;
+        
         function checkDailyBonus() {
-            if (Date.now() - player.lastBonusTime >= COOLDOWN) {
-                canClaim = true; renderBonusGrid(); document.getElementById('bonus-modal').style.display = 'flex';
+            let todayMSK = getMoscowDateString();
+            
+            // Если дата последнего получения не равна сегодняшней дате по МСК — даем бонус
+            if (player.lastBonusDate !== todayMSK) {
+                canClaim = true; 
+                renderBonusGrid(); 
+                document.getElementById('bonus-modal').style.display = 'flex';
+            } else {
+                canClaim = false;
             }
         }
+
         function renderBonusGrid() {
             let grid = document.getElementById('bonus-days'); grid.innerHTML = '';
             for (let i = 0; i < 7; i++) {
@@ -510,6 +528,7 @@
                 grid.appendChild(div);
             }
         }
+        
         document.getElementById('claim-bonus-btn').onclick = () => {
             if (!canClaim) return;
             let reward = bonusRewards[player.bonusDay - 1];
@@ -520,9 +539,16 @@
                 if (player.boostEndTime > now) { player.boostEndTime += reward.time * 60000; } else { player.boostEndTime = now + (reward.time * 60000); }
                 startTimerUI('ui-boost-timer');
             } else if (reward.type === 'mix') { player.rubies += reward.rubies; player.fuzes += reward.fuzes; }
-            player.bonusDay++; if (player.bonusDay > 7) player.bonusDay = 1;
-            player.lastBonusTime = Date.now(); saveGame(); updateBalanceUI(); showToast("Бонус получен!");
-            document.getElementById('bonus-modal').style.display = 'none'; canClaim = false;
+            
+            player.bonusDay++; 
+            if (player.bonusDay > 7) player.bonusDay = 1;
+            
+            // Записываем СЕГОДНЯШНЮЮ дату по МСК
+            player.lastBonusDate = getMoscowDateString(); 
+            
+            saveGame(); updateBalanceUI(); showToast("Бонус получен!");
+            document.getElementById('bonus-modal').style.display = 'none'; 
+            canClaim = false;
         };
         setTimeout(checkDailyBonus, 500);
     </script>
