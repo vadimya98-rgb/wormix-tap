@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=36">
+    <link rel="stylesheet" href="style.css?v=37">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -30,9 +30,9 @@
         </div>
     </div>
     
-    <script src="script.js?v=36"></script>
+    <script src="script.js?v=37"></script>
     <script>
-        if(player.race !== '') window.location.href = 'game.html';
+        if(player.race !== '') navigateTo('game.html');
         
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
@@ -43,7 +43,7 @@
             vibrate(15);
             player.race = race;
             saveGame();
-            window.location.href = 'game.html';
+            navigateTo('game.html');
         }
     </script>
     <script>
