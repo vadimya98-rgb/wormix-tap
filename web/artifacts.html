@@ -31,25 +31,27 @@
         if (list.innerHTML.trim() === "") list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Вы скупили все артефакты!</div>';
 
         function buyItem(id, price) {
-            if (player.fuzes >= price) {
-                
-                playSound('buy');
-                vibrate(50);
+    if (player.fuzes >= price) {
+        playSound('buy'); 
+        vibrate(50); 
 
-                player.fuzes -= price; 
-                player.artifacts.push(id); 
-                player.artifactTiers[id] = 0;
-                saveGame(); 
-                updateBalanceUI(); 
-                showToast("Куплено!");
-                
-                let card = document.getElementById('card-' + id);
-                card.style.opacity = '0'; 
-                setTimeout(() => { card.remove(); }, 300);
-            } else { 
-                showToast("Недостаточно средств!", true); 
-            }
+        player.fuzes -= price; 
+        if (id.startsWith('hat_')) {
+            player.hats.push(id); player.hatTiers[id] = 0;
+        } else {
+            player.artifacts.push(id); player.artifactTiers[id] = 0;
         }
-    </script>
-</body>
-</html>
+        
+        saveGame(); updateBalanceUI(); showToast("Куплено!");
+        
+        let card = document.getElementById('card-' + id);
+        if(card) {
+            card.style.opacity = '0'; 
+            setTimeout(() => { card.remove(); }, 300);
+        }
+    } else { 
+        playSound('fail'); 
+        vibrate([100, 50, 100]);
+        showToast("Недостаточно средств!", true); 
+    }
+}
