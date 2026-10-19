@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=57">
+    <link rel="stylesheet" href="style.css?v=59">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -30,11 +30,16 @@
         </div>
     </div>
     
-    <!-- ОБНОВЛЕНА ВЕРСИЯ СКРИПТА -->
-    <script src="script.js?v=57"></script>
+    <script src="script.js?v=59"></script>
     <script>
-        if (typeof player !== 'undefined' && player.race !== '') {
-            window.location.href = 'game.html';
+        // Безопасная проверка при загрузке
+        try {
+            let saved = JSON.parse(localStorage.getItem('wormixSave'));
+            if (saved && saved.race && saved.race !== '') {
+                window.location.href = 'game.html';
+            }
+        } catch (e) {
+            console.log("Нет сохранений или они повреждены");
         }
         
         function showScreen(id) {
@@ -42,18 +47,25 @@
             document.getElementById(id).classList.add('active');
         }
         
+        // ЖЕЛЕЗОБЕТОННЫЙ ВЫБОР РАСЫ
         function selectRace(race) {
-            // Проверка на случай, если скрипт не загрузился
-            if (typeof player === 'undefined') {
-                alert("Ошибка загрузки игры. Обновите страницу.");
-                return;
+            try {
+                // Читаем текущие данные (или создаем новые)
+                let p = {};
+                try {
+                    let saved = localStorage.getItem('wormixSave');
+                    if (saved && saved !== 'undefined') p = JSON.parse(saved) || {};
+                } catch (e) { p = {}; }
+
+                // Записываем расу
+                p.race = race;
+                localStorage.setItem('wormixSave', JSON.stringify(p));
+                
+                // Переходим в игру
+                window.location.href = 'game.html';
+            } catch (e) {
+                alert("Ошибка при выборе расы: " + e.message);
             }
-            
-            playSound('click');
-            vibrate(15);
-            player.race = race;
-            saveGame();
-            window.location.href = 'game.html';
         }
     </script>
     <script>
