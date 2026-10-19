@@ -279,7 +279,7 @@
             playSound('tap'); 
             vibrate(20); 
 
-            let earned = 1 * getCurrentMultiplier(); player.fuzes += earned; let isRuby = Math.random() < 0.005; 
+            let earned = 5 * getCurrentMultiplier(); player.fuzes += earned; let isRuby = Math.random() < 0.02;  
             if (isRuby) player.rubies += 1;
             updateBalanceUI(); saveGame();
             
