@@ -314,7 +314,7 @@
             let bonuses = getEquippedStats();
             
             // Базовые фузы растут от количества разблокированных расс
-            let baseFuzes = (10 + bonuses.addFuzes) * (1 + (player.unlockedRaces.length * 0.1));
+            let baseFuzes = 10 + bonuses.addFuzes
             
             // Убран множитель комбо
             let earned = Math.floor(baseFuzes * getCurrentMultiplier()); 
