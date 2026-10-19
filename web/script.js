@@ -149,7 +149,17 @@ function playSound(name) {
         try { sounds[name].currentTime = 0; sounds[name].play().catch(e => {}); } catch(e) {} 
     } 
 }
-function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
+
+// НОВАЯ ФУНКЦИЯ ВИБРАЦИИ С ПОДДЕРЖКОЙ CAPACITOR HAPTICS
+function vibrate(ms) {
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Haptics) {
+        // Используем нативный плагин (работает в APK)
+        window.Capacitor.Plugins.Haptics.vibrate({ duration: ms }).catch(() => {});
+    } else if (navigator.vibrate) {
+        // Фолбэк для обычного браузера
+        navigator.vibrate(ms);
+    }
+}
 
 const allHats = {
     'shapka': { name: 'Шапка', img: 'images/hats/shapka.png' }, 'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
