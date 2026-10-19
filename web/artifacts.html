@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Артефакты</title>
-    <link rel="stylesheet" href="style.css?v=5">
+    <link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
     <div class="top-bar">
@@ -12,17 +12,14 @@
         <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=5"></script>
+    <script src="script.js?v=32"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
 
         for (let id in allArtifacts) {
             if (player.artifacts.includes(id)) continue; 
-            
-            // Вычисляем цену для артефакта
             let price = getPrice(id, false);
-
             list.innerHTML += `
                 <div class="item-card" id="card-${id}">
                     <img src="${allArtifacts[id].img}" class="item-icon">
@@ -35,17 +32,24 @@
 
         function buyItem(id, price) {
             if (player.fuzes >= price) {
-                player.fuzes -= price; player.artifacts.push(id); player.artifactTiers[id] = 0;
-                saveGame(); updateBalanceUI(); showToast("Куплено!");
+                
+                playSound('buy');
+                vibrate(50);
+
+                player.fuzes -= price; 
+                player.artifacts.push(id); 
+                player.artifactTiers[id] = 0;
+                saveGame(); 
+                updateBalanceUI(); 
+                showToast("Куплено!");
+                
                 let card = document.getElementById('card-' + id);
-                card.style.opacity = '0'; setTimeout(() => { card.remove(); }, 300);
-            } else { showToast("Недостаточно средств!", true); }
+                card.style.opacity = '0'; 
+                setTimeout(() => { card.remove(); }, 300);
+            } else { 
+                showToast("Недостаточно средств!", true); 
+            }
         }
     </script>
-    <script>
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
-        window.Capacitor.Plugins.StatusBar.hide();
-    }
-</script>
 </body>
 </html>
