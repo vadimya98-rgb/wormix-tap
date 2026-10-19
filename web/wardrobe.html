@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=56">
+    <link rel="stylesheet" href="style.css?v=65">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -35,7 +35,7 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=56"></script>
+    <script src="script.js?v=65"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
@@ -108,7 +108,6 @@
             if (type === 'hat') player.equippedHat = id;
             else player.equippedArtifact = id;
             
-            playSound('click'); vibrate(15);
             saveGame();
             renderWardrobe();
             showToast("Надето!");
