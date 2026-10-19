@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Перекрафт</title>
-    <link rel="stylesheet" href="style.css?v=35">
+    <link rel="stylesheet" href="style.css?v=42">
 </head>
 <body>
     <div class="top-bar">
@@ -13,19 +13,24 @@
     </div>
     <div class="content"><div id="craft-ui"></div></div>
 
-    <script src="script.js?v=35"></script>
+    <script src="script.js?v=42"></script>
     <script>
         updateBalanceUI();
+        
+        // Получаем данные из ссылки (какой предмет и какого типа)
         const urlParams = new URLSearchParams(window.location.search);
         const itemId = urlParams.get('id');
         const itemType = urlParams.get('type');
         
         let itemData = itemType === 'hat' ? allHats[itemId] : allArtifacts[itemId];
         let playerTiers = itemType === 'hat' ? player.hatTiers : player.artifactTiers;
-        let craftPrice = itemType === 'hat' ? 5000 : 6000; 
+        
+        // Цена: 5000 для шапок, 6000 для артефактов
+        let craftPrice = itemType === 'hat' ? 5000 : 6000;
 
+        // Если предмет не найден в базе, показываем ошибку
         if (!itemId || !itemData) {
-            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center;'>Ошибка: Предмет не найден</h3>";
+            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center; margin-top: 50px;'>Ошибка: Предмет не найден</h3><p style='text-align:center;'><a href='craft.html' style='color:#4CAF50;'>Вернуться назад</a></p>";
         } else {
             renderCraftPage();
         }
@@ -34,11 +39,13 @@
             let tier = playerTiers[itemId] || 0;
             let ui = document.getElementById('craft-ui');
             
+            // Если уже Алмаз (4 уровень), дальше улучшать нельзя
             if (tier === 4) { 
                 ui.innerHTML = `<div class="craft-result" style="flex-direction:column;"><img src="${itemData.img}" style="width:100px; height:100px;" class="tier-diamond"><h3 style="margin:10px 0; color:#00FFFF;">Алмаз (Максимум)</h3><p>Достигнут максимальный уровень!</p></div>`;
                 return;
             }
 
+            // Верхняя панель: какие бывают уровни (без шансов)
             let possibleTiersHTML = `
                 <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:15px;">
                     <img src="${itemData.img}" class="item-icon tier-bronze" title="Бронза">
@@ -65,54 +72,61 @@
         }
 
         function doRecraft(price) {
-    if (player.fuzes < price) { 
-        playSound('fail');
-        vibrate([100, 50, 100]);
-        showToast("Недостаточно средств!", true); 
-        return; 
-    }
-    player.fuzes -= price;
-    
-    let resultText = document.getElementById('result-text');
-    resultText.style.color = "#aaa";
-    resultText.innerText = "Куем...";
-    
-    document.getElementById('btn-craft').style.display = 'none';
+            // Проверка на нехватку денег
+            if (player.fuzes < price) { 
+                playSound('fail');
+                vibrate([100, 50, 100]);
+                showToast("Недостаточно средств!", true); 
+                return; 
+            }
+            
+            player.fuzes -= price;
+            let resultText = document.getElementById('result-text');
+            resultText.style.color = "#aaa";
+            resultText.innerText = "Куем...";
+            
+            // Скрываем кнопку, чтобы нельзя было спамить
+            document.getElementById('btn-craft').style.display = 'none';
 
-    setTimeout(() => {
-        let roll = Math.random() * 100;
-        let newTier = 0;
-        
-        if (roll < 50) newTier = 1; 
-        else if (roll < 80) newTier = 2; 
-        else if (roll < 90) newTier = 3; 
-        else if (roll < 92) newTier = 4; 
-        else newTier = 0; 
+            setTimeout(() => {
+                let roll = Math.random() * 100;
+                let newTier = 0;
+                
+                // Шансы: 50 / 30 / 10 / 2
+                if (roll < 50) newTier = 1; 
+                else if (roll < 80) newTier = 2; 
+                else if (roll < 90) newTier = 3; 
+                else if (roll < 92) newTier = 4; 
+                else newTier = 0; 
 
-        let currentTier = playerTiers[itemId] || 0;
-        
-        if (newTier > currentTier) {
-            playSound('success'); 
-            vibrate([50, 50, 50, 50, 100]); 
-            
-            playerTiers[itemId] = newTier;
-            let tierNames = ["", "Бронза", "Серебро", "Золото", "Алмаз"];
-            let colors = ["", "#CD7F32", "#C0C0C0", "#FFD700", "#00FFFF"];
-            
-            resultText.style.color = colors[newTier];
-            resultText.innerText = `УСПЕХ! Выпала ${tierNames[newTier]}!`;
-        } else {
-            playSound('fail'); 
-            vibrate([100, 50, 100]);
-            
-            resultText.style.color = "#FF5252";
-            resultText.innerText = "Неудача. Предмет не изменился.";
+                let currentTier = playerTiers[itemId] || 0;
+                
+                if (newTier > currentTier) {
+                    playSound('success'); 
+                    vibrate([50, 50, 50, 50, 100]); 
+                    
+                    playerTiers[itemId] = newTier;
+                    let tierNames = ["", "Бронза", "Серебро", "Золото", "Алмаз"];
+                    let colors = ["", "#CD7F32", "#C0C0C0", "#FFD700", "#00FFFF"];
+                    
+                    resultText.style.color = colors[newTier];
+                    resultText.innerText = `УСПЕХ! Выпала ${tierNames[newTier]}!`;
+                } else {
+                    playSound('fail'); 
+                    vibrate([100, 50, 100]);
+                    
+                    resultText.style.color = "#FF5252";
+                    resultText.innerText = "Неудача. Предмет не изменился.";
+                }
+
+                saveGame(); 
+                updateBalanceUI(); 
+                
+                // Перерисовываем страницу через 1.5 секунды, чтобы увидеть результат
+                setTimeout(() => { renderCraftPage(); }, 1500);
+                
+            }, 1000); 
         }
-
-        saveGame(); 
-        updateBalanceUI(); 
-        
-        setTimeout(() => { renderCraftPage(); }, 1500);
-        
-    }, 1000); 
-}
+    </script>
+</body>
+</html>
