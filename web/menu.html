@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=35">
+    <link rel="stylesheet" href="style.css?v=36">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
@@ -100,7 +100,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=35"></script>
+    <script src="script.js?v=36"></script>
     <script>
         updateBalanceUI();
 
@@ -122,7 +122,7 @@
 
         function openItemEditor() {
             sessionStorage.setItem('openEditor', 'true');
-            navigateTo('game.html');
+            window.location.href = 'game.html';
         }
 
         function saveBalanceChanges() {
@@ -160,7 +160,7 @@
                 if (data.fuzes !== undefined && data.rubies !== undefined) {
                     localStorage.setItem('wormixSave', JSON.stringify(data));
                     showToast("Успешно! Перезагрузка...");
-                    setTimeout(() => navigateTo('game.html'), 1000);
+                    setTimeout(() => window.location.href = 'game.html', 1000);
                 } else { showToast("Неверный код!", true); }
             } catch (err) { showToast("Ошибка! Код поврежден.", true); }
         }
