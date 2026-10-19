@@ -46,40 +46,47 @@ function showToast(message, isError = false) {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 // БАЗА ДАННЫХ ЦЕН И БОНУСОВ
-const allItemsConfig = {
-    'shapka': { type: 'fuze', base: 10, price: 10000 }, 'krolik': { type: 'fuze', base: 35, price: 50000 },
-    'pirat': { type: 'fuze', base: 60, price: 100000 }, 'hacker': { type: 'fuze', base: 85, price: 200000 },
-    'viking': { type: 'fuze', base: 110, price: 300000 }, 'strazgi': { type: 'fuze', base: 135, price: 500000 },
-    'samuray': { type: 'fuze', base: 160, price: 700000 }, 'temniy': { type: 'fuze', base: 185, price: 800000 },
-    'paladin': { type: 'fuze', base: 210, price: 900000 }, 'vor': { type: 'fuze', base: 235, price: 1000000 },
-    'assassin': { type: 'fuze', base: 260, price: 1100000 }, 'iluzionist': { type: 'fuze', base: 285, price: 1200000 },
-    'captain': { type: 'fuze', base: 310, price: 1300000 }, 'fantom': { type: 'fuze', base: 335, price: 1400000 },
-    'inzhiner': { type: 'fuze', base: 360, price: 1500000 }, 'okulayr': { type: 'fuze', base: 385, price: 1600000 },
-    'izverg': { type: 'fuze', base: 410, price: 1700000 }, 'telepat': { type: 'fuze', base: 435, price: 1800000 },
-    'alhimik': { type: 'fuze', base: 460, price: 1900000 }, 'psaiker': { type: 'fuze', base: 485, price: 2000000 },
-    'master_vetra': { type: 'fuze', base: 510, price: 2100000 }, 'prizrak': { type: 'fuze', base: 535, price: 2200000 },
-    'imperator': { type: 'fuze', base: 560, price: 2300000 }, 'respirator': { type: 'fuze', base: 585, price: 2400000 },
-    'slem': { type: 'fuze', base: 610, price: 2500000 }, 'spetsnaz': { type: 'fuze', base: 635, price: 2600000 },
-    'gorayhii': { type: 'fuze', base: 660, price: 2700000 }, 'voron': { type: 'fuze', base: 685, price: 2800000 },
-    'shaman_vudu': { type: 'fuze', base: 710, price: 2900000 }, 'yakudza': { type: 'fuze', base: 735, price: 3000000 },
-    'korol': { type: 'fuze', base: 760, price: 3100000 }, 'pobednui': { type: 'fuze', base: 785, price: 3200000 },
-    
-    'zezl': { type: 'ruby', base: 0.2, price: 10000 }, 'shit': { type: 'ruby', base: 0.4, price: 20000 },
-    'ucheniy': { type: 'ruby', base: 0.6, price: 30000 }, 'posoh': { type: 'ruby', base: 0.8, price: 40000 },
-    'arhi': { type: 'ruby', base: 1.0, price: 50000 }, 'simbiot': { type: 'ruby', base: 1.2, price: 60000 },
-    'arkhidemon': { type: 'ruby', base: 1.5, price: 70000 }
-};
+const allItemsConfig = {};
+const hatIdsOrder = [
+    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
+    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
+    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
+    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'
+];
+const hatPrices = [
+    10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 
+    900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 
+    1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 
+    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000
+];
 
-const tierFuzesAdd = [0, 5, 10, 15, 20];
-const tierRubyMult = [1, 2, 3, 4, 5];
+hatIdsOrder.forEach((id, index) => {
+    let baseBonus = 2 + (index * 10); 
+    allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
+});
+
+const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
+const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
+
+artIdsOrder.forEach((id, index) => {
+    allItemsConfig[id] = { type: 'ruby', base: 0.5, price: artPrices[index] };
+});
+
+const tierFuzesAdd = [0, 2, 4, 6, 8];
+const artifactTierStats = [0.5, 0.6, 0.7, 0.8, 1.0];
 
 function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price : 5000; }
 
 function getItemBonusText(id, tier) {
     if (!allItemsConfig[id]) return "";
     let conf = allItemsConfig[id];
-    if (conf.type === 'fuze') return `+${conf.base + (tierFuzesAdd[tier] || 0)} фузов`;
-    else return `+${(conf.base * (tierRubyMult[tier] || 1)).toFixed(1)}% рубинов`;
+    if (conf.type === 'fuze') {
+        let val = conf.base + (tierFuzesAdd[tier] || 0);
+        return `+${val} фузов`;
+    } else {
+        let val = artifactTierStats[tier] || 0.5;
+        return `+${val.toFixed(1)}% рубинов`;
+    }
 }
 
 function getEquippedStats() {
@@ -90,7 +97,7 @@ function getEquippedStats() {
     }
     if (player.equippedArtifact && allItemsConfig[player.equippedArtifact]) {
         let tier = player.artifactTiers[player.equippedArtifact] || 0;
-        addRubyChance = allItemsConfig[player.equippedArtifact].base * (tierRubyMult[tier] || 1);
+        addRubyChance = artifactTierStats[tier] || 0.5;
     }
     return { addFuzes, addRubyChance };
 }
@@ -99,7 +106,11 @@ function getEquippedStats() {
 const sounds = {
     tap: new Audio('audio/tap.mp3'), buy: new Audio('audio/buy.mp3'), fail: new Audio('audio/fail.mp3'), success: new Audio('audio/success.mp3'), click: new Audio('audio/click.mp3')
 };
-sounds.tap.volume = 0.8; sounds.buy.volume = 0.5; sounds.fail.volume = 0.3; sounds.success.volume = 0.6; sounds.click.volume = 0.4;   
+sounds.tap.volume = 0.8; 
+sounds.buy.volume = 0.5; 
+sounds.fail.volume = 0.3; 
+sounds.success.volume = 0.6; 
+sounds.click.volume = 0.15; // Снижена громкость кликов
 
 function playSound(name) { 
     if (sounds[name]) { 
@@ -147,7 +158,7 @@ const allArtifacts = {
 };
 
 // =========================================================================
-// ТВОИ НАСТРОЙКИ КООРДИНАТ (ПОЛНОСТЬЮ СОХРАНЕНЫ)
+// ТВОИ НАСТРОЙКИ КООРДИНАТ
 // =========================================================================
 const HAT_SETTINGS = {
     'images/dragon.png': {
