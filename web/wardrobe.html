@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=65">
+    <link rel="stylesheet" href="style.css?v=74">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -35,7 +35,7 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=65"></script>
+    <script src="script.js?v=74"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
@@ -70,7 +70,7 @@
                     
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('hat', '${id}')">
-                            ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
+                            ${isEquipped ? '<span class="equipped-text">Надето</span>' : ''}
                             <img src="${allHats[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allHats[id].name}</div>
                             <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
@@ -93,7 +93,7 @@
                     
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
-                            ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
+                            ${isEquipped ? '<span class="equipped-text">Надето</span>' : ''}
                             <img src="${allArtifacts[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allArtifacts[id].name}</div>
                             <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
@@ -104,13 +104,28 @@
             }
         }
 
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ: Надеть / Снять
         function equipItem(type, id) {
-            if (type === 'hat') player.equippedHat = id;
-            else player.equippedArtifact = id;
+            if (type === 'hat') {
+                if (player.equippedHat === id) {
+                    player.equippedHat = ''; // Снимаем
+                    showToast("Снято");
+                } else {
+                    player.equippedHat = id; // Надеваем
+                    showToast("Надето!");
+                }
+            } else {
+                if (player.equippedArtifact === id) {
+                    player.equippedArtifact = ''; // Снимаем
+                    showToast("Снято");
+                } else {
+                    player.equippedArtifact = id; // Надеваем
+                    showToast("Надето!");
+                }
+            }
             
             saveGame();
             renderWardrobe();
-            showToast("Надето!");
         }
 
         renderWardrobe();
