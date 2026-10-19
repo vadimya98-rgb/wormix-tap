@@ -188,3 +188,11 @@ img { -webkit-touch-callout: none; }
 .info-btn:active {
     transform: scale(0.9);
 }
+
+/* Фикс для кнопок внутри модальных окон (чтобы не убегали) */
+.admin-box button, .save-box button {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    width: 100% !important;
+    box-sizing: border-box;
+}
