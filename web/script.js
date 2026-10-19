@@ -54,6 +54,26 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
 // ЗАЩИТА ОТ СТАРЫХ СОХРАНЕНИЙ
 if (!Array.isArray(player.hats)) player.hats = Object.keys(player.hats || {});
 if (!Array.isArray(player.artifacts)) player.artifacts = Object.keys(player.artifacts || {});
+let player = null;
+try {
+    let saved = localStorage.getItem('wormixSave');
+    if (saved && saved !== 'undefined' && saved !== 'null') {
+        player = JSON.parse(saved);
+    }
+} catch (e) {
+    console.error("Ошибка чтения сохранения", e);
+}
+
+if (!player || typeof player !== 'object') {
+    player = {
+        fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
+        hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
+        hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
+    };
+}
+
+if (!Array.isArray(player.hats)) player.hats = player.hats ? Object.keys(player.hats) : [];
+if (!Array.isArray(player.artifacts)) player.artifacts = player.artifacts ? Object.keys(player.artifacts) : [];
 if (typeof player.hatTiers !== 'object' || player.hatTiers === null) player.hatTiers = {};
 if (typeof player.artifactTiers !== 'object' || player.artifactTiers === null) player.artifactTiers = {};
 if (!player.equippedHat) player.equippedHat = '';
