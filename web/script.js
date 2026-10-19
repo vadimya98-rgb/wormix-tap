@@ -10,6 +10,12 @@ if (!player || typeof player !== 'object') {
     player = { fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1 };
 }
 
+// ЗАЩИТА ОТ СТАРЫХ БУСТОВ
+if (player.boostMultiplier > 4) {
+    player.boostMultiplier = 1;
+    player.boostEndTime = 0;
+}
+
 if (player.fuzes === undefined) player.fuzes = 0;
 if (player.rubies === undefined) player.rubies = 0;
 if (!Array.isArray(player.hats)) player.hats = [];
@@ -26,7 +32,13 @@ function updateBalanceUI() {
     let fEl = document.getElementById('ui-fuzes'); let rEl = document.getElementById('ui-rubies');
     if (fEl) fEl.innerText = player.fuzes; if (rEl) rEl.innerText = player.rubies;
 }
-function getCurrentMultiplier() { if (Date.now() < player.boostEndTime) { return player.boostMultiplier; } else { return 1; } }
+function getCurrentMultiplier() { 
+    if (Date.now() < player.boostEndTime) { 
+        return player.boostMultiplier; 
+    } else { 
+        return 1; 
+    } 
+}
 function startTimerUI(timerElementId) {
     let el = document.getElementById(timerElementId); if(!el) return;
     setInterval(() => {
@@ -110,7 +122,7 @@ sounds.tap.volume = 0.8;
 sounds.buy.volume = 0.5; 
 sounds.fail.volume = 0.3; 
 sounds.success.volume = 0.6; 
-sounds.click.volume = 0.15; // Снижена громкость кликов
+sounds.click.volume = 0.15; 
 
 function playSound(name) { 
     if (sounds[name]) { 
@@ -157,9 +169,6 @@ const allArtifacts = {
     'arkhidemon': { name: 'Архидемон', img: 'images/artefacts/arkhidemon.png' }
 };
 
-// =========================================================================
-// ТВОИ НАСТРОЙКИ КООРДИНАТ
-// =========================================================================
 const HAT_SETTINGS = {
     'images/dragon.png': {
         'alhimik': { w: 222, y: -57, x: 46 }, 'assassin': { w: 361, y: 38, x: 69 },
