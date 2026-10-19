@@ -4,21 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шапки</title>
-    <link rel="stylesheet" href="style.css?v=62">
+    <link rel="stylesheet" href="style.css?v=63">
 </head>
 <body>
     <div class="top-bar">
         <a href="menu.html" class="btn-back">← Назад</a>
-        <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
+        <div class="balance">
+            <div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div>
+            <div><img src="images/rubin.png" class="coin-icon"> <span id="ui-rubies">0</span></div>
+        </div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=62"></script>
+    <script src="script.js?v=63"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
 
-        // Берем список ID шапок в правильном порядке
-        hatIdsOrder.forEach((id) => {
+        // Автоматически берем все шапки из базы и сортируем по цене
+        let sortedHats = Object.keys(allHats).sort((a, b) => getItemPrice(a) - getItemPrice(b));
+
+        sortedHats.forEach((id) => {
             if (player.hats.includes(id)) return; 
             let price = getItemPrice(id);
             let bonusText = getItemBonusText(id, 0);
