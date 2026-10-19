@@ -4,6 +4,26 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
     hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
 };
 
+// --- СИСТЕМА ЗВУКОВ И ВИБРАЦИИ ---
+const sounds = {
+    tap: new Audio('audio/tap.mp3'),
+    buy: new Audio('audio/buy.mp3'),
+    fail: new Audio('audio/fail.mp3'),
+    success: new Audio('audio/success.mp3')
+};
+
+function playSound(name) {
+    if (sounds[name]) {
+        sounds[name].currentTime = 0; // Перематываем в начало, чтобы можно было спамить
+        sounds[name].play().catch(e => console.log('Звук не загружен', e));
+    }
+}
+
+function vibrate(ms) {
+    if (navigator.vibrate) {
+        navigator.vibrate(ms);
+    }
+}
 if (!player.equippedHat) player.equippedHat = '';
 if (!player.equippedArtifact) player.equippedArtifact = '';
 if (!player.hatTiers) player.hatTiers = {};
