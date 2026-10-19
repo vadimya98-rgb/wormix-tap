@@ -7,14 +7,18 @@ try {
 } catch (e) {}
 
 if (!player || typeof player !== 'object') {
-    player = { fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1 };
+    player = { fuzes: 0, rubies: 0, race: '', unlockedRaces: [], boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1, totalClicks: 0 };
 }
 
+if (player.totalClicks === undefined) player.totalClicks = 0;
+if (!Array.isArray(player.unlockedRaces)) {
+    player.unlockedRaces = [];
+    if (player.race) player.unlockedRaces.push(player.race); 
+}
 if (player.boostMultiplier > 4) {
     player.boostMultiplier = 1;
     player.boostEndTime = 0;
 }
-
 if (player.fuzes === undefined) player.fuzes = 0;
 if (player.rubies === undefined) player.rubies = 0;
 if (!Array.isArray(player.hats)) player.hats = [];
@@ -56,37 +60,42 @@ function showToast(message, isError = false) {
 }
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-const allItemsConfig = {};
-const hatIdsOrder = [
-    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
-    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
-    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
-    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'
-];
-const hatPrices = [
-    10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 
-    900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 
-    1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 
-    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000
+const RACES_CONFIG = [
+    { id: 'images/dragon.png', name: 'Дракон', price: 0 },
+    { id: 'images/robot.png', name: 'Робот', price: 20000 },
+    { id: 'images/demon.png', name: 'Демон', price: 40000 },
+    { id: 'images/cat.png', name: 'Кот', price: 60000 },
+    { id: 'images/zombie.png', name: 'Зомби', price: 80000 },
+    { id: 'images/dog.png', name: 'Собака', price: 100000 },
+    { id: 'images/rabit.png', name: 'Заяц', price: 120000 }
 ];
 
+const RACE_EFFECTS = {
+    'images/dragon.png': { type: 'none' },
+    'images/robot.png': { type: 'counter', clicks: 100, fuzes: 100, rubies: 0 },
+    'images/demon.png': { type: 'counter', clicks: 200, fuzes: 0, rubies: 5 },
+    'images/cat.png': { type: 'neon_sparks', clicks: 15 },
+    'images/zombie.png': { type: 'fart', clicks: 5 },
+    'images/dog.png': { type: 'spin_counter', clicks: 150, fuzes: 10000, rubies: 5 },
+    'images/rabit.png': { type: 'auto_boost', clicks: 250 }
+};
+
+const allItemsConfig = {};
+const hatIdsOrder = ['shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'];
+const hatPrices = [10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000];
 hatIdsOrder.forEach((id, index) => {
     let baseBonus = 2 + (index * 10); 
     allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
 });
-
 const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
 const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
-
 artIdsOrder.forEach((id, index) => {
     allItemsConfig[id] = { type: 'ruby', base: 0.5, price: artPrices[index] };
 });
-
 const tierFuzesAdd = [0, 2, 4, 6, 8];
 const artifactTierStats = [0.5, 0.6, 0.7, 0.8, 1.0];
 
 function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price : 5000; }
-
 function getItemBonusText(id, tier) {
     if (!allItemsConfig[id]) return "";
     let conf = allItemsConfig[id];
@@ -98,7 +107,6 @@ function getItemBonusText(id, tier) {
         return `+${val.toFixed(1)}% рубинов`;
     }
 }
-
 function getEquippedStats() {
     let addFuzes = 0; let addRubyChance = 0;
     if (player.equippedHat && allItemsConfig[player.equippedHat]) {
@@ -115,11 +123,7 @@ function getEquippedStats() {
 const sounds = {
     tap: new Audio('audio/tap.mp3'), buy: new Audio('audio/buy.mp3'), fail: new Audio('audio/fail.mp3'), success: new Audio('audio/success.mp3'), click: new Audio('audio/click.mp3')
 };
-sounds.tap.volume = 0.8; 
-sounds.buy.volume = 0.5; 
-sounds.fail.volume = 0.3; 
-sounds.success.volume = 0.6; 
-sounds.click.volume = 0.15; 
+sounds.tap.volume = 0.8; sounds.buy.volume = 0.5; sounds.fail.volume = 0.3; sounds.success.volume = 0.6; sounds.click.volume = 0.15; 
 
 function playSound(name) { 
     if (sounds[name]) { 
