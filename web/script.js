@@ -33,28 +33,64 @@ function showToast(message, isError = false) {
     toast.innerText = message; toast.className = isError ? 'toast-msg show error' : 'toast-msg show';
     setTimeout(() => { toast.classList.remove('show'); }, 2000);
 }
-function getPrice(itemId, isHat) {
-    let hash = 0; for (let i = 0; i < itemId.length; i++) { hash = itemId.charCodeAt(i) + ((hash << 5) - hash); } hash = Math.abs(hash);
-    if (isHat) return 6000 + (hash % 4001); else return 5000 + (hash % 3001);
-}
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-// СИСТЕМА БОНУСОВ ОТ ЭКИПИРОВКИ (НОВЫЕ ЗНАЧЕНИЯ)
 // =========================================================================
-const hatBonuses = [1, 2, 3, 4, 5]; // Стандарт, Бронза, Серебро, Золото, Алмаз
-const artifactBonuses = [0.2, 0.5, 0.7, 0.9, 1.2]; // В процентах
+// НОВАЯ БАЗА ДАННЫХ ПРЕДМЕТОВ
+// =========================================================================
+const allItemsConfig = {};
+const hatIdsOrder = [
+    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
+    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
+    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
+    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol'
+];
+const hatPrices = [
+    10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 
+    900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 
+    1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 
+    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000
+];
+
+hatIdsOrder.forEach((id, index) => {
+    let baseBonus = 10 + (index * 25); 
+    allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
+});
+
+const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
+const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
+const artBaseBonuses = [0.2, 0.4, 0.6, 0.8, 1.0, 1.2, 1.5];
+
+artIdsOrder.forEach((id, index) => {
+    allItemsConfig[id] = { type: 'ruby', base: artBaseBonuses[index], price: artPrices[index] };
+});
+
+const tierFuzesAdd = [0, 5, 10, 15, 20];
+const tierRubyMult = [1, 2, 3, 4, 5];
+
+function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price : 5000; }
+
+function getItemBonusText(id, tier) {
+    if (!allItemsConfig[id]) return "";
+    let conf = allItemsConfig[id];
+    if (conf.type === 'fuze') {
+        let val = conf.base + (tierFuzesAdd[tier] || 0);
+        return `+${val} фузов`;
+    } else {
+        let val = conf.base * (tierRubyMult[tier] || 1);
+        return `+${val.toFixed(1)}% рубинов`;
+    }
+}
 
 function getEquippedStats() {
-    let addFuzes = 0;
-    let addRubyChance = 0;
-
-    if (player.equippedHat && player.hatTiers[player.equippedHat] !== undefined) {
-        let tier = player.hatTiers[player.equippedHat];
-        addFuzes = hatBonuses[tier];
+    let addFuzes = 0; let addRubyChance = 0;
+    if (player.equippedHat && allItemsConfig[player.equippedHat]) {
+        let tier = player.hatTiers[player.equippedHat] || 0;
+        addFuzes = allItemsConfig[player.equippedHat].base + (tierFuzesAdd[tier] || 0);
     }
-    if (player.equippedArtifact && player.artifactTiers[player.equippedArtifact] !== undefined) {
-        let tier = player.artifactTiers[player.equippedArtifact];
-        addRubyChance = artifactBonuses[tier];
+    if (player.equippedArtifact && allItemsConfig[player.equippedArtifact]) {
+        let tier = player.artifactTiers[player.equippedArtifact] || 0;
+        addRubyChance = allItemsConfig[player.equippedArtifact].base * (tierRubyMult[tier] || 1);
     }
     return { addFuzes, addRubyChance };
 }
