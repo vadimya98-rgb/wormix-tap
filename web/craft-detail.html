@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Перекрафт</title>
-    <link rel="stylesheet" href="style.css?v=50">
+    <link rel="stylesheet" href="style.css?v=56">
 </head>
 <body>
     <div class="top-bar">
@@ -13,7 +13,7 @@
     </div>
     <div class="content"><div id="craft-ui"></div></div>
 
-    <script src="script.js?v=50"></script>
+    <script src="script.js?v=56"></script>
     <script>
         updateBalanceUI();
         const urlParams = new URLSearchParams(window.location.search);
@@ -24,8 +24,8 @@
         let playerTiers = itemType === 'hat' ? player.hatTiers : player.artifactTiers;
         let craftPrice = itemType === 'hat' ? 5000 : 6000;
 
-        if (!itemId || !itemData) {
-            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center; margin-top:50px;'>Ошибка: Предмет не найден</h3>";
+        if (!itemId || !itemData || !allItemsConfig[itemId]) {
+            document.getElementById('craft-ui').innerHTML = "<h3 style='text-align:center; margin-top:50px;'>Ошибка: Предмет не найден</h3><p style='text-align:center;'><a href='craft.html' style='color:#4CAF50;'>Вернуться назад</a></p>";
         } else {
             renderCraftPage();
         }
@@ -39,10 +39,12 @@
                 return;
             }
 
-            // ИСПРАВЛЕНО ТУТ: Добавлено слово "% рубинов" для артефактов
-            let bonusTexts = itemType === 'hat'
-                ? [`+${hatBonuses[1]} фуза`, `+${hatBonuses[2]} фуза`, `+${hatBonuses[3]} фуза`, `+${hatBonuses[4]} фузов`]
-                : [`+${artifactBonuses[1]}% рубинов`, `+${artifactBonuses[2]}% рубинов`, `+${artifactBonuses[3]}% рубинов`, `+${artifactBonuses[4]}% рубинов`];
+            let bonusTexts = [
+                getItemBonusText(itemId, 1), 
+                getItemBonusText(itemId, 2), 
+                getItemBonusText(itemId, 3), 
+                getItemBonusText(itemId, 4)
+            ];
 
             let possibleTiersHTML = `
                 <div style="display:flex; justify-content:center; gap:10px; margin-bottom:15px; border-bottom:1px solid #444; padding-bottom:15px;">
@@ -71,7 +73,7 @@
                 ${possibleTiersHTML}
                 <div class="craft-result" style="flex-direction:column;">
                     <img src="${itemData.img}" style="width:100px; height:100px;" class="${currentTierClass}">
-                    <h3 style="margin:10px 0;">Ваш предмет</h3>
+                    <h3 style="margin:10px 0;">Ваш предмет (${getItemBonusText(itemId, tier)})</h3>
                 </div>
                 
                 <button id="btn-craft" class="btn-green" style="display:flex; margin-top:20px; align-items:center; justify-content:center; gap:8px;" onclick="doRecraft(${craftPrice})">
