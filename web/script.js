@@ -10,7 +10,6 @@ if (!player || typeof player !== 'object') {
     player = { fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0, hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1 };
 }
 
-// ЗАЩИТА ОТ СТАРЫХ БУСТОВ
 if (player.boostMultiplier > 4) {
     player.boostMultiplier = 1;
     player.boostEndTime = 0;
@@ -57,7 +56,6 @@ function showToast(message, isError = false) {
 }
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
-// БАЗА ДАННЫХ ЦЕН И БОНУСОВ
 const allItemsConfig = {};
 const hatIdsOrder = [
     'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
@@ -114,7 +112,6 @@ function getEquippedStats() {
     return { addFuzes, addRubyChance };
 }
 
-// ЗВУКИ
 const sounds = {
     tap: new Audio('audio/tap.mp3'), buy: new Audio('audio/buy.mp3'), fail: new Audio('audio/fail.mp3'), success: new Audio('audio/success.mp3'), click: new Audio('audio/click.mp3')
 };
@@ -130,18 +127,6 @@ function playSound(name) {
     } 
 }
 function vibrate(ms) { if (navigator.vibrate) navigator.vibrate(ms); }
-
-document.addEventListener('DOMContentLoaded', () => {
-    document.body.addEventListener('pointerdown', (e) => {
-        let target = e.target.closest('button, a, .wardrobe-item');
-        if (!target) return;
-        if (target.closest('.admin-modal')) return;
-        if (target.classList.contains('btn-save') || target.classList.contains('btn-load') || target.closest('.save-modal')) return;
-        if (target.tagName === 'A' && (target.getAttribute('href') === 'menu.html' || target.getAttribute('href') === 'game.html')) return;
-        if (target.classList.contains('btn-buy') || target.id === 'btn-craft' || target.id === 'claim-bonus-btn') return;
-        playSound('click'); vibrate(15);
-    });
-});
 
 const allHats = {
     'shapka': { name: 'Шапка', img: 'images/hats/shapka.png' }, 'krolik': { name: 'Кролик', img: 'images/hats/krolik.png' },
