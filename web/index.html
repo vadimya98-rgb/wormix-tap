@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=60">
+    <link rel="stylesheet" href="style.css?v=61">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -30,39 +30,24 @@
         </div>
     </div>
     
+    <script src="script.js?v=61"></script>
     <script>
-        // Здесь НЕТ подключения script.js, чтобы экран выбора не сломался
+        if (player && player.race && player.race !== '') {
+            window.location.href = 'game.html';
+        }
+        
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
         
         function selectRace(race) {
-            try {
-                let saved = localStorage.getItem('wormixSave');
-                let p = saved ? JSON.parse(saved) : {};
-                if (!p || typeof p !== 'object') p = {};
-                
-                p.race = race;
-                if (p.fuzes === undefined) p.fuzes = 0;
-                if (p.rubies === undefined) p.rubies = 0;
-                
-                localStorage.setItem('wormixSave', JSON.stringify(p));
-                window.location.href = 'game.html';
-            } catch (e) {
-                alert("Ошибка: " + e.message);
-            }
+            playSound('click');
+            vibrate(15);
+            player.race = race;
+            saveGame();
+            window.location.href = 'game.html';
         }
-        
-        try {
-            let saved = localStorage.getItem('wormixSave');
-            if (saved) {
-                let p = JSON.parse(saved);
-                if (p && p.race && p.race !== '') {
-                    window.location.href = 'game.html';
-                }
-            }
-        } catch(e) {}
     </script>
     <script>
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
