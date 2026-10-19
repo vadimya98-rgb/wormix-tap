@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин Бустов</title>
-    <link rel="stylesheet" href="style.css?v=46">
+    <link rel="stylesheet" href="style.css?v=49">
 </head>
 <body>
     <div class="top-bar">
@@ -16,13 +16,14 @@
     
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js?v=46"></script>
+    <script src="script.js?v=49"></script>
     <script>
         updateBalanceUI();
         
+        // ОБНОВЛЕННЫЕ БУСТЫ (x1.5 и x3)
         const boosts = [
-            { name: 'x2 Буст (10 мин)', cost: 50, mult: 2, time: 10, highlight: true },
-            { name: 'x4 Буст (10 мин)', cost: 100, mult: 4, time: 10, highlight: true }
+            { name: 'x1.5 Буст (10 мин)', cost: 50, mult: 1.5, time: 10, highlight: true },
+            { name: 'x3 Буст (10 мин)', cost: 100, mult: 3, time: 10, highlight: true }
         ];
 
         let list = document.getElementById('shop-list');
