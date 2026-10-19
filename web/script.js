@@ -40,40 +40,22 @@ function getPrice(itemId, isHat) {
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
 // =========================================================================
-// СИСТЕМА ЗВУКОВ, МУЗЫКИ И ВИБРАЦИИ
+// СИСТЕМА ЗВУКОВ И ВИБРАЦИИ (БЕЗ ФОНОВОЙ МУЗЫКИ)
 // =========================================================================
 const sounds = {
     tap: new Audio('audio/tap.mp3'),
     buy: new Audio('audio/buy.mp3'),
     fail: new Audio('audio/fail.mp3'),
     success: new Audio('audio/success.mp3'),
-    click: new Audio('audio/click.mp3'),
-    bgm: new Audio('audio/bgm.mp3')
+    click: new Audio('audio/click.mp3')
 };
 
-// Настройка фоновой музыки
-sounds.bgm.loop = true;
-sounds.bgm.volume = 0.2; // Громкость 20% (тихо, чтобы не перебивать звуки)
-
-// Восстановление позиции музыки при переходе между страницами
-window.addEventListener('load', () => {
-    let savedTime = sessionStorage.getItem('bgmTime');
-    if (savedTime) {
-        sounds.bgm.currentTime = parseFloat(savedTime);
-    }
-});
-window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('bgmTime', sounds.bgm.currentTime);
-});
-
-// Запуск музыки при первом клике (обход блокировки браузера)
-let musicStarted = false;
-document.addEventListener('click', () => {
-    if (!musicStarted) {
-        sounds.bgm.play().catch(e => console.log('Ожидание клика для запуска музыки'));
-        musicStarted = true;
-    }
-}, { once: true }); // Сработает только один раз
+// НАСТРОЙКА ГРОМКОСТИ (от 0.0 до 1.0)
+sounds.tap.volume = 0.8;     // Выбивание монет (громче)
+sounds.buy.volume = 0.5;     // Покупка
+sounds.fail.volume = 0.3;    // Провал (тише)
+sounds.success.volume = 0.6; // Успех крафта
+sounds.click.volume = 0.4;   // Нажатия на кнопки (тише)
 
 function playSound(name) {
     if (sounds[name]) {
@@ -86,25 +68,20 @@ function vibrate(ms) {
     if (navigator.vibrate) navigator.vibrate(ms);
 }
 
-// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ ВСЕХ КНОПОК
+// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ ВСЕХ КНОПОК (ИСПОЛЬЗУЕМ POINTERDOWN ДЛЯ МГНОВЕННОГО ОТКЛИКА)
 document.addEventListener('DOMContentLoaded', () => {
-    document.body.addEventListener('click', (e) => {
-        // Проверяем, был ли клик по кнопке или ссылке (или внутри них)
+    document.body.addEventListener('pointerdown', (e) => {
         let btn = e.target.closest('button');
         let link = e.target.closest('a');
         
-        if (btn || link) {
-            // Исключаем кнопки сохранения/загрузки, чтобы не спамить звуком
-            let text = e.target.innerText || "";
-            if (text.includes('Сохранить') || text.includes('Загрузить')) return; 
-            
+        // Если это кнопка (и не заблокирована) или ссылка
+        if ((btn && !btn.disabled) || link) {
             playSound('click');
             vibrate(15);
         }
     });
 });
 // =========================================================================
-
 const allHats = {
     'alhimik': { name: 'Алхимик', img: 'images/hats/alhimik.png' }, 'assassin': { name: 'Ассасин', img: 'images/hats/assassin.png' },
     'captain': { name: 'Капитан', img: 'images/hats/captain.png' }, 'fantom': { name: 'Фантом', img: 'images/hats/fantom.png' },
