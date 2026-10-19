@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=59">
+    <link rel="stylesheet" href="style.css?v=60">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -30,43 +30,39 @@
         </div>
     </div>
     
-    <script src="script.js?v=59"></script>
     <script>
-        // Безопасная проверка при загрузке
-        try {
-            let saved = JSON.parse(localStorage.getItem('wormixSave'));
-            if (saved && saved.race && saved.race !== '') {
-                window.location.href = 'game.html';
-            }
-        } catch (e) {
-            console.log("Нет сохранений или они повреждены");
-        }
-        
+        // Здесь НЕТ подключения script.js, чтобы экран выбора не сломался
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
         
-        // ЖЕЛЕЗОБЕТОННЫЙ ВЫБОР РАСЫ
         function selectRace(race) {
             try {
-                // Читаем текущие данные (или создаем новые)
-                let p = {};
-                try {
-                    let saved = localStorage.getItem('wormixSave');
-                    if (saved && saved !== 'undefined') p = JSON.parse(saved) || {};
-                } catch (e) { p = {}; }
-
-                // Записываем расу
-                p.race = race;
-                localStorage.setItem('wormixSave', JSON.stringify(p));
+                let saved = localStorage.getItem('wormixSave');
+                let p = saved ? JSON.parse(saved) : {};
+                if (!p || typeof p !== 'object') p = {};
                 
-                // Переходим в игру
+                p.race = race;
+                if (p.fuzes === undefined) p.fuzes = 0;
+                if (p.rubies === undefined) p.rubies = 0;
+                
+                localStorage.setItem('wormixSave', JSON.stringify(p));
                 window.location.href = 'game.html';
             } catch (e) {
-                alert("Ошибка при выборе расы: " + e.message);
+                alert("Ошибка: " + e.message);
             }
         }
+        
+        try {
+            let saved = localStorage.getItem('wormixSave');
+            if (saved) {
+                let p = JSON.parse(saved);
+                if (p && p.race && p.race !== '') {
+                    window.location.href = 'game.html';
+                }
+            }
+        } catch(e) {}
     </script>
     <script>
         if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
