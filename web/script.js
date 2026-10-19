@@ -68,17 +68,31 @@ function vibrate(ms) {
     if (navigator.vibrate) navigator.vibrate(ms);
 }
 
-// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ ВСЕХ КНОПОК (ИСПОЛЬЗУЕМ POINTERDOWN ДЛЯ МГНОВЕННОГО ОТКЛИКА)
+// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ КНОПОК (С ИСКЛЮЧЕНИЯМИ)
 document.addEventListener('DOMContentLoaded', () => {
     document.body.addEventListener('pointerdown', (e) => {
-        let btn = e.target.closest('button');
-        let link = e.target.closest('a');
-        
-        // Если это кнопка (и не заблокирована) или ссылка
-        if ((btn && !btn.disabled) || link) {
-            playSound('click');
-            vibrate(15);
+        // Ищем кнопку, ссылку или предмет в шкафу
+        let target = e.target.closest('button, a, .wardrobe-item');
+        if (!target) return;
+
+        // 1. Убираем звук в админ-панели
+        if (target.closest('.admin-modal')) return;
+
+        // 2. Убираем звук у кнопок сохранения/загрузки и внутри их окон
+        if (target.classList.contains('btn-save') || target.classList.contains('btn-load') || target.closest('.save-modal')) return;
+
+        // 3. Убираем звук у кнопки "Дом" (при переходе в меню) и "В игру"
+        if (target.tagName === 'A') {
+            let href = target.getAttribute('href');
+            if (href === 'menu.html' || href === 'game.html') return;
         }
+
+        // 4. Убираем звук клика у кнопок покупки и крафта (у них свои звуки)
+        if (target.classList.contains('btn-buy') || target.id === 'btn-craft' || target.id === 'claim-bonus-btn') return;
+
+        // Во всех остальных случаях играем звук клика (Шкаф, пункты меню и т.д.)
+        playSound('click');
+        vibrate(15);
     });
 });
 // =========================================================================
