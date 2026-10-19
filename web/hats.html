@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шапки</title>
-    <link rel="stylesheet" href="style.css?v=46">
+    <link rel="stylesheet" href="style.css?v=53">
 </head>
 <body>
     <div class="top-bar">
@@ -12,26 +12,32 @@
         <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=46"></script>
+    <script src="script.js?v=53"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
 
-        for (let id in allHats) {
-            if (player.hats.includes(id)) continue; 
-            let price = getPrice(id, true);
+        // Проходимся по списку в порядке возрастания цены
+        hatIdsOrder.forEach((id) => {
+            if (player.hats.includes(id)) return; 
+            let price = getItemPrice(id);
+            let bonusText = getItemBonusText(id, 0);
+
+            // Сокращаем большие числа (10000 -> 10к)
+            let priceText = price >= 1000000 ? (price / 1000000) + 'кк' : (price >= 1000 ? (price / 1000) + 'к' : price);
+
             list.innerHTML += `
                 <div class="item-card" id="card-${id}">
                     <img src="${allHats[id].img}" class="item-icon">
                     <div style="flex-grow:1;">
                         <b>${allHats[id].name}</b><br>
-                        <span style="color:#4CAF50; font-size:11px;">+1 фуз за клик</span><br>
-                        <span style="color:#aaa; font-size:12px;">${price} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span>
+                        <span style="color:#4CAF50; font-size:11px;">${bonusText}</span><br>
+                        <span style="color:#aaa; font-size:12px;">${priceText} <img src="images/fuz.png" class="coin-icon" style="width:14px; height:14px;"></span>
                     </div>
-                    <button class="btn-buy" onclick="buyItem('${id}', ${price})">${price} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;"></button>
+                    <button class="btn-buy" onclick="buyItem('${id}', ${price})">${priceText} <img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin:0;"></button>
                 </div>
             `;
-        }
+        });
         if (list.innerHTML.trim() === "") list.innerHTML = '<div style="text-align:center; margin-top:20px; color:#888;">Вы скупили все шапки!</div>';
 
         function buyItem(id, price) {
