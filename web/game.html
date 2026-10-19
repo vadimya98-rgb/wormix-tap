@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=29">
+    <link rel="stylesheet" href="style.css?v=35">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -32,7 +32,6 @@
     
     <div id="ui-boost-timer" style="color:#FFEB3B; text-align:center; height:20px; font-weight:bold; text-shadow: 1px 1px 2px black;"></div>
     
-    <!-- ДОБАВЛЕНА ТЕНЬ -->
     <div class="character-area" id="tap-area" onpointerdown="tap(event)">
         <div class="character-container">
             <div class="character-shadow"></div>
@@ -72,7 +71,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=29"></script>
+    <script src="script.js?v=35"></script>
     <script>
         document.getElementById('character').src = player.race;
 
@@ -275,19 +274,17 @@
             out.select(); document.execCommand('copy'); showToast("Скопировано! Вставьте в script.js");
         }
 
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ ТАПА С КАПЕЛЬКАМИ
         function tap(event) {
             if (isDraggingMode) return; 
-             // ЗВУК И ВИБРАЦИЯ ПРИ ТАПЕ
-            playSound('tap');
-            vibrate(20); // Вибрация 20 миллисекунд
+            playSound('tap'); 
+            vibrate(20); 
+
             let earned = 1 * getCurrentMultiplier(); player.fuzes += earned; let isRuby = Math.random() < 0.005; 
             if (isRuby) player.rubies += 1;
             updateBalanceUI(); saveGame();
             
             let clientX = event.clientX; let clientY = event.clientY;
             
-            // --- ЭФФЕКТ КАПЕЛЕК ---
             let particleCount = 6;
             for (let i = 0; i < particleCount; i++) {
                 let particle = document.createElement('div');
@@ -313,7 +310,6 @@
                 document.body.appendChild(particle);
                 setTimeout(() => particle.remove(), 600);
             }
-            // -------------------------------
 
             let text = document.createElement('div'); text.className = 'floating-text';
             if (isRuby) { text.innerHTML = `+1 <img src="images/rubin.png">`; } 
