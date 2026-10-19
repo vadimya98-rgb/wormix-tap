@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Вормикс ТАП</title>
-    <link rel="stylesheet" href="style.css?v=38">
+    <link rel="stylesheet" href="style.css?v=57">
 </head>
 <body>
     <div id="s1" class="screen active">
@@ -30,15 +30,25 @@
         </div>
     </div>
     
-    <script src="script.js?v=38"></script>
+    <!-- ОБНОВЛЕНА ВЕРСИЯ СКРИПТА -->
+    <script src="script.js?v=57"></script>
     <script>
-        if(player.race !== '') window.location.href = 'game.html';
+        if (typeof player !== 'undefined' && player.race !== '') {
+            window.location.href = 'game.html';
+        }
         
         function showScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
             document.getElementById(id).classList.add('active');
         }
+        
         function selectRace(race) {
+            // Проверка на случай, если скрипт не загрузился
+            if (typeof player === 'undefined') {
+                alert("Ошибка загрузки игры. Обновите страницу.");
+                return;
+            }
+            
             playSound('click');
             vibrate(15);
             player.race = race;
