@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=69">
+    <link rel="stylesheet" href="style.css?v=71">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=69"></script>
+    <script src="script.js?v=71"></script>
     <script>
         if (!player.race || player.race === '') {
             window.location.href = 'index.html';
@@ -107,7 +107,6 @@
             let charImg = document.getElementById('character');
             let charContainer = document.querySelector('.character-container');
             
-            // Сброс всех классов перед применением новых
             charImg.className = 'character'; 
             charContainer.className = 'character-container idle-float'; 
 
@@ -115,7 +114,6 @@
                 charImg.classList.add('neon-effect');
                 charContainer.classList.remove('idle-float');
             } else if (player.race === 'images/dog.png') {
-                // Вращаем ВЕСЬ контейнер, чтобы шапки и артефакты крутились вместе с собакой
                 charContainer.classList.add('spin-container'); 
                 charContainer.classList.remove('idle-float');
             }
@@ -298,7 +296,7 @@
         }
 
         // ==========================================
-        // ОБНОВЛЕННАЯ ФУНКЦИЯ TAP И ЭФФЕКТЫ
+        // ОБНОВЛЕННАЯ ФУНКЦИЯ TAP И ЭФФЕКТЫ (БЕЗ КОМБО)
         // ==========================================
 
         function tap(event) {
@@ -314,8 +312,13 @@
             let raceEffect = RACE_EFFECTS[player.race] || { type: 'none' };
             
             let bonuses = getEquippedStats();
-            let baseFuzes = 5 + bonuses.addFuzes;
+            
+            // Базовые фузы растут от количества разблокированных расс
+            let baseFuzes = (5 + bonuses.addFuzes) * (1 + (player.unlockedRaces.length * 0.1));
+            
+            // Убран множитель комбо
             let earned = Math.floor(baseFuzes * getCurrentMultiplier()); 
+            
             let rubyChance = (2 + bonuses.addRubyChance) / 100;
             let isRuby = Math.random() < rubyChance; 
 
@@ -344,16 +347,17 @@
                 }
             } else if (raceEffect.type === 'auto_boost') {
                 if (player.totalClicks % raceEffect.clicks === 0) {
-                    player.boostMultiplier = 2;
-                    player.boostEndTime = Date.now() + (5 * 1000);
+                    // УСИЛЕНИЕ ЗАЙЦА: Даем x5 на 10 секунд
+                    player.boostMultiplier = 5;
+                    player.boostEndTime = Date.now() + (10 * 1000);
                     
-                    showBonusText(); // ТЕКСТ БОНУС
-                    showToast("АВТО-БУСТ x2 АКТИВИРОВАН!");
+                    showBonusText(); 
+                    showToast("СУПЕР-БУСТ x5 НА 10 СЕК!");
                     playSound('success');
                 }
             } else if (raceEffect.type === 'neon_sparks') {
                 if (player.totalClicks % raceEffect.clicks === 0) {
-                    createSparks(clientX, clientY); // ИСКРЫ КОТА
+                    createSparks(clientX, clientY); 
                 }
             } else if (raceEffect.type === 'fart') {
                 if (player.totalClicks % raceEffect.clicks === 0) {
@@ -432,7 +436,7 @@
 
         function createRewardShower(type) {
             let imgSrc = type === 'fuzes' ? 'images/fuz.png' : 'images/rubin.png';
-            let count = type === 'fuzes' ? 20 : 15; // Сколько монет вылетит
+            let count = type === 'fuzes' ? 20 : 15;
 
             for (let i = 0; i < count; i++) {
                 let item = document.createElement('img');
@@ -477,14 +481,15 @@
         const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         
+        // НОВЫЕ ЕЖЕДНЕВНЫЕ БОНУСЫ
         const bonusRewards = [
-            { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
-            { text: `30 ${rubImg}`, type: "rubies", amount: 30 },
-            { text: `10000 ${fuzImg}`, type: "fuzes", amount: 10000 },
-            { text: `40 ${rubImg}`, type: "rubies", amount: 40 },
+            { text: `10k ${fuzImg}`, type: "fuzes", amount: 10000 },
             { text: "x2 ⚡ (10м)", type: "boost", mult: 2, time: 10 },
-            { text: `20000 ${fuzImg}`, type: "fuzes", amount: 20000 },
-            { text: `30 ${rubImg} + 30000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 30000 }
+            { text: `100k ${fuzImg}`, type: "fuzes", amount: 100000 },
+            { text: "x4 ⚡ (10м)", type: "boost", mult: 4, time: 10 },
+            { text: `30 ${rubImg} + 50k ${fuzImg}`, type: "mix", rubies: 30, fuzes: 50000 },
+            { text: "x3 ⚡ (15м)", type: "boost", mult: 3, time: 15 },
+            { text: `30 ${rubImg} + 50k ${fuzImg}`, type: "mix", rubies: 30, fuzes: 50000 }
         ];
         
         const COOLDOWN = 24 * 60 * 60 * 1000; let canClaim = false;
