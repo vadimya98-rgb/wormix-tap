@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Игра</title>
-    <link rel="stylesheet" href="style.css?v=61">
+    <link rel="stylesheet" href="style.css?v=64">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: flex-start; align-items: center; flex-direction: column; overflow-y: auto; padding: 20px 0; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; margin: auto; }
@@ -71,7 +71,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=61"></script>
+    <script src="script.js?v=64"></script>
     <script>
         if (!player.race || player.race === '') {
             window.location.href = 'index.html';
@@ -317,13 +317,21 @@
             text.style.left = (clientX - 30) + 'px'; text.style.top = (clientY - 30) + 'px';
             document.body.appendChild(text); setTimeout(() => text.remove(), 800);
         }
+
+        const fuzImg = '<img src="images/fuz.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
+        const rubImg = '<img src="images/rubin.png" class="coin-icon" style="width:16px; height:16px; margin-bottom:0;">';
         
+        // НОВЫЕ ЕЖЕДНЕВНЫЕ БОНУСЫ С ИКОНКАМИ
         const bonusRewards = [
-            { text: `1000 фузов`, type: "fuzes", amount: 1000 }, { text: `10 рубинов`, type: "rubies", amount: 10 },
-            { text: "x1.5 ⚡ (10м)", type: "boost", mult: 1.5, time: 10 }, { text: `5000 фузов`, type: "fuzes", amount: 5000 },
-            { text: `30 рубинов`, type: "rubies", amount: 30 }, { text: "x3 ⚡ (5м)", type: "boost", mult: 3, time: 5 },
-            { text: `30 рубинов + 3000 фузов`, type: "mix", rubies: 30, fuzes: 3000 }
+            { text: `5000 ${fuzImg}`, type: "fuzes", amount: 5000 },
+            { text: `30 ${rubImg}`, type: "rubies", amount: 30 },
+            { text: `10000 ${fuzImg}`, type: "fuzes", amount: 10000 },
+            { text: `40 ${rubImg}`, type: "rubies", amount: 40 },
+            { text: "x2 ⚡ (10м)", type: "boost", mult: 2, time: 10 },
+            { text: `20000 ${fuzImg}`, type: "fuzes", amount: 20000 },
+            { text: `30 ${rubImg} + 30000 ${fuzImg}`, type: "mix", rubies: 30, fuzes: 30000 }
         ];
+        
         const COOLDOWN = 24 * 60 * 60 * 1000; let canClaim = false;
         function checkDailyBonus() {
             if (Date.now() - player.lastBonusTime >= COOLDOWN) {
