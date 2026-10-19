@@ -278,6 +278,9 @@
         // ОБНОВЛЕННАЯ ФУНКЦИЯ ТАПА С КАПЕЛЬКАМИ
         function tap(event) {
             if (isDraggingMode) return; 
+             // ЗВУК И ВИБРАЦИЯ ПРИ ТАПЕ
+            playSound('tap');
+            vibrate(20); // Вибрация 20 миллисекунд
             let earned = 1 * getCurrentMultiplier(); player.fuzes += earned; let isRuby = Math.random() < 0.005; 
             if (isRuby) player.rubies += 1;
             updateBalanceUI(); saveGame();
