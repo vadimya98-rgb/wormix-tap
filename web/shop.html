@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин</title>
-    <link rel="stylesheet" href="style.css?v=3">
+    <link rel="stylesheet" href="style.css?v=32">
 </head>
 <body>
     <div class="top-bar">
@@ -13,11 +13,9 @@
     </div>
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js?v=3"></script>
+    <script src="script.js?v=32"></script>
     <script>
         updateBalanceUI();
-        
-        // ТЕПЕРЬ ТУТ ТОЛЬКО 2 БУСТА
         const boosts = [
             { name: 'x10 Буст (10 мин)', cost: 50, mult: 10, time: 10, highlight: true },
             { name: 'x20 Буст (10 мин)', cost: 100, mult: 20, time: 10, highlight: true }
@@ -42,6 +40,10 @@
         function buyBoost(index) {
             let b = boosts[index];
             if (player.rubies >= b.cost) {
+                
+                playSound('buy');
+                vibrate(50);
+
                 player.rubies -= b.cost;
                 player.boostMultiplier = b.mult;
                 let now = Date.now();
@@ -51,10 +53,5 @@
             } else { showToast("Недостаточно средств!", true); }
         }
     </script>
-    <script>
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
-        window.Capacitor.Plugins.StatusBar.hide();
-    }
-</script>
 </body>
 </html>
