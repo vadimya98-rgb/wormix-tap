@@ -45,11 +45,59 @@ const hatIdsOrder = [
     'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
     'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol'
 ];
+let player = JSON.parse(localStorage.getItem('wormixSave')) || {
+    fuzes: 0, rubies: 0, race: '', boostMultiplier: 1, boostEndTime: 0,
+    hats: [], artifacts: [], equippedHat: '', equippedArtifact: '', 
+    hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
+};
+
+// ЗАЩИТА ОТ СТАРЫХ СОХРАНЕНИЙ
+if (!Array.isArray(player.hats)) player.hats = Object.keys(player.hats || {});
+if (!Array.isArray(player.artifacts)) player.artifacts = Object.keys(player.artifacts || {});
+if (typeof player.hatTiers !== 'object' || player.hatTiers === null) player.hatTiers = {};
+if (typeof player.artifactTiers !== 'object' || player.artifactTiers === null) player.artifactTiers = {};
+if (!player.equippedHat) player.equippedHat = '';
+if (!player.equippedArtifact) player.equippedArtifact = '';
+if (player.lastBonusTime === undefined) player.lastBonusTime = 0;
+if (player.bonusDay === undefined) player.bonusDay = 1;
+
+function saveGame() { localStorage.setItem('wormixSave', JSON.stringify(player)); }
+function updateBalanceUI() {
+    let fEl = document.getElementById('ui-fuzes'); let rEl = document.getElementById('ui-rubies');
+    if (fEl) fEl.innerText = player.fuzes; if (rEl) rEl.innerText = player.rubies;
+}
+function getCurrentMultiplier() { if (Date.now() < player.boostEndTime) { return player.boostMultiplier; } else { return 1; } }
+function startTimerUI(timerElementId) {
+    let el = document.getElementById(timerElementId); if(!el) return;
+    setInterval(() => {
+        let timeLeft = player.boostEndTime - Date.now();
+        if (timeLeft > 0) {
+            let m = Math.floor(timeLeft / 60000); let s = Math.floor((timeLeft % 60000) / 1000);
+            el.innerText = `Буст x${player.boostMultiplier}: ${m}м ${s}с`;
+        } else { el.innerText = ''; player.boostMultiplier = 1; player.boostEndTime = 0; }
+    }, 1000);
+}
+function showToast(message, isError = false) {
+    let toast = document.getElementById('game-toast');
+    if (!toast) { toast = document.createElement('div'); toast.id = 'game-toast'; toast.className = 'toast-msg'; document.body.appendChild(toast); }
+    toast.innerText = message; toast.className = isError ? 'toast-msg show error' : 'toast-msg show';
+    setTimeout(() => { toast.classList.remove('show'); }, 2000);
+}
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
+
+// БАЗА ДАННЫХ
+const allItemsConfig = {};
+const hatIdsOrder = [
+    'shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 
+    'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 
+    'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 
+    'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'
+];
 const hatPrices = [
     10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 
     900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 
     1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 
-    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000
+    2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000
 ];
 
 hatIdsOrder.forEach((id, index) => {
@@ -94,7 +142,6 @@ function getEquippedStats() {
     }
     return { addFuzes, addRubyChance };
 }
-// =========================================================================
 
 // =========================================================================
 // СИСТЕМА ЗВУКОВ И ВИБРАЦИИ (БЕЗ ФОНОВОЙ МУЗЫКИ)
