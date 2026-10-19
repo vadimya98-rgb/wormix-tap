@@ -331,3 +331,19 @@ img { -webkit-touch-callout: none; }
 .spin-container {
     animation: spinCharacter 4s linear infinite;
 }
+
+/* Запрещаем WebView перехватывать жесты на игровом поле */
+.character-area {
+    touch-action: manipulation !important; /* Отключает зум по двойному тапу */
+    -webkit-touch-callout: none !important; /* Отключает контекстное меню при долгом нажатии */
+    -webkit-user-select: none !important; /* Запрещает выделение */
+    user-select: none !important;
+    -webkit-tap-highlight-color: transparent !important; /* Убирает синюю рамку при клике */
+}
+
+/* На всякий случай добавим для всего body */
+body {
+    touch-action: manipulation;
+    -webkit-touch-callout: none;
+    overscroll-behavior-y: none; /* Запрещает "оттягивание" экрана (резиновый скролл) */
+}
