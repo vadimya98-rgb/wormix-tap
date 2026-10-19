@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=34">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -33,7 +33,7 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=34"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
@@ -55,7 +55,8 @@
                 player.hats.forEach(id => {
                     let isEquipped = player.equippedHat === id;
                     let tier = player.hatTiers[id] || 0;
-                    let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+                    let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
+                    
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('hat', '${id}')">
                             ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
@@ -69,7 +70,8 @@
                 player.artifacts.forEach(id => {
                     let isEquipped = player.equippedArtifact === id;
                     let tier = player.artifactTiers[id] || 0;
-                    let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : ''));
+                    let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
+                    
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
                             ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
@@ -84,15 +86,17 @@
         function equipItem(type, id) {
             if (type === 'hat') player.equippedHat = id;
             else player.equippedArtifact = id;
-            saveGame(); renderWardrobe(); showToast("Надето!");
+            
+            // ЗВУК ПРИ НАДЕВАНИИ ВЕЩИ
+            playSound('click');
+            vibrate(15);
+
+            saveGame();
+            renderWardrobe();
+            showToast("Надето!");
         }
 
         renderWardrobe();
     </script>
-    <script>
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
-        window.Capacitor.Plugins.StatusBar.hide();
-    }
-</script>
 </body>
 </html>
