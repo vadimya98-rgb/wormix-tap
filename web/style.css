@@ -166,3 +166,25 @@ img { -webkit-touch-callout: none; }
 .save-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9998; justify-content: center; align-items: center; }
 .save-box { background: #222; padding: 20px; border-radius: 10px; border: 2px solid #2196F3; width: 90%; max-width: 400px; text-align: center; }
 .save-box textarea { width: 100%; height: 120px; background: #111; color: #00FF00; border: 1px solid #444; border-radius: 5px; padding: 10px; font-family: monospace; font-size: 12px; margin-bottom: 10px; box-sizing: border-box; resize: none; }
+
+/* Кнопка с восклицательным знаком */
+.info-btn {
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: #FFEB3B;
+    color: #000;
+    border: none;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.5);
+    padding: 0;
+    line-height: 1;
+}
+.info-btn:active {
+    transform: scale(0.9);
+}
