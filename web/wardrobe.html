@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=48">
+    <link rel="stylesheet" href="style.css?v=51">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -35,12 +35,11 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=48"></script>
+    <script src="script.js?v=51"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
 
-        // Названия версий и цвета для них
         const tierNames = ["Стандарт", "Бронза", "Серебро", "Золото", "Алмаз"];
         const tierColors = ["#fff", "#CD7F32", "#C0C0C0", "#FFD700", "#00FFFF"];
 
@@ -63,7 +62,6 @@
                     let tier = player.hatTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
-                    // Информация о версии и бонусе
                     let tName = tierNames[tier];
                     let tColor = tierColors[tier];
                     let bonus = `+${hatBonuses[tier]} фуз`;
@@ -85,10 +83,11 @@
                     let tier = player.artifactTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
-                    // Информация о версии и бонусе
                     let tName = tierNames[tier];
                     let tColor = tierColors[tier];
-                    let bonus = `+${artifactBonuses[tier]}%`;
+                    
+                    // ВОТ ЗДЕСЬ ДОБАВЛЕНО СЛОВО "рубинов"
+                    let bonus = `+${artifactBonuses[tier]}% рубинов`;
                     
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
