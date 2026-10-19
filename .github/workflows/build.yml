@@ -27,7 +27,6 @@ jobs:
         run: |
           npm install @capacitor/core@7 @capacitor/cli@7 @capacitor/android@7 @capacitor/assets @capacitor/status-bar@7
 
-      # ИСПРАВЛЕНИЕ: Копируем ТОЛЬКО из папки web (или веб)
       - name: Prepare Game Files
         run: |
           mkdir -p www
@@ -46,6 +45,17 @@ jobs:
 
       - name: Add Android Platform
         run: npx cap add android
+
+      # =======================================================
+      # ИСПРАВЛЕНИЕ: ДОБАВЛЯЕМ РАЗРЕШЕНИЕ НА ВИБРАЦИЮ В МАНИФЕСТ
+      # =======================================================
+      - name: Fix AndroidManifest for Vibration
+        run: |
+          MANIFEST="android/app/src/main/AndroidManifest.xml"
+          if ! grep -q "android.permission.VIBRATE" "$MANIFEST"; then
+            sed -i 's/<application>/<uses-permission android:name="android.permission.VIBRATE" \/>\n    <application>/' "$MANIFEST"
+          fi
+      # =======================================================
 
       - name: Generate App Icons and Splash
         run: |
