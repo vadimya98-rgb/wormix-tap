@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шкаф</title>
-    <link rel="stylesheet" href="style.css?v=34">
+    <link rel="stylesheet" href="style.css?v=48">
     <style>
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 2px solid #444; }
         .tab-btn { flex: 1; background: none; border: none; color: #aaa; padding: 10px; font-size: 18px; font-weight: bold; cursor: pointer; }
@@ -15,6 +15,8 @@
         .wardrobe-item img { width: 60px; height: 60px; object-fit: contain; margin-bottom: 5px; }
         .equipped-text { font-size: 10px; color: #FFD700; font-weight: bold; position: absolute; top: 5px; right: 5px; background: rgba(0,0,0,0.8); padding: 2px 5px; border-radius: 5px; }
         .empty-text { text-align: center; color: #888; grid-column: 1 / -1; margin-top: 20px; }
+        .item-tier-name { font-size: 10px; font-weight: bold; margin-top: 2px; }
+        .item-bonus { font-size: 10px; margin-top: 2px; }
     </style>
 </head>
 <body>
@@ -33,10 +35,14 @@
         <div id="wardrobe-content" class="wardrobe-grid"></div>
     </div>
 
-    <script src="script.js?v=34"></script>
+    <script src="script.js?v=48"></script>
     <script>
         updateBalanceUI();
         let currentTab = 'hats';
+
+        // Названия версий и цвета для них
+        const tierNames = ["Стандарт", "Бронза", "Серебро", "Золото", "Алмаз"];
+        const tierColors = ["#fff", "#CD7F32", "#C0C0C0", "#FFD700", "#00FFFF"];
 
         function switchTab(tab) {
             currentTab = tab;
@@ -57,11 +63,18 @@
                     let tier = player.hatTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
+                    // Информация о версии и бонусе
+                    let tName = tierNames[tier];
+                    let tColor = tierColors[tier];
+                    let bonus = `+${hatBonuses[tier]} фуз`;
+                    
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('hat', '${id}')">
                             ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
                             <img src="${allHats[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allHats[id].name}</div>
+                            <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
+                            <div class="item-bonus" style="color: #4CAF50;">${bonus}</div>
                         </div>
                     `;
                 });
@@ -72,11 +85,18 @@
                     let tier = player.artifactTiers[id] || 0;
                     let tierClass = tier === 1 ? 'tier-bronze' : (tier === 2 ? 'tier-silver' : (tier === 3 ? 'tier-gold' : (tier === 4 ? 'tier-diamond' : '')));
                     
+                    // Информация о версии и бонусе
+                    let tName = tierNames[tier];
+                    let tColor = tierColors[tier];
+                    let bonus = `+${artifactBonuses[tier]}%`;
+                    
                     container.innerHTML += `
                         <div class="wardrobe-item ${isEquipped ? 'equipped' : ''}" onclick="equipItem('artifact', '${id}')">
                             ${isEquipped ? '<span class="equipped-text">Надел</span>' : ''}
                             <img src="${allArtifacts[id].img}" class="${tierClass}">
                             <div style="font-size:11px; font-weight:bold;">${allArtifacts[id].name}</div>
+                            <div class="item-tier-name" style="color: ${tColor};">${tName}</div>
+                            <div class="item-bonus" style="color: #2196F3;">${bonus}</div>
                         </div>
                     `;
                 });
@@ -87,10 +107,7 @@
             if (type === 'hat') player.equippedHat = id;
             else player.equippedArtifact = id;
             
-            // ЗВУК ПРИ НАДЕВАНИИ ВЕЩИ
-            playSound('click');
-            vibrate(15);
-
+            playSound('click'); vibrate(15);
             saveGame();
             renderWardrobe();
             showToast("Надето!");
