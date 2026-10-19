@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Меню</title>
-    <link rel="stylesheet" href="style.css?v=26">
+    <link rel="stylesheet" href="style.css?v=30">
     <style>
         .admin-modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 9999; justify-content: center; align-items: center; }
         .admin-box { background: #222; padding: 15px; border-radius: 10px; border: 2px solid #FF9800; width: 90%; max-width: 400px; text-align: center; }
@@ -32,18 +32,37 @@
         <a href="craft.html" class="btn-green">Крафт</a>
         <a href="shop.html" class="btn-green" style="background:#FF9800;">Буст</a>
         
-        <!-- КНОПКИ СОХРАНЕНИЯ В САМОМ НИЗУ -->
-        <div class="save-load-container" style="margin-top: auto;">
+        <!-- НОВЫЙ БЛОК С ИНФОРМАЦИЕЙ -->
+        <div style="margin-top: auto; display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 5px;">
+            <span style="font-size: 13px; color: #aaa;">Сохранить или загрузить прогресс</span>
+            <button class="info-btn" onclick="document.getElementById('info-modal').style.display='flex'">!</button>
+        </div>
+
+        <div class="save-load-container" style="margin-bottom: 20px;">
             <button class="btn-save" onclick="openSaveModal()">💾 Сохранить</button>
             <button class="btn-load" onclick="openLoadModal()">📂 Загрузить</button>
         </div>
     </div>
 
-    <!-- МОДАЛЬНЫЕ ОКНА -->
+    <!-- ОКНО С ИНСТРУКЦИЕЙ -->
+    <div id="info-modal" class="save-modal">
+        <div class="save-box" style="border-color: #FFEB3B;">
+            <h3 style="color:#FFEB3B; margin-top:0;">Как сохранить прогресс?</h3>
+            <p style="font-size:14px; line-height:1.5; color:#ccc; margin-bottom:20px; text-align:left;">
+                <b>Чтобы сохранить:</b><br>
+                Нажми кнопку <b>«Сохранить»</b> ниже, скопируй появившийся код и отправь его себе в Telegram (в «Избранное») или сохрани в заметках.<br><br>
+                <b>Чтобы загрузить:</b><br>
+                Нажми <b>«Загрузить»</b>, вставь свой код в поле и подтверди.
+            </p>
+            <button class="btn-green" style="width:100%; background:#FFEB3B; color:#000; margin:0;" onclick="document.getElementById('info-modal').style.display='none'">Понятно</button>
+        </div>
+    </div>
+
+    <!-- МОДАЛЬНЫЕ ОКНА СОХРАНЕНИЯ -->
     <div id="save-modal" class="save-modal">
         <div class="save-box">
             <h3 style="color:#2196F3; margin-top:0;">Сохранение прогресса</h3>
-            <p style="font-size:12px; color:#aaa;">Скопируйте этот код и сохраните в заметках или Telegram:</p>
+            <p style="font-size:12px; color:#aaa;">Скопируйте этот код и сохраните в заметках:</p>
             <textarea id="save-code-text" readonly></textarea>
             <button class="btn-green" style="width:100%; background:#2196F3; margin:5px 0;" onclick="copySaveCode()">Копировать код</button>
             <button class="btn-back" style="width:100%; margin-top:5px;" onclick="document.getElementById('save-modal').style.display='none'">Закрыть</button>
@@ -60,6 +79,7 @@
         </div>
     </div>
 
+    <!-- СЕКРЕТНОЕ МЕНЮ -->
     <div id="admin-choice-panel" class="admin-modal">
         <div class="admin-box">
             <h3 style="color:#FFD700; margin-top:0;">Секретное меню</h3>
@@ -79,7 +99,7 @@
         </div>
     </div>
 
-    <script src="script.js?v=26"></script>
+    <script src="script.js?v=30"></script>
     <script>
         updateBalanceUI();
 
@@ -112,7 +132,6 @@
             showToast("Баланс изменен!");
         }
 
-        // ЛОГИКА СОХРАНЕНИЙ
         function openSaveModal() {
             let data = JSON.stringify(player);
             let encoded = btoa(unescape(encodeURIComponent(data)));
@@ -146,9 +165,9 @@
         }
     </script>
     <script>
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
-        window.Capacitor.Plugins.StatusBar.hide();
-    }
-</script>
+        if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
+            window.Capacitor.Plugins.StatusBar.hide();
+        }
+    </script>
 </body>
 </html>
