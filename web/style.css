@@ -188,3 +188,69 @@ img { -webkit-touch-callout: none; }
 .info-btn:active {
     transform: scale(0.9);
 }
+
+/* Базовое парение для всех */
+@keyframes floatIdle {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-15px); }
+    100% { transform: translateY(0px); }
+}
+.idle-float { animation: floatIdle 3s ease-in-out infinite; }
+
+/* Неоновое свечение (Кот) */
+@keyframes neonPulse {
+    0% { filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)) drop-shadow(0 0 10px #00FFFF); }
+    50% { filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)) drop-shadow(0 0 30px #00FFFF); }
+    100% { filter: drop-shadow(0px 15px 15px rgba(0,0,0,0.8)) drop-shadow(0 0 10px #00FFFF); }
+}
+.neon-effect { animation: neonPulse 1.5s infinite, floatIdle 3s ease-in-out infinite; }
+
+/* Вращение (Собака) */
+@keyframes spinCharacter {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+.spin-effect { animation: spinCharacter 4s linear infinite; }
+
+/* Облачко (Зомби) */
+.fart-cloud {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 50px;
+    height: 40px;
+    background: radial-gradient(circle, rgba(76, 175, 80, 0.8), transparent);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 0;
+    animation: fartExpand 1s ease-out forwards;
+}
+@keyframes fartExpand {
+    0% { transform: translateX(-50%) scale(0.5); opacity: 1; }
+    100% { transform: translateX(-50%) scale(2.5) translateY(-20px); opacity: 0; }
+}
+
+/* Искры (Кот) */
+.spark {
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background-color: #00FFFF;
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 50;
+    box-shadow: 0 0 10px #00FFFF;
+    animation: sparkFly 0.6s ease-out forwards;
+}
+@keyframes sparkFly {
+    0% { transform: translate(0, 0) scale(1); opacity: 1; }
+    100% { transform: translate(var(--sx), var(--sy)) scale(0); opacity: 0; }
+}
+
+/* Вспышка экрана при контр-ударе */
+@keyframes flashScreen {
+    0% { background-color: rgba(255, 255, 255, 0.4); }
+    100% { background-color: transparent; }
+}
+.screen-flash { animation: flashScreen 0.3s ease-out; }
