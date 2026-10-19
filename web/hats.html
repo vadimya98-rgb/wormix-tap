@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Шапки</title>
-    <link rel="stylesheet" href="style.css?v=53">
+    <link rel="stylesheet" href="style.css?v=62">
 </head>
 <body>
     <div class="top-bar">
@@ -12,18 +12,16 @@
         <div class="balance"><div><img src="images/fuz.png" class="coin-icon"> <span id="ui-fuzes">0</span></div></div>
     </div>
     <div class="content" id="shop-list"></div>
-    <script src="script.js?v=53"></script>
+    <script src="script.js?v=62"></script>
     <script>
         updateBalanceUI();
         let list = document.getElementById('shop-list');
 
-        // Проходимся по списку в порядке возрастания цены
+        // Берем список ID шапок в правильном порядке
         hatIdsOrder.forEach((id) => {
             if (player.hats.includes(id)) return; 
             let price = getItemPrice(id);
             let bonusText = getItemBonusText(id, 0);
-
-            // Сокращаем большие числа (10000 -> 10к)
             let priceText = price >= 1000000 ? (price / 1000000) + 'кк' : (price >= 1000 ? (price / 1000) + 'к' : price);
 
             list.innerHTML += `
@@ -43,7 +41,9 @@
         function buyItem(id, price) {
             if (player.fuzes >= price) {
                 playSound('buy'); vibrate(50); 
-                player.fuzes -= price; player.hats.push(id); player.hatTiers[id] = 0;
+                player.fuzes -= price; 
+                player.hats.push(id); 
+                player.hatTiers[id] = 0;
                 saveGame(); updateBalanceUI(); showToast("Куплено!");
                 let card = document.getElementById('card-' + id);
                 if(card) { card.style.opacity = '0'; setTimeout(() => { card.remove(); }, 300); }
