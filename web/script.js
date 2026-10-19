@@ -15,7 +15,8 @@ if (!Array.isArray(player.unlockedRaces)) {
     player.unlockedRaces = [];
     if (player.race) player.unlockedRaces.push(player.race); 
 }
-if (player.boostMultiplier > 4) {
+// Теперь максимальный буст может быть х5 (от Зайца)
+if (player.boostMultiplier > 5) {
     player.boostMultiplier = 1;
     player.boostEndTime = 0;
 }
@@ -83,16 +84,21 @@ const RACE_EFFECTS = {
 const allItemsConfig = {};
 const hatIdsOrder = ['shapka', 'krolik', 'pirat', 'hacker', 'viking', 'strazgi', 'samuray', 'temniy', 'paladin', 'vor', 'assassin', 'iluzionist', 'captain', 'fantom', 'inzhiner', 'okulayr', 'izverg', 'telepat', 'alhimik', 'psaiker', 'master_vetra', 'prizrak', 'imperator', 'respirator', 'slem', 'spetsnaz', 'gorayhii', 'voron', 'shaman_vudu', 'yakudza', 'korol', 'pobednui'];
 const hatPrices = [10000, 50000, 100000, 200000, 300000, 500000, 700000, 800000, 900000, 1000000, 1100000, 1200000, 1300000, 1400000, 1500000, 1600000, 1700000, 1800000, 1900000, 2000000, 2100000, 2200000, 2300000, 2400000, 2500000, 2600000, 2700000, 2800000, 2900000, 3000000, 3100000, 3200000];
+
+// НОВАЯ ФОРМУЛА: Первая шапка 5, вторая 20, третья 35... (шаг +15)
 hatIdsOrder.forEach((id, index) => {
-    let baseBonus = 2 + (index * 10); 
+    let baseBonus = 5 + (index * 15); 
     allItemsConfig[id] = { type: 'fuze', base: baseBonus, price: hatPrices[index] };
 });
+
 const artIdsOrder = ['zezl', 'shit', 'ucheniy', 'posoh', 'arhi', 'simbiot', 'arkhidemon'];
 const artPrices = [10000, 20000, 30000, 40000, 50000, 60000, 70000];
 artIdsOrder.forEach((id, index) => {
     allItemsConfig[id] = { type: 'ruby', base: 0.5, price: artPrices[index] };
 });
-const tierFuzesAdd = [0, 2, 4, 6, 8];
+
+// НОВЫЕ БОНУСЫ УЛУЧШЕНИЙ: [Стандарт, Бронза, Серебро, Золото, Алмаз]
+const tierFuzesAdd = [0, 2, 4, 5, 10];
 const artifactTierStats = [0.5, 0.6, 0.7, 0.8, 1.0];
 
 function getItemPrice(id) { return allItemsConfig[id] ? allItemsConfig[id].price : 5000; }
