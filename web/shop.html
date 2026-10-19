@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Магазин Бустов</title>
-    <link rel="stylesheet" href="style.css?v=44">
+    <link rel="stylesheet" href="style.css?v=46">
 </head>
 <body>
     <div class="top-bar">
@@ -16,14 +16,13 @@
     
     <div class="content" id="shop-list"></div>
 
-    <script src="script.js?v=44"></script>
+    <script src="script.js?v=46"></script>
     <script>
         updateBalanceUI();
         
-        // ОБНОВЛЕННЫЕ БУСТЫ (x3 и x6)
         const boosts = [
-            { name: 'x3 Буст (10 мин)', cost: 50, mult: 3, time: 10, highlight: true },
-            { name: 'x6 Буст (10 мин)', cost: 100, mult: 6, time: 10, highlight: true }
+            { name: 'x2 Буст (10 мин)', cost: 50, mult: 2, time: 10, highlight: true },
+            { name: 'x4 Буст (10 мин)', cost: 100, mult: 4, time: 10, highlight: true }
         ];
 
         let list = document.getElementById('shop-list');
@@ -45,28 +44,15 @@
 
         function buyBoost(index) {
             let b = boosts[index];
-            
             if (player.rubies >= b.cost) {
-                playSound('buy');
-                vibrate(50);
-
+                playSound('buy'); vibrate(50);
                 player.rubies -= b.cost;
                 player.boostMultiplier = b.mult;
-                
                 let now = Date.now();
-                if (player.boostEndTime > now) { 
-                    player.boostEndTime += b.time * 60000; 
-                } else { 
-                    player.boostEndTime = now + (b.time * 60000); 
-                }
-                
-                saveGame(); 
-                updateBalanceUI(); 
-                showToast(`Буст x${b.mult} активирован!`);
+                if (player.boostEndTime > now) { player.boostEndTime += b.time * 60000; } else { player.boostEndTime = now + (b.time * 60000); }
+                saveGame(); updateBalanceUI(); showToast(`Буст x${b.mult} активирован!`);
             } else { 
-                playSound('fail'); 
-                vibrate([100, 50, 100]);
-                showToast("Недостаточно средств!", true); 
+                playSound('fail'); vibrate([100, 50, 100]); showToast("Недостаточно средств!", true); 
             }
         }
     </script>
