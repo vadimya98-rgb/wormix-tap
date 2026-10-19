@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>Расса</title>
-    <link rel="stylesheet" href="style.css?v=2">
+    <link rel="stylesheet" href="style.css?v=34">
 </head>
 <body>
     <div class="top-bar">
@@ -26,12 +26,20 @@
             <div class="race-wrapper" onclick="changeRace('images/rabit.png')"><img src="images/rabit.png" class="race-img"></div>
         </div>
     </div>
-    <script src="script.js?v=2"></script>
+    <script src="script.js?v=34"></script>
     <script>
         updateBalanceUI();
         function changeRace(newRace) {
-            if (newRace === player.race) { showToast("У вас уже выбрана эта раса!", true); return; }
+            if (newRace === player.race) { 
+                showToast("У вас уже выбрана эта раса!", true); 
+                return; 
+            }
             if (player.fuzes >= 1500) {
+                
+                // ЗВУК ПРИ СМЕНЕ РАСЫ
+                playSound('click');
+                vibrate(15);
+
                 player.fuzes -= 1500;
                 player.race = newRace;
                 saveGame();
@@ -42,10 +50,5 @@
             }
         }
     </script>
-    <script>
-    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.StatusBar) {
-        window.Capacitor.Plugins.StatusBar.hide();
-    }
-</script>
 </body>
 </html>
