@@ -4,26 +4,6 @@ let player = JSON.parse(localStorage.getItem('wormixSave')) || {
     hatTiers: {}, artifactTiers: {}, lastBonusTime: 0, bonusDay: 1
 };
 
-// --- СИСТЕМА ЗВУКОВ И ВИБРАЦИИ ---
-const sounds = {
-    tap: new Audio('audio/tap.mp3'),
-    buy: new Audio('audio/buy.mp3'),
-    fail: new Audio('audio/fail.mp3'),
-    success: new Audio('audio/success.mp3')
-};
-
-function playSound(name) {
-    if (sounds[name]) {
-        sounds[name].currentTime = 0; // Перематываем в начало, чтобы можно было спамить
-        sounds[name].play().catch(e => console.log('Звук не загружен', e));
-    }
-}
-
-function vibrate(ms) {
-    if (navigator.vibrate) {
-        navigator.vibrate(ms);
-    }
-}
 if (!player.equippedHat) player.equippedHat = '';
 if (!player.equippedArtifact) player.equippedArtifact = '';
 if (!player.hatTiers) player.hatTiers = {};
@@ -59,6 +39,72 @@ function getPrice(itemId, isHat) {
 }
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
+// =========================================================================
+// СИСТЕМА ЗВУКОВ, МУЗЫКИ И ВИБРАЦИИ
+// =========================================================================
+const sounds = {
+    tap: new Audio('audio/tap.mp3'),
+    buy: new Audio('audio/buy.mp3'),
+    fail: new Audio('audio/fail.mp3'),
+    success: new Audio('audio/success.mp3'),
+    click: new Audio('audio/click.mp3'),
+    bgm: new Audio('audio/bgm.mp3')
+};
+
+// Настройка фоновой музыки
+sounds.bgm.loop = true;
+sounds.bgm.volume = 0.2; // Громкость 20% (тихо, чтобы не перебивать звуки)
+
+// Восстановление позиции музыки при переходе между страницами
+window.addEventListener('load', () => {
+    let savedTime = sessionStorage.getItem('bgmTime');
+    if (savedTime) {
+        sounds.bgm.currentTime = parseFloat(savedTime);
+    }
+});
+window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('bgmTime', sounds.bgm.currentTime);
+});
+
+// Запуск музыки при первом клике (обход блокировки браузера)
+let musicStarted = false;
+document.addEventListener('click', () => {
+    if (!musicStarted) {
+        sounds.bgm.play().catch(e => console.log('Ожидание клика для запуска музыки'));
+        musicStarted = true;
+    }
+}, { once: true }); // Сработает только один раз
+
+function playSound(name) {
+    if (sounds[name]) {
+        sounds[name].currentTime = 0; 
+        sounds[name].play().catch(e => console.log('Звук не загружен', e));
+    }
+}
+
+function vibrate(ms) {
+    if (navigator.vibrate) navigator.vibrate(ms);
+}
+
+// ГЛОБАЛЬНЫЙ ЗВУК ДЛЯ ВСЕХ КНОПОК
+document.addEventListener('DOMContentLoaded', () => {
+    document.body.addEventListener('click', (e) => {
+        // Проверяем, был ли клик по кнопке или ссылке (или внутри них)
+        let btn = e.target.closest('button');
+        let link = e.target.closest('a');
+        
+        if (btn || link) {
+            // Исключаем кнопки сохранения/загрузки, чтобы не спамить звуком
+            let text = e.target.innerText || "";
+            if (text.includes('Сохранить') || text.includes('Загрузить')) return; 
+            
+            playSound('click');
+            vibrate(15);
+        }
+    });
+});
+// =========================================================================
+
 const allHats = {
     'alhimik': { name: 'Алхимик', img: 'images/hats/alhimik.png' }, 'assassin': { name: 'Ассасин', img: 'images/hats/assassin.png' },
     'captain': { name: 'Капитан', img: 'images/hats/captain.png' }, 'fantom': { name: 'Фантом', img: 'images/hats/fantom.png' },
@@ -86,7 +132,7 @@ const allArtifacts = {
 };
 
 // =========================================================================
-// ВАШИ ГОТОВЫЕ НАСТРОЙКИ (ЗАШИТЫ В ИГРУ)
+// НАСТРОЙКИ ШАПОК И АРТЕФАКТОВ
 // =========================================================================
 const HAT_SETTINGS = {
     'images/dragon.png': {
@@ -243,7 +289,7 @@ const ARTIFACT_SETTINGS = {
         'zezl': { w: 85, y: 44, x: 62 },
         'simbiot': { w: 79, y: 40, x: 65 },
         'posoh': { w: 110, y: 51, x: 14 },
-        'ucheniy': { w: 78, y: 44, x: 79 },
+        'ucheniy': { w: 78, y: 44, x: 79 }
     },
     'images/zombie.png': {
         'arhi': { w: 94, y: 79, x: 66 }, 'arkhidemon': { w: 140, y: 43, x: 8 },
