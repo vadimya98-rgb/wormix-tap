@@ -39,6 +39,27 @@ function getPrice(itemId, isHat) {
 }
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); });
 
+// СИСТЕМА БОНУСОВ ОТ ЭКИПИРОВКИ (НОВЫЕ ЗНАЧЕНИЯ)
+// =========================================================================
+const hatBonuses = [1, 2, 3, 4, 5]; // Стандарт, Бронза, Серебро, Золото, Алмаз
+const artifactBonuses = [0.2, 0.5, 0.7, 0.9, 1.2]; // В процентах
+
+function getEquippedStats() {
+    let addFuzes = 0;
+    let addRubyChance = 0;
+
+    if (player.equippedHat && player.hatTiers[player.equippedHat] !== undefined) {
+        let tier = player.hatTiers[player.equippedHat];
+        addFuzes = hatBonuses[tier];
+    }
+    if (player.equippedArtifact && player.artifactTiers[player.equippedArtifact] !== undefined) {
+        let tier = player.artifactTiers[player.equippedArtifact];
+        addRubyChance = artifactBonuses[tier];
+    }
+    return { addFuzes, addRubyChance };
+}
+// =========================================================================
+
 // =========================================================================
 // СИСТЕМА ЗВУКОВ И ВИБРАЦИИ (БЕЗ ФОНОВОЙ МУЗЫКИ)
 // =========================================================================
